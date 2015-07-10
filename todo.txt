@@ -1,1 +1,13 @@
+
 http://cloud9ide.zendesk.com/requests/44276#/satisfaction
+
+1) Сделать ссылку на примеры 
+
+2) и начать делать полноценные примеры
+
+Учебные материалы:
+
+http://docs.sencha.com/extjs/4.2.3/#!/guide/keyboard_nav
+http://docs.sencha.com/extjs/5.0/application_architecture/application_architecture.html
+http://dev.sencha.com/extjs/5.1.0/examples/kitchensink/?theme=crisp#panel-header-position
+http://docs.sencha.com/extjs/5.1/5.1.0-apidocs/#!/api/Ext.data.soap.Proxy

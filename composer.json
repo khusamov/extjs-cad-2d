@@ -1,0 +1,9 @@
+{
+	"name": "khusamov/extjs",
+	"description": "Библиотека дополнительных компонент под Ext JS",
+	"version": "0.1",
+	"authors": [{
+		"name": "Хусамов Сухроб",
+		"email": "khusamov@yandex.ru"
+	}]
+}
