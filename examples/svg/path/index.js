@@ -32,7 +32,7 @@ Ext.onReady(function() {
 		}
 	});
 	
-	path.getGeometry().move(100, 100).arc([300, 100], 20);
+	path.getGeometry().move(500, 200).arc([300, 100], 20).close();
 
 });
 

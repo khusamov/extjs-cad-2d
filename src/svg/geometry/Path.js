@@ -13,7 +13,8 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		"Khusamov.svg.geometry.path.MoveBy",
 		"Khusamov.svg.geometry.path.Line",
 		"Khusamov.svg.geometry.path.LineBy",
-		"Khusamov.svg.geometry.path.Arc"
+		"Khusamov.svg.geometry.path.Arc",
+		"Khusamov.svg.geometry.path.Close"
 	],
 	
 	statics: {
