@@ -16,6 +16,8 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		
 		/**
 		 * Расстояние от начала координат до точки.
+		 * @param {Array[x, y] | Khusamov.svg.geometry.Point} point
+		 * @return {Number}
 		 */
 		distance: function(point) {
 			point = arguments.length == 2 ? Ext.Array.slice(arguments) : point;

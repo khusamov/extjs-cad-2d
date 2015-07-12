@@ -335,7 +335,8 @@ Ext.define("Khusamov.svg.geometry.Polyline", {
 		var me = this;
 		var result = 0;
 		me.each(function(point, index) {
-			result += point.distance(me.getNextPoint(index));
+			var next = me.getNextPoint(index);
+			result += next ? point.distance(next) : 0;
 		});
 		return result;
 	},
