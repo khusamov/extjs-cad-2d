@@ -8,9 +8,28 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	extend: "Khusamov.svg.geometry.Primitive",
 	
-	requires: ["Khusamov.svg.geometry.Point", "Khusamov.svg.geometry.vector.Vector"],
+	requires: [
+		"Ext.draw.Matrix",
+		"Khusamov.svg.geometry.Point", 
+		"Khusamov.svg.geometry.vector.Vector"
+	],
 	
 	statics: {
+		
+		transform: function(linear, matrix) {
+			var split = matrix.split();
+			var rotation = Ext.create("Ext.draw.Matrix");
+			rotation.rotate(split.rotation);
+			var translation = Ext.create("Ext.draw.Matrix");
+			translation.translate(split.translateX, split.translateY);
+			
+			var normal = rotation.transformPoint(linear.getNormalVector().toArray());
+			normal = Ext.create("Khusamov.svg.geometry.Vector", normal);
+			
+			var point = translation.transformPoint([0, linear.y(0)]);
+			
+			return this.createByNormal(normal, point);
+		},
 		
 		/**
 		 * Создать линейное уравнение прямой по двум точкам.
@@ -155,6 +174,19 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	},
 	
 	/**
+	 * Получить угол между прямой и осью Ох (в диапазоне от -PI до PI).
+	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
+	 * @return {Number}
+	 */
+	getAngle: function(unit) {
+		return this.getParallel().getAngle(unit);
+	},
+	
+	getTransformLinear: function(matrix) {
+		return Khusamov.svg.geometry.equation.Linear.transform(this, matrix);
+	},
+	
+	/**
 	 * Нормаль прямой (единичный вектор, перпендикулярный прямой).
 	 * @return Khusamov.svg.geometry.vector.Vector
 	 */
@@ -229,26 +261,29 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	/**
 	 * Найти точку пересечения с другой прямой.
-	 * @param linear Khusamov.svg.geometry.equation.Linear
-	 * @return Khusamov.svg.geometry.Point
+	 * @param {Khusamov.svg.geometry.equation.Linear | Khusamov.svg.geometry.equation.Circular} primitive 
+	 * @return {Khusamov.svg.geometry.Point || Khusamov.svg.geometry.Point[] || null}
 	 */
-	intersection: function(linear) {
+	intersection: function(primitive) {
 		var me = this;
-		var a1 = me.a();
-		var b1 = me.b();
-		var c1 = me.c();
-		var a2 = linear.a();
-		var b2 = linear.b();
-		var c2 = linear.c();
-		if (a1 * b2 - a2 * b1 == 0) { throw new Error(
-			"Попытка найти пересечение паралельных прямых: " + 
-			me.toString() + ", " + 
-			linear.toString()
-		); }
-		return Ext.create("Khusamov.svg.geometry.Point", {
-			x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
-			y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
-		});
+		var result = null;
+		if (primitive.isCircular) {
+			var circular = primitive;
+			result = circular.intersection(me);
+		} else {
+			var linear = primitive;
+			var a1 = me.a();
+			var b1 = me.b();
+			var c1 = me.c();
+			var a2 = linear.a();
+			var b2 = linear.b();
+			var c2 = linear.c();
+			result = (a1 * b2 - a2 * b1 == 0) ? null : Ext.create("Khusamov.svg.geometry.Point", {
+				x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
+				y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
+			});
+		}
+		return result;
 	},
 	
 	/**
@@ -275,17 +310,23 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		return a1 * b2 + a2 * b1 == 0;
 	},
 	
-	toString: function() {
+	toString: function(fixed) {
 		var result = [];
-		
-		// TODO Выводить в форме Ax + Bx + C = 0
-		
-		result.push("Linear");
-		result.push("{");
-		result.push("a: " + String(this.a())) + ",";
-		result.push("b: " + String(this.b())) + ",";
-		result.push("c: " + String(this.c()));
-		result.push("}");
+		function koeff(k, v) {
+			k = fixed ? k.toFixed(fixed) : k;
+			return Number(k) ? k + (v || "") : "";
+		}
+		function push(k, v) {
+			var str = arguments.length == 2 ? koeff(k, v) : k;
+			if (str) result.push(str);
+		}
+		push("Linear");
+		push("{");
+		push(this.a(), "x +");
+		push(this.b(), "y" + (this.c() ? " +" : ""));
+		push(this.c(), null);
+		push("= 0");
+		push("}");
 		return result.join(" ");
 	},
 	
