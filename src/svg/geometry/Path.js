@@ -118,7 +118,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	onDataAdd: function(data, details) {
 		
-		console.info("onDataAdd", data, details.items);
+		//console.info("onDataAdd", data, details.items);
 		
 		this.fireEvent("update", "add", details.items);
 	},

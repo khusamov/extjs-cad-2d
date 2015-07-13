@@ -8,6 +8,8 @@ Ext.define("Khusamov.svg.geometry.Polyline", {
 	
 	requires: ["Khusamov.svg.geometry.Point", "Khusamov.svg.geometry.point.Collection"],
 	
+	uses: ["Khusamov.svg.geometry.Line"],
+	
 	statics: {
 		
 		/**
@@ -319,6 +321,18 @@ Ext.define("Khusamov.svg.geometry.Polyline", {
 		return this;
 	},
 	
+	eachPoint: function(fn, scope) {
+		this.points.each(fn, scope);
+		return this;
+	},
+	
+	eachLine: function(fn, scope) {
+		for (var index = 0; index < this.points.getCount(); index++) {
+			fn.call(scope, this.getLine(index), index);
+		}
+		return this;
+	},
+	
 	/**
 	 * Количество точек в полилинии.
 	 * @return {Number}
@@ -347,6 +361,10 @@ Ext.define("Khusamov.svg.geometry.Polyline", {
 	
 	getPoint: function(index) {
 		return this.points.getAt(index);
+	},
+	
+	getLine: function(index) {
+		return Ext.create("Khusamov.svg.geometry.Line", this.getPoint(index), this.getNextPoint(index));
 	},
 	
 	getNextPoint: function(index) {
