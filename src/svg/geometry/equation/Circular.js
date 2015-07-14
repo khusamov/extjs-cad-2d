@@ -8,11 +8,66 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	
 	extend: "Khusamov.svg.geometry.Primitive",
 	
-	requires: ["Ext.draw.Matrix", "Khusamov.svg.geometry.Line", "Khusamov.svg.geometry.Triangle"],
+	requires: [
+		"Ext.draw.Matrix", 
+		"Khusamov.svg.geometry.Point", 
+		"Khusamov.svg.geometry.Line", 
+		"Khusamov.svg.geometry.Triangle"
+	],
 	
 	statics: {
 		
-		
+		/**
+		 * Поиск центра окружности, если известны две точки, 
+		 * через которые она проходит и ее радиус.
+		 * Функция вернет два центра: первый центр слева, второй справа, 
+		 * если смотреть от первой точки на вторую.
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(x1, y1, x2, y2, radius);
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(Number[x1, y1], Number[x2, y2], radius);
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point, radius);
+		 * @return {Khusamov.svg.geometry.Point[]}
+		 */
+		findCenter: function() {
+			var point1, point2, radius;
+			if (arguments.length == 5) {
+				point1 = [arguments[0], arguments[1]];
+				point2 = [arguments[2], arguments[3]];
+				radius = arguments[4];
+			}
+			if (arguments.length == 3) {
+				point1 = arguments[0];
+				point2 = arguments[1];
+				radius = arguments[2];
+			}
+			point1 = Ext.isArray(point1) ? point1 : point1.toArray();
+			point2 = Ext.isArray(point2) ? point2 : point2.toArray();
+			
+			var matrix = Ext.create("Ext.draw.Matrix");
+			matrix.translate(-point1[0], -point1[1]);
+			
+			var chordLine = Ext.create("Khusamov.svg.geometry.Line", point1, point2);
+			var chord = chordLine.getLength();
+			var chordLinear = chordLine.toLinear();
+			matrix.rotate(-chordLinear.getAngle(), point1[0], point1[1]);
+			
+			var x = chord.getLength() / 2;
+			
+			var Triangle = Khusamov.svg.geometry.Triangle;
+			var triangle = Triangle.createByPerimeter(radius, chord, radius);
+			
+			var y = triangle.height();
+			
+			var result = [];
+			
+			result.push([x, y]);
+			result.push([x, -y]);
+			
+			// Первый центр слева, второй справа, если смотреть от первой точки на вторую.
+			return result.map(function(point) {
+				point = matrix.inverse().transformPoint(point);
+				return Ext.create("Khusamov.svg.geometry.Point", point);
+			});
+		}
 		
 	},
 	
@@ -85,8 +140,8 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	 * @return {Khusamov.svg.geometry.Point[] || null}
 	 */
 	intersection: function(primitive) {
-			
 		var result = [];
+		var x, y;
 		
 		var radius = this.getRadius();
 		var cx = this.getCenter().x();
@@ -94,7 +149,6 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 		
 		var matrix = Ext.create("Ext.draw.Matrix");
 		matrix.translate(-cx, -cy);
-		
 		
 		var Triangle = Khusamov.svg.geometry.Triangle;
 		
@@ -105,23 +159,18 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			var bridge = bridgeLine.getLength();
 			var bridgeLinear = bridgeLine.toLinear();
 			
-			console.log(bridgeLinear.getAngle(Khusamov.svg.geometry.Angle.DEGREE));
-			
 			matrix.rotate(-bridgeLinear.getAngle(), cx, cy);
-			
 			
 			if (radius + circular.getRadius() < bridge) return null;
 			
 			var triangle1 = Triangle.createByPerimeter(circular.getRadius(), bridge, radius);
-			var y = triangle1.height();
+			y = triangle1.height();
 			
 			var triangle2 = Triangle.createByPerimeter(radius, 2 * y, radius);
-			var x = triangle2.height();
+			x = triangle2.height();
 			
 			result.push([x, y]);
 			if (radius + circular.getRadius() > bridge) result.push([x, -y]);
-			
-			
 		}
 		
 		if (primitive.isLinear) {
@@ -131,21 +180,20 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			
 			linear = linear.getTransformLinear(matrix);
 			
-			var x = -linear.c() / linear.a();
+			x = -linear.c() / linear.a();
 			
 			if (radius < x) return null;
 			
-			var y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
+			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
 			
 			result.push([x, y]);
 			
 			if (radius > x) result.push([x, -y]);
 		}
 		
-		
-		
 		return result.map(function(point) {
-			return Ext.create("Khusamov.svg.geometry.Point", matrix.inverse().transformPoint(point));
+			point = matrix.inverse().transformPoint(point);
+			return Ext.create("Khusamov.svg.geometry.Point", point);
 		});
 
 	},
