@@ -79,6 +79,10 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	 */
 	toLinear: function() {
 		return Khusamov.svg.geometry.equation.Linear.createByLine(this);
+	},
+	
+	getAngle: function(unit) {
+		return this.toLinear().getAngle(unit);
 	}
 	
 });
