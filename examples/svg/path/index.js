@@ -32,7 +32,15 @@ Ext.onReady(function() {
 		}
 	});
 	
-	path.getGeometry().move(500, 200).arc([300, 100], 20).close();
+	var geometry = path.getGeometry();
+	
+	
+	
+	
+	geometry.point(500, 200).arc(20).point(300, 100).line().close();
+
+
+	console.log(geometry.toString());
 
 });
 
