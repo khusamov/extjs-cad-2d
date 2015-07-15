@@ -59,7 +59,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	getLastPoint: function(absolute) {
-		return this.getSubpath().isClosed() ? this.getNextSegment().getFirstPoint(absolute) : this.getSubpath().getLastPoint(absolute);
+		var subpath = this.getSubpath();
+		return this.isLast() && !subpath.isClosed() ? subpath.getLastPoint(absolute) : this.getNextSegment().getFirstPoint(absolute);
 	},
 	
 	toString: function(body) {
@@ -72,7 +73,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		if (me.isLast() && me.getSubpath().isClosed()) {
 			result.push("Z");
 		}
-		return result.join(", ");
+		return result.join(" ");
 	}
 	
 });

@@ -7,11 +7,20 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		
 		radius: [0, 0],
 		
-		xAxisRotation: 0,
+		/**
+		 * xAxisRotation
+		 */
+		rotation: 0,
 		
-		largeArcFlag: false,
+		/**
+		 * largeArcFlag
+		 */
+		large: false,
 		
-		sweepFlag: false
+		/**
+		 * sweepFlag
+		 */
+		sweep: false
 		
 	},
 	
@@ -34,9 +43,9 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		
 		result.push(me.getRadius()[0]);
 		result.push(me.getRadius()[1]);
-		result.push(me.getXAxisRotation());
-		result.push(me.getLargeArcFlag() ? 1 : 0);
-		result.push(me.getSweepFlag() ? 1 : 0);
+		result.push(me.getRotation());
+		result.push(me.getLarge() ? 1 : 0);
+		result.push(me.getSweep() ? 1 : 0);
 		
 		result.push(me.getLastPoint().toString());
 		

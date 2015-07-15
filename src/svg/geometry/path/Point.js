@@ -32,6 +32,10 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		me.callParent([config]);
 	},
 	
+	applyRelative: function(value) {
+		return !!value;
+	},
+	
 	toString: function() {
 		return String(this.x()) + " " + String(this.y());
 	},
@@ -42,7 +46,8 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	
 	toAbsolute: function() {
 		var point = this.clone();
-		return this.isRelative() ? point.move(this.getSegment().getPrevSegment().getFirstPoint(true)) : point;
+		var segment = this.getSegment() ? this.getSegment().getPrevSegment() : this.getSubpath().getLastSegment();
+		return this.isRelative() ? point.move(segment.getLastPoint(true)) : point;
 	}
 	
 });

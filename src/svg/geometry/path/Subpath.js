@@ -1,7 +1,7 @@
 
 Ext.define("Khusamov.svg.geometry.path.Subpath", {
 	
-	segments: [],
+	segments: null,
 	
 	config: {
 		
@@ -14,6 +14,7 @@ Ext.define("Khusamov.svg.geometry.path.Subpath", {
 	constructor: function(config) {
 		var me = this;
 		me.initConfig(config);
+		me.segments = [];
 	},
 	
 	applyLastPoint: function(point) {
@@ -84,7 +85,7 @@ Ext.define("Khusamov.svg.geometry.path.Subpath", {
 		me.segments.forEach(function(segment) {
 			result.push(segment.toString());
 		});
-		return result.join(", ");
+		return result.join(" ");
 	}
 	
 });

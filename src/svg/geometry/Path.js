@@ -23,49 +23,31 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		"Khusamov.svg.geometry.path.Subpath",
 		"Khusamov.svg.geometry.path.segment.Line",
 		"Khusamov.svg.geometry.path.segment.Arc"
-		/*"Khusamov.svg.geometry.path.Command",
-		"Khusamov.svg.geometry.path.Move",
-		"Khusamov.svg.geometry.path.MoveBy",
-		"Khusamov.svg.geometry.path.Line",
-		"Khusamov.svg.geometry.path.LineBy",
-		"Khusamov.svg.geometry.path.Arc",
-		"Khusamov.svg.geometry.path.Close"*/
 	],
 	
-	statics: {
-		
-		
-		
-	},
-	 
 	privates: {
+		
 		cursor: null,
-		//closed: false,
+		
+		newCursoredSubpath: false,
+		
 	},
 	
 	isPath: true,
 	
 	type: "path",
 	
-	subpaths: [],
+	subpaths: null,
 	
-	config: {
-		
-		
-		
-	},
-	
-	/**
-	 * Ext.create("Khusamov.svg.geometry.Path");
-	 */
-	constructor: function(config) {
-		var me = this;
-		
-		me.callParent([config]);
+	constructor: function() {
+		this.callParent(arguments);
+		this.subpaths = [];
+		this.cursor = null;
+		this.newCursoredSubpath = false;
 	},
 	
 	add: function(subpath) {
-		var added = subpath ? subpath : Ext.create("Khusamov.svg.geometry.path.Subpath")
+		var added = subpath ? subpath : Ext.create("Khusamov.svg.geometry.path.Subpath");
 		this.subpaths.push(added);
 		return added;
 	},
@@ -78,46 +60,51 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return this.subpaths[index];
 	},
 	
-	getFirstSubpath: function() {
-		return this.getSubpath(0);
-	},
-	
-	getLastSubpath: function() {
+	getCursoredSubpath: function() {
 		var last = this.getCount() ? this.getSubpath(this.getCount() - 1) : this.add();
-		if (last.isClosed()) last = this.add();
+		if (this.newCursoredSubpath) {
+			this.newCursoredSubpath = false;
+			last = this.add();
+		}
 		return last;
 	},
 	
 	
 	
 	
+	
 	addSegment: function(segment) {
-		return this.getLastSubpath().add(segment);
+		return this.getCursoredSubpath().add(segment);
 	},
 	
 	point: function(x, y, relative) {
-		this.cursor = Ext.Array.slice(arguments);
-		return this;
+		var me = this;
+		me.cursor = Ext.Array.slice(arguments);
+		return me;
 	},
 	
 	line: function() {
-		this.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Line", this.cursor));
-		this.cursor = null;
-		return this;
+		var me = this;
+		me.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Line", me.cursor));
+		me.cursor = null;
+		return me;
 	},
 	
 	arc: function(radius, config) {
-		this.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", this.cursor, radius, config));
-		this.cursor = null;
-		return this;
+		var me = this;
+		me.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", me.cursor, radius, config));
+		me.cursor = null;
+		return me;
 	},
 	
 	
 	close: function() {
-		var last = this.getLastSubpath();
-		if (this.cursor) last.setLastPoint(this.cursor); else last.close();
-		this.fireEvent("update");
-		return this;
+		var me = this;
+		var cursoredSubpath = me.getCursoredSubpath();
+		if (me.cursor) cursoredSubpath.setLastPoint(me.cursor); else cursoredSubpath.close();
+		me.newCursoredSubpath = true;
+		me.fireEvent("update");
+		return me;
 	},
 	
 	
@@ -132,7 +119,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		me.subpaths.forEach(function(subpath) {
 			result.push(subpath.toString());
 		});
-		return result.join(", ");
+		return result.join(" ");
 	},
 	
 	

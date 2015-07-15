@@ -34,14 +34,33 @@ Ext.onReady(function() {
 	
 	var geometry = path.getGeometry();
 	
+	geometry
 	
+		.point(100, 100)
+		.arc(50, { sweep: true })
+		.point(200, 100)
+		.line()
+		.point(200, 300)
+		.arc(50, { sweep: false })
+		.point(100, 300)
+		.line()
+		.close()
+		
+		.point(200, 310)
+		.arc(50, { sweep: true })
+		.point(100, 310)
+		.close()
+		
+		.point(200, 410)
+		.arc(50, { sweep: true })
+		.point(100, 410)
+		.line()
+		.close();
+
+	console.log("Подпуть 1:", geometry.subpaths[0].toString());
+	console.log("Подпуть 2:", geometry.subpaths[1].toString());
+	console.log("Подпуть 3:", geometry.subpaths[2].toString());
+	console.log("Весь путь:", geometry.toString());
 	
-	
-	geometry.point(500, 200).arc(20).point(300, 100).line().close();
-
-
-	console.log(geometry.toString());
-
 });
-
 
