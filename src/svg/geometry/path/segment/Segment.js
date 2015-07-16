@@ -12,6 +12,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	/**
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment");
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y);
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y, relative);
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Number[x, y]);

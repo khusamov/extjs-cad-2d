@@ -73,10 +73,6 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	
 	
-	addSegment: function(segment) {
-		return this.getCursoredSubpath().add(segment);
-	},
-	
 	/**
 	 * point(Khusamov.svg.geometry.path.Point);
 	 * point(Khusamov.svg.geometry.Point);
@@ -108,18 +104,19 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return this;
 	},
 	
+	segment: function(segment) {
+		segment.setPoint(this.cursor);
+		this.getCursoredSubpath().add(segment);
+		this.cursor = null;
+		return this;
+	},
+	
 	line: function() {
-		var me = this;
-		me.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Line", me.cursor));
-		me.cursor = null;
-		return me;
+		return this.segment(Ext.create("Khusamov.svg.geometry.path.segment.Line"));
 	},
 	
 	arc: function(radius, config) {
-		var me = this;
-		me.addSegment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", me.cursor, radius, config));
-		me.cursor = null;
-		return me;
+		return this.segment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config));
 	},
 	
 	

@@ -24,12 +24,18 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		
 	},
 	
+	/**
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc");
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point, radius);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point, radius, config);
+	 */
 	constructor: function(point, radius, config) {
 		var me = this;
 		config = config || {};
 		if (arguments.length == 1) config = point;
 		if (arguments.length > 1) {
-			config.point = point;
+			if (point) config.point = point;
 			config.radius = Ext.isNumber(radius) ? [radius, radius] : radius;
 		}
 		me.callParent([config]);
