@@ -12,15 +12,17 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	/**
-	 * x, y
-	 * x, y, relative
-	 * [x, y]
-	 * [x, y, relative]
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y, relative);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Number[x, y]);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Mixed[x, y, relative]);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Khusamov.svg.geometry.path.Point);
 	 */
 	constructor: function(config) {
 		var me = this;
 		if (arguments.length > 1) config = Ext.Array.slice(arguments);
 		if (Ext.isArray(config)) config = { point: config };
+		if (config instanceof Khusamov.svg.geometry.path.Point) config = { point: config };
 		me.initConfig(config);
 	},
 	
