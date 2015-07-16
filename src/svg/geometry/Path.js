@@ -77,10 +77,35 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return this.getCursoredSubpath().add(segment);
 	},
 	
+	/**
+	 * point(Khusamov.svg.geometry.path.Point);
+	 * point(Khusamov.svg.geometry.Point);
+	 * point([x, y]);
+	 * point([x, y, relative]);
+	 * 
+	 * point(x, y);
+	 * point([x, y], relative);
+	 * point(Khusamov.svg.geometry.path.Point, relative);
+	 * point(Khusamov.svg.geometry.Point, relative);
+	 * 
+	 * point(x, y, relative);
+	 */
 	point: function(x, y, relative) {
-		var me = this;
-		me.cursor = Ext.Array.slice(arguments);
-		return me;
+		if (arguments[0] instanceof Khusamov.svg.geometry.path.Point) {
+			this.cursor = arguments[0];
+			if (arguments.length == 2) this.cursor.setRelative(arguments[1]);
+		} else {
+			if (arguments.length == 1) {
+				this.cursor = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0]);
+			}
+			if (arguments.length == 2 && !Ext.isNumber(x)) {
+				this.cursor = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0], arguments[1]);
+			}
+			if (arguments.length == 3 || arguments.length == 2 && Ext.isNumber(x)) {
+				this.cursor = Ext.Array.slice(arguments);
+			}
+		}
+		return this;
 	},
 	
 	line: function() {

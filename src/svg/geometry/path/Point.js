@@ -16,6 +16,7 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	/**
 	 * Ext.create("Khusamov.svg.geometry.Point", x, y, relative);
 	 * Ext.create("Khusamov.svg.geometry.Point", [x, y], relative);
+	 * Ext.create("Khusamov.svg.geometry.Point", Khusamov.svg.geometry.Point, relative);
 	 * Ext.create("Khusamov.svg.geometry.Point", [x, y, relative]);
 	 */
 	constructor: function(config) {
@@ -25,6 +26,9 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		}
 		if (arguments.length == 2 && Ext.isArray(config)) {
 			config = { x: config[0], y: config[1], relative: arguments[1] };
+		}
+		if (arguments.length == 2 && config instanceof Khusamov.svg.geometry.Point) {
+			config = { x: config.x(), y: config.y(), relative: arguments[1] };
 		}
 		if (arguments.length == 3) {
 			config = { x: arguments[0], y: arguments[1], relative: arguments[2] };
