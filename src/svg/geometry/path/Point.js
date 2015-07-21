@@ -9,7 +9,7 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		
 		segment: null,
 		
-		subpath: null
+		path: null
 		
 	},
 	
@@ -50,7 +50,7 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	
 	toAbsolute: function() {
 		var point = this.clone();
-		var segment = this.getSegment() ? this.getSegment().getPrevSegment() : this.getSubpath().getLastSegment();
+		var segment = this.getSegment() ? this.getSegment().getPrevSegment() : this.getPath().getLastSegment();
 		return this.isRelative() ? point.move(segment.getLastPoint(true)) : point;
 	}
 	

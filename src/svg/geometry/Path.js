@@ -2,15 +2,12 @@
 /**
  * Путь (сложная линия) на плоскости.
  * 
- * 
  * Структура класса
  * 
- * Путь (path) состоит из частей пути (subpath).
- * Каждая часть пути (subpath) состоит из сегментов (segment).
- * В пути хранится массив точек (вершины пути) для каждого сегмента одна вершина.
- * Каждый сегмент имеет тип: line, arc.
- * Также каждый сегмент имеет опции (для каждого типа свои).
- * Каждая часть пути (subpath) автоматически заканчивается командой closepath, если за ним идет еще часть пути.
+ * Путь (path) состоит из сегментов (segment).
+ * Каждый сегмент имеет первую точку.
+ * Путь может иметь последнюю точку. Если ее нет, то путь замыкается на первой.
+ * Точки (сегментов и последняя точка в пути) имеют опцию relative.
  * 
  */
 
@@ -25,6 +22,217 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		"Khusamov.svg.geometry.path.segment.Arc"
 	],
 	
+	isPath: true,
+	
+	type: "path",
+	
+	config: {
+		
+		closed: false,
+		
+		/**
+		 * Последняя точка пути.
+		 * Если равно null, то последней точкой является первая точка пути.
+		 * @cfg {Khusamov.svg.geometry.path.Point}
+		 */
+		lastPoint: null
+		
+	},
+	
+	constructor: function() {
+		this.callParent(arguments);
+		
+		/**
+		 * Массив сегментов пути.
+		 * @property {Array}
+		 */
+		this.segments = [];
+		
+		
+		/*this.cursor = null;
+		this.newCursoredSubpath = false;*/
+	},
+	
+	applyLastPoint: function(point) {
+		if (point) {
+			point = Ext.isArray(point) ? Ext.create("Khusamov.svg.geometry.path.Point", point) : point;
+			point.setPath(this);
+		}
+		return point;
+	},
+	
+	getLastPoint: function(absolute) {
+		return absolute ? this.callParent().toAbsolute() : this.callParent();
+	},
+	
+	add: function(segment) {
+		segment.setPath(this);
+		this.segments.push(segment);
+		return segment;
+	},
+	
+	indexOf: function(segment) {
+		return this.segments.indexOf(segment);
+	},
+	
+	getCount: function() {
+		return this.segments.length;
+	},
+	
+	clear: function() {
+		this.segments = [];
+		this.setClosed(false);
+		this.setLastPoint(null);
+		this.fireEvent("update");
+	},
+	
+	isClosed: function() {
+		return this.getClosed();
+	},
+	
+	getSegment: function(index) {
+		return this.segments[index];
+	},
+	
+	getFirstSegment: function() {
+		return this.getSegment(0);
+	},
+	
+	getLastSegment: function() {
+		return this.getSegment(this.getCount() - 1);
+	},
+	
+	getNextSegment: function(index) {
+		var segment = this.getSegment(index + 1);
+		return segment ? segment : this.getFirstSegment();
+	},
+	
+	getPrevSegment: function(index) {
+		var segment = this.getSegment(index - 1);
+		return segment ? segment : this.getLastSegment();
+	},
+	
+	eachSegment: function(fn, scope) {
+		this.segments.forEach(fn, scope);
+	},
+	
+	toString: function() {
+		var me = this;
+		var result = [];
+		me.segments.forEach(function(segment) {
+			result.push(segment.toString());
+		});
+		return result.join(" ");
+	},
+	
+	
+	
+	
+	
+	
+	
+	getPoint: function(index) {
+		var me = this;
+		var segment = me.getSegment(index);
+		return segment ? segment.getPoint() : ((!me.isClosed() && index == me.getCount()) ? me.getLastPoint() : null);
+	},
+	
+	getPoints: function() {
+		var result = [];
+		this.segments.forEach(function(segment) {
+			result.push(segment.getPoint());
+		});
+		var last = this.getLastPoint();
+		if (last) result.push(last);
+		return result;
+	},
+	
+	eachPoint: function(fn, scope) {
+		this.getPoints().forEach(fn, scope);
+	},
+	
+	/**
+	 * Площадь многоугольника, образованного путем (как если сегменты были бы прямыми), со знаком обхода вершин.
+	 * Положительное число - Путь задан по часовой стрелке (при условии что ось Оу смотрит вверх).
+	 * Но обычно ось Оу смотрит вниз, поэтому положительное число указывает о направлении против часовой стрелки.
+	 */
+	getPolygonRawArea: function() {
+		var me = this;
+		var result = 0;
+		me.eachPoint(function(point, index) {
+			var next = me.getPoint(index + 1);
+			next = next ? next : me.getPoint(0);
+			result += ((next.y() + point.y()) / 2) * (next.x() - point.x());
+		});
+		return result;
+	},
+	
+	/**
+	 * Ось Оу обращена вниз (ситуация по умолчанию):
+	 * Возвращает false при условии что путь задан по часовой стрелке и ось Оу смотрит вверх.
+	 * Возвращает true при условии что путь задан против часовой стрелке и ось Оу смотрит вниз.
+	 * Ось Оу обращена наверх:
+	 * Возвращает true при условии что путь задан по часовой стрелке.
+	 * Возвращает false при условии что путь задан против часовой стрелке.
+	 */
+	isClockwiseDirection: function() {
+		var me = this;
+		return me.getPolygonRawArea() > 0;
+	},
+	
+	/**
+	 * Вывернуть путь наизнанку.
+	 */
+	turnOut: function() {
+		var me = this;
+		var points = me.getPoints().sort(function(point, next) {
+			return next.getIndex() - point.getIndex();
+		});
+		me.segments.sort(function(segment, next) {
+			return next.getIndex() - segment.getIndex();
+		});
+		points.forEach(function(point, index) {
+			var segment = me.getSegment(index);
+			if (segment) {
+				segment.setPoint(point);
+			} else {
+				me.setLastPoint(point);
+			}
+		});
+		me.fireEvent("update");
+		return me;
+	},
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*subpaths: null,
+	
 	privates: {
 		
 		cursor: null,
@@ -33,18 +241,6 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		
 	},
 	
-	isPath: true,
-	
-	type: "path",
-	
-	subpaths: null,
-	
-	constructor: function() {
-		this.callParent(arguments);
-		this.subpaths = [];
-		this.cursor = null;
-		this.newCursoredSubpath = false;
-	},
 	
 	add: function(subpath) {
 		var added = subpath ? subpath : Ext.create("Khusamov.svg.geometry.path.Subpath");
@@ -58,16 +254,16 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	getSubpath: function(index) {
 		return this.subpaths[index];
-	},
+	},*/
 	
-	getCursoredSubpath: function() {
+	/*getCursoredSubpath: function() {
 		var last = this.getCount() ? this.getSubpath(this.getCount() - 1) : this.add();
 		if (this.newCursoredSubpath) {
 			this.newCursoredSubpath = false;
 			last = this.add();
 		}
 		return last;
-	},
+	},*/
 	
 	
 	
@@ -87,27 +283,29 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * point(x, y, relative);
 	 */
 	point: function(x, y, relative) {
+		var point = null;
 		if (arguments[0] instanceof Khusamov.svg.geometry.path.Point) {
-			this.cursor = arguments[0];
-			if (arguments.length == 2) this.cursor.setRelative(arguments[1]);
+			point = arguments[0];
+			if (arguments.length == 2) point.setRelative(arguments[1]);
 		} else {
 			if (arguments.length == 1) {
-				this.cursor = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0]);
+				point = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0]);
 			}
 			if (arguments.length == 2 && !Ext.isNumber(x)) {
-				this.cursor = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0], arguments[1]);
+				point = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0], arguments[1]);
 			}
 			if (arguments.length == 3 || arguments.length == 2 && Ext.isNumber(x)) {
-				this.cursor = Ext.Array.slice(arguments);
+				point = Ext.Array.slice(arguments);
 			}
 		}
+		this.setLastPoint(point);
 		return this;
 	},
 	
 	segment: function(segment) {
-		segment.setPoint(this.cursor);
-		this.getCursoredSubpath().add(segment);
-		this.cursor = null;
+		segment.setPoint(this.getLastPoint());
+		this.setLastPoint(null);
+		this.add(segment);
 		return this;
 	},
 	
@@ -122,27 +320,11 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	close: function() {
 		var me = this;
-		var cursoredSubpath = me.getCursoredSubpath();
-		if (me.cursor) cursoredSubpath.setLastPoint(me.cursor); else cursoredSubpath.close();
-		me.newCursoredSubpath = true;
+		if (!me.getLastPoint()) me.setClosed(true);
 		me.fireEvent("update");
 		return me;
 	},
 	
-	
-	
-	
-	
-	
-	
-	toString: function() {
-		var me = this;
-		var result = [];
-		me.subpaths.forEach(function(subpath) {
-			result.push(subpath.toString());
-		});
-		return result.join(" ");
-	},
 	
 	
 	

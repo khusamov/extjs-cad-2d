@@ -5,7 +5,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	
 	config: {
 		
-		subpath: null,
+		path: null,
 		
 		point: [0, 0]
 		
@@ -34,7 +34,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	getIndex: function() {
-		return this.getSubpath().indexOf(this);
+		return this.getPath().indexOf(this);
 	},
 	
 	isFirst: function() {
@@ -42,15 +42,15 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	isLast: function() {
-		return this.getIndex() == this.getSubpath().getCount() - 1;
+		return this.getIndex() == this.getPath().getCount() - 1;
 	},
 	
 	getNextSegment: function(index) {
-		return this.getSubpath().getNextSegment(this.getIndex());
+		return this.getPath().getNextSegment(this.getIndex());
 	},
 	
 	getPrevSegment: function(index) {
-		return this.getSubpath().getPrevSegment(this.getIndex());
+		return this.getPath().getPrevSegment(this.getIndex());
 	},
 	
 	getPoint: function(absolute) {
@@ -62,8 +62,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	},
 	
 	getLastPoint: function(absolute) {
-		var subpath = this.getSubpath();
-		return this.isLast() && !subpath.isClosed() ? subpath.getLastPoint(absolute) : this.getNextSegment().getFirstPoint(absolute);
+		var path = this.getPath();
+		return this.isLast() && !path.isClosed() ? path.getLastPoint(absolute) : this.getNextSegment().getFirstPoint(absolute);
 	},
 	
 	toString: function(body) {
@@ -73,7 +73,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 			result.push("M " + me.getFirstPoint().toString());
 		}
 		result.push(body);
-		if (me.isLast() && me.getSubpath().isClosed()) {
+		if (me.isLast() && me.getPath().isClosed()) {
 			result.push("Z");
 		}
 		return result.join(" ");
