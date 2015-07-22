@@ -41,6 +41,26 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		me.callParent([config]);
 	},
 	
+	updateRadius: function() {
+		this.getPath().fireEvent("update");
+	},
+	
+	updateRotation: function() {
+		this.getPath().fireEvent("update");
+	},
+	
+	updateLarge: function() {
+		this.getPath().fireEvent("update");
+	},
+	
+	updateRadius: function() {
+		this.getPath().fireEvent("update");
+	},
+	
+	updateSweep: function() {
+		this.getPath().fireEvent("update");
+	},
+	
 	toString: function() {
 		var me = this;
 		var result = [];
