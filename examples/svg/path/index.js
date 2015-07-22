@@ -67,11 +67,9 @@ Ext.onReady(function() {
 		.point(200, 300)
 		.arc(50, { sweep: false })
 		.point(100, 300)
-		.line()
-		.close();
+		.line();
 
-	geometry.turnOut();
-	path.setGeometry(geometry);
+	//geometry.turnOut();
 
 
 	console.log(geometry.toString());

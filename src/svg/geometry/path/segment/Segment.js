@@ -63,7 +63,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	
 	getLastPoint: function(absolute) {
 		var path = this.getPath();
-		return this.isLast() && !path.isClosed() ? path.getLastPoint(absolute) : this.getNextSegment().getFirstPoint(absolute);
+		return this.isLast() && !path.closed ? path.lastPoint.toAbsolute() : this.getNextSegment().getFirstPoint(absolute);
 	},
 	
 	toString: function(body) {
@@ -73,7 +73,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 			result.push("M " + me.getFirstPoint().toString());
 		}
 		result.push(body);
-		if (me.isLast() && me.getPath().isClosed()) {
+		if (me.isLast() && me.getPath().closed) {
 			result.push("Z");
 		}
 		return result.join(" ");
