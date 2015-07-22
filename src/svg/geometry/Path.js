@@ -68,6 +68,33 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	},
 	
 	/**
+	 * Замещение сегмента.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	splice: function(index, deleteCount, segment) {
+		this.segments.splice(index, deleteCount, segment);
+		this.fireEvent("update");
+		return segment;
+	},
+	
+	/**
+	 * Заменить выбранный сегмент.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	replace: function(index, segment, savePoint) {
+		if (savePoint) segment.setPoint(this.getPoint(index));
+		return this.splice(index, 1, segment);
+	},
+	
+	/**
+	 * Вставка сегмента.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	insert: function(index, segment) {
+		return this.splice(index, 0, segment);
+	},
+	
+	/**
 	 * Получить индекс (порядковый номер) сегмента.
 	 * Индексы начинаются с нуля.
 	 * @return {Number}
@@ -234,6 +261,22 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 */
 	arc: function(radius, config) {
 		return this.segment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config));
+	},
+	
+	/**
+	 * Заменить выбранный сегмент на прямую.
+	 * @return {Khusamov.svg.geometry.path.segment.Line}
+	 */
+	replaceOfLine: function(index) {
+		return this.replace(Ext.create("Khusamov.svg.geometry.path.segment.Line"), true);
+	},
+	
+	/**
+	 * Заменить выбранный сегмент на арку.
+	 * @return {Khusamov.svg.geometry.path.segment.Arc}
+	 */
+	replaceOfArc: function(index, radius, config) {
+		return this.replace(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config), true);
 	},
 	
 	/**
