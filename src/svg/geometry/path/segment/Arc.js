@@ -42,23 +42,28 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	},
 	
 	updateRadius: function() {
-		this.getPath().fireEvent("update");
+		this.onParamUpdate();
 	},
 	
 	updateRotation: function() {
-		this.getPath().fireEvent("update");
+		this.onParamUpdate();
 	},
 	
 	updateLarge: function() {
-		this.getPath().fireEvent("update");
+		this.onParamUpdate();
 	},
 	
 	updateRadius: function() {
-		this.getPath().fireEvent("update");
+		this.onParamUpdate();
 	},
 	
 	updateSweep: function() {
-		this.getPath().fireEvent("update");
+		this.onParamUpdate();
+	},
+	
+	onParamUpdate: function() {
+		var path = this.getPath();
+		if (path) path.fireEvent("update");
 	},
 	
 	toString: function() {
