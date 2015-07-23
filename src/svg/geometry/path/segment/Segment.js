@@ -63,7 +63,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	
 	getLastPoint: function(absolute) {
 		var path = this.getPath();
-		return this.isLast() && !path.closed ? path.lastPoint.toAbsolute() : this.getNextSegment().getFirstPoint(absolute);
+		return this.isLast() && !path.closed ? (absolute ? path.lastPoint.toAbsolute() : path.lastPoint) : this.getNextSegment().getFirstPoint(absolute);
 	},
 	
 	getLength: function() {
