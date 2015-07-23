@@ -225,11 +225,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 				point = Ext.create("Khusamov.svg.geometry.path.Point", point);
 			}
 		}
-		
 		this.lastPoint = point;
 		this.lastPoint.setPath(this);
-		
 		this.closed = false;
+		this.fireEvent("update");
 		return this;
 	},
 	
