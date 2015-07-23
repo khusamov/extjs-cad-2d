@@ -18,8 +18,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	statics: {
 		
 		/**
-		 * Поиск центра окружности, если известны две точки, 
-		 * через которые она проходит и ее радиус.
+		 * Поиск центра окружности, если известны радиус и две точки, через которые она проходит.
 		 * Функция вернет два центра: первый центр слева, второй справа, 
 		 * если смотреть от первой точки на вторую.
 		 * Khusamov.svg.geometry.equation.Circular.findCenter(x1, y1, x2, y2, radius);
@@ -50,7 +49,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			var chordLinear = chordLine.toLinear();
 			matrix.rotate(-chordLinear.getAngle(), point1[0], point1[1]);
 			
-			var x = chord.getLength() / 2;
+			var x = chord / 2;
 			
 			var Triangle = Khusamov.svg.geometry.Triangle;
 			var triangle = Triangle.createByPerimeter(radius, chord, radius);
