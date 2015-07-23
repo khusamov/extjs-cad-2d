@@ -366,6 +366,17 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		});
 		me.fireEvent("update");
 		return me;
+	},
+	
+	/**
+	 * Длина пути.
+	 */
+	getLength: function() {
+		var result = 0;
+		this.eachSegment(function(segment) {
+			result += segment.getLength();
+		});
+		return result;
 	}
 	
 });
