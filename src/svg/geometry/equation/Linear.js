@@ -157,7 +157,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		var c = me.c();
 		var x = point.x();
 		var y = point.y();
-		return Math.abs(a * x + b * y + c) / me.normalLength();
+		return Math.abs(a * x + b * y + c) / me.getNormalVectorLength();
 	},
 	
 	/**
@@ -170,7 +170,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		var b1 = me.b();
 		var a2 = linear.a();
 		var b2 = linear.b();
-		return Math.acos(Math.abs(a1 * a2 + b1 * b2) / (me.normalLength() * linear.normalLength()));
+		return Math.acos(Math.abs(a1 * a2 + b1 * b2) / (me.getNormalVectorLength() * linear.getNormalVectorLength()));
 	},
 	
 	/**
