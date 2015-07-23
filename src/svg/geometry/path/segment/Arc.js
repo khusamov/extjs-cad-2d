@@ -77,8 +77,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		if (radius[0] == radius[1]) radius = radius[0];
 		if (Ext.isNumber(radius)) {
 			var center = Khusamov.svg.geometry.equation.Circular.findCenter(this.getFirstPoint(), this.getLastPoint(), radius);
-			var first = Ext.create("Khusamov.svg.geometry.Line", center, this.getFirstPoint()).toLinear();
-			var last = Ext.create("Khusamov.svg.geometry.Line", center, this.getLastPoint()).toLinear();
+			var first = Ext.create("Khusamov.svg.geometry.Line", center[0], this.getFirstPoint()).toLinear();
+			var last = Ext.create("Khusamov.svg.geometry.Line", center[0], this.getLastPoint()).toLinear();
 			length = radius * first.angleTo(last);
 		}
 		return length;
