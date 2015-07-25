@@ -1,9 +1,6 @@
 
 /**
  * Точка на плоскости.
- * 
- * 
- * 
  */
 
 Ext.define("Khusamov.svg.geometry.Point", {
@@ -94,6 +91,11 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		return this.getY();
 	},
 	
+	equal: function() {
+		var point = Khusamov.svg.geometry.Point.create.apply(Khusamov.svg.geometry.Point, arguments);
+		return point.x() == this.x() && point.y() == this.y();
+	},
+	
 	/**
 	 * Изменить координаты точки.
 	 * Point.move(x, y)
@@ -105,23 +107,32 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	 * @param point Array[x, y] | Khusamov.svg.geometry.Point
 	 * @return Khusamov.svg.geometry.Point
 	 */
-	move: function() {
+	moveTo: function() {
 		var me = this;
 		var newPosition = arguments.length == 2 ? Ext.Array.slice(arguments) : arguments[0];
 		newPosition = newPosition instanceof Khusamov.svg.geometry.Point ? newPosition.toArray() : newPosition;
 		var oldPosition = me.toArray();
-		me._x = me.applyX(newPosition[0]);
-		me._y = me.applyY(newPosition[1]);
+		
+		me.suspendEvents();
+		me.setX(me.applyX(newPosition[0]));
+		me.setY(me.applyY(newPosition[1]));
+		me.resumeEvents();
+		
 		me.fireEvent("update", "move", me, newPosition, oldPosition);
 		return me;
+	},
+	
+	// @deprecated
+	move: function() {
+		return this.moveTo.apply(this, arguments);
 	},
 	
 	/**
 	 * Относительное перемещение точек.
 	 */
-	moveBy: function(point) {
-		point = Khusamov.svg.geometry.Point.create.apply(Khusamov.svg.geometry.Point, arguments);
-		return this.move(this.x() + point.x(), this.y() + point.y());
+	moveBy: function() {
+		var point = Khusamov.svg.geometry.Point.create.apply(Khusamov.svg.geometry.Point, arguments);
+		return this.moveTo(this.x() + point.x(), this.y() + point.y());
 	},
 	
 	/**
@@ -169,7 +180,7 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		var radius = polar[1];
 		var x = radius * Math.cos(angle);
 		var y = radius * Math.sin(angle);
-		return me.move(x, y);
+		return me.moveTo(x, y);
 	},
 	
 	/**
@@ -190,7 +201,7 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	setRadius: function(radius) {
 		var me = this;
 		var scale = radius * Math.sqrt(Math.pow(me.x(), 2) + Math.pow(me.y(), 2));
-		return me.move(me.x() / scale, me.y() / scale);
+		return me.moveTo(me.x() / scale, me.y() / scale);
 		
 		/* этот код неверный, так как дает полкруга
 		в итоге при вращении вектора он на вторую половину круга не заходит
@@ -219,7 +230,7 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		var module = Math.sqrt(Math.pow(me.x(), 2) + Math.pow(me.y(), 2));
 		var x = module * Math.cos(angle);
 		var y = module * Math.sin(angle);
-		return me.move(x, y);
+		return me.moveTo(x, y);
 		
 		/*var polar = me.getPolar();
 		polar[0] = Number(angle);
