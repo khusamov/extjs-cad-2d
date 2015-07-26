@@ -258,10 +258,11 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	
 	/**
 	 * Получить координаты точки в виде строки (для формата SVG).
-	 * @return String
+	 * @return {String}
 	 */
-	toString: function() {
-		return String(this.x()) + ", " + String(this.y());
+	toString: function(fixed) {
+		var f = function(v) { return fixed !== undefined ? v.toFixed(fixed) : v; };
+		return String(f(this.x())) + ", " + String(f(this.y()));
 	}
 	
 });

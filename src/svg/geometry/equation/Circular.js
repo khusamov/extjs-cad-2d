@@ -41,12 +41,12 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			point1 = Ext.isArray(point1) ? point1 : point1.toArray();
 			point2 = Ext.isArray(point2) ? point2 : point2.toArray();
 			
-			var matrix = Ext.create("Ext.draw.Matrix");
-			matrix.translate(-point1[0], -point1[1]);
-			
-			var chordLine = Ext.create("Khusamov.svg.geometry.Line", point1, point2);
+			var chordLine = Ext.create("Khusamov.svg.geometry.Line", point2, point1);
 			var chord = chordLine.getLength();
 			var chordLinear = chordLine.toLinear();
+			
+			var matrix = Ext.create("Ext.draw.Matrix");
+			matrix.translate(-point1[0], -point1[1]);
 			matrix.rotate(-chordLinear.getAngle(), point1[0], point1[1]);
 			
 			var x = chord / 2;
@@ -56,12 +56,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			
 			var y = triangle.height();
 			
-			var result = [];
-			
-			result.push([x, y]);
-			result.push([x, -y]);
-			
-			// Первый центр слева, второй справа, если смотреть от первой точки на вторую.
+			var result = [[x, y], [x, -y]];
 			return result.map(function(point) {
 				point = matrix.inverse().transformPoint(point);
 				return Ext.create("Khusamov.svg.geometry.Point", point);
@@ -151,6 +146,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 		
 		var Triangle = Khusamov.svg.geometry.Triangle;
 		
+		// Точки пересечения окружности с другой окружностью
 		if (primitive.isCircular) {
 			var circular = primitive;
 			
@@ -172,6 +168,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			if (radius + circular.getRadius() > bridge) result.push([x, -y]);
 		}
 		
+		// Точки пересечения окружности с прямой линией
 		if (primitive.isLinear) {
 			var linear = primitive;
 			
@@ -181,13 +178,14 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			
 			x = -linear.c() / linear.a();
 			
-			if (radius < x) return null;
+			if (radius < Math.abs(x)) return null;
 			
 			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
 			
 			result.push([x, y]);
 			
 			if (radius > x) result.push([x, -y]);
+			
 		}
 		
 		return result.map(function(point) {
