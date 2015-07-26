@@ -20,14 +20,10 @@ Ext.onReady(function() {
 	
 	// Определяем прямую и окружность через их уравнения.
 	
-	var linear = Ext.create("Khusamov.svg.geometry.equation.Linear", 35, -55, 10);
-	var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", 130, 130, 80);
 	
-	// Находим их пересечения.
 	
-	var intersection = circular.intersection(linear);
-	
-	// Часть 2. Отображение решения на экране.
+	var linear = Ext.create("Khusamov.svg.geometry.equation.Linear", -201, -102, 173955);
+	var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", 680.889981443295, 218.92467537232847, 100);
 	
 	// Создаем холст.
 	
@@ -49,76 +45,142 @@ Ext.onReady(function() {
 	
 	// Создаем окружность и добавляем ее на холст.
 	
-	var circle = Ext.create("Khusamov.svg.element.Circle", circular.getCenter(), circular.getRadius());
-	circle.setStyle({
-		stroke: "black",
-		strokeWidth: 1,
-		fill: "transparent"
-	});
+	var circle = svg.add(Ext.create("Khusamov.svg.element.Circle", {
+		center: circular.getCenter(),
+		radius: circular.getRadius(),
+		draggable: true,
+		style: {
+			stroke: "black",
+			strokeWidth: 1,
+			fill: "transparent",
+			cursor: "pointer"
+		}
+	}));
 	
-	svg.add(circle);
+	// Управляющие линией кружки
 	
-	// Создаем линию и добавляем ее на холст.
+	var linearPoint1 = Ext.create("Khusamov.svg.geometry.Point", 600, linear.y(600));
+	var linearPoint2 = Ext.create("Khusamov.svg.geometry.Point", 800, linear.y(800));
+	var linearLine = Ext.create("Khusamov.svg.geometry.Line", linearPoint1, linearPoint2);
 	
-	var line = Khusamov.svg.Element.createLine(20, linear.y(20), 300, linear.y(300));
-	line.setStyle({
-		stroke: "green",
-		strokeWidth: 1
-	});
+	svg.add(Ext.create("Khusamov.svg.element.Circle", {
+		center: linearPoint1,
+		radius: 10,
+		draggable: true,
+		style: {
+			stroke: "black",
+			strokeWidth: 1,
+			fill: "transparent",
+			cursor: "pointer"
+		}
+	}));
+	svg.add(Ext.create("Khusamov.svg.element.Circle", {
+		center: linearPoint2,
+		radius: 10,
+		draggable: true,
+		style: {
+			stroke: "black",
+			strokeWidth: 1,
+			fill: "transparent",
+			cursor: "pointer"
+		}
+	}));
 	
-	svg.add(line);
 	
-	// Проверяем, есть ли пересечения. 
 	
-	if (intersection) {
+	var circular2 = Ext.create("Khusamov.svg.geometry.equation.Circular", 600, 210, 60);
+	
+	svg.add(Ext.create("Khusamov.svg.element.Circle", {
+		center: circular2.getCenter(),
+		radius: circular2.getRadius(),
+		draggable: true,
+		style: {
+			stroke: "red",
+			strokeWidth: 1,
+			fill: "transparent",
+			cursor: "pointer"
+		}
+	}));
+	
+	
+	
+	
+	
+	
+	
+	var linearElements = [];
+	function linearRefresh() {
 		
-		// Если есть, то в цикле отображаем их в виде маленьких кружочков.
+		Ext.destroy(linearElements);
+		linearElements = [];
 		
-		intersection.forEach(function(point) {
-			var circle = Khusamov.svg.Element.createCircle(point, 4);
-			circle.setStyle({
-				stroke: "green",
-				strokeWidth: 0,
-				fill: "green"
-			});
-			svg.add(circle);
+		// Создаем линию и добавляем ее на холст.
+		var linear = linearLine.toLinear();
+		//console.log(linear.getAngle("degree"));
+		
+		var line = Khusamov.svg.Element.createLine(20, linear.y(20), 1000, linear.y(1000));
+		line.setStyle({
+			stroke: "green",
+			strokeWidth: 1
 		});
+		linearElements.push(svg.add(line));
+		
+		// Находим их пересечения.
+		
+		var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", circle.getCenter(), circle.getRadius());
+		
+		var intersection = circular.intersection(linear);
+		
+		// Проверяем, есть ли пересечения. 
+		
+		if (intersection) {
+			
+			// Если есть, то в цикле отображаем их в виде маленьких кружочков.
+			
+			intersection.forEach(function(point) {
+				var circle = Khusamov.svg.Element.createCircle(point, 4);
+				circle.setStyle({
+					stroke: "green",
+					strokeWidth: 0,
+					fill: "green"
+				});
+				linearElements.push(svg.add(circle));
+			});
+			
+		}
+		
+		/**
+		 * Подзадача. Найти пересечение двух окружностей.
+		 */
+		
+		
+		var intersection2 = circular.intersection(circular2);
+		
+		// Проверяем, есть ли пересечения. 
+		
+		if (intersection2) {
+			
+			// Если есть, то в цикле отображаем их в виде маленьких кружочков.
+			
+			intersection2.forEach(function(point) {
+				var circle = Khusamov.svg.Element.createCircle(point, 4);
+				circle.setStyle({
+					stroke: "red",
+					strokeWidth: 0,
+					fill: "red"
+				});
+				linearElements.push(svg.add(circle));
+			});
+			
+		}
 		
 	}
 	
-	/**
-	 * Подзадача. Найти пересечение двух окружностей.
-	 */
-	
-	var circular2 = Ext.create("Khusamov.svg.geometry.equation.Circular", 160, 210, 60);
-	var circle2 = Ext.create("Khusamov.svg.element.Circle", circular2.getCenter(), circular2.getRadius());
-	circle2.setStyle({
-		stroke: "red",
-		strokeWidth: 1,
-		fill: "transparent"
-	});
-	svg.add(circle2);
-	
-	var intersection2 = circular.intersection(circular2);
-	
-	// Проверяем, есть ли пересечения. 
-	
-	if (intersection2) {
-		
-		// Если есть, то в цикле отображаем их в виде маленьких кружочков.
-		
-		intersection2.forEach(function(point) {
-			var circle = Khusamov.svg.Element.createCircle(point, 4);
-			circle.setStyle({
-				stroke: "red",
-				strokeWidth: 0,
-				fill: "red"
-			});
-			svg.add(circle);
-		});
-		
-	}
-	
+	linearRefresh();
+	linearPoint1.on("update", linearRefresh);
+	linearPoint2.on("update", linearRefresh);
+	circular.getCenter().on("update", linearRefresh);
+	circular2.getCenter().on("update", linearRefresh);
 	
 });
 

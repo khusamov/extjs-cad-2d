@@ -26,9 +26,12 @@ Ext.define("Khusamov.svg.geometry.Angle", {
 		
 	},
 	
-	constructor: function(config) {
+	constructor: function(config, unit) {
 		var me = this;
-		if (Ext.isNumber(config) || Ext.isString(config)) config = { value: config };
+		if (Ext.isNumber(config) || Ext.isString(config)) {
+			unit = unit || Khusamov.svg.geometry.Angle.RADIAN;
+			config = { value: config * (unit == Khusamov.svg.geometry.Angle.RADIAN ? 1 : Math.PI / 180) };
+		}
 		me.initConfig(config);
 	},
 	

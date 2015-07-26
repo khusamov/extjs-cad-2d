@@ -156,7 +156,8 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			
 			matrix.rotate(-bridgeLinear.getAngle(), cx, cy);
 			
-			if (radius + circular.getRadius() < bridge) return null;
+			if (radius + circular.getRadius() < bridge) return null; // Окружности не соприкосаются.
+			if (Math.abs(radius - circular.getRadius()) > bridge) return null; // Окружность внутри другой.
 			
 			var triangle1 = Triangle.createByPerimeter(circular.getRadius(), bridge, radius);
 			y = triangle1.height();
@@ -171,21 +172,13 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 		// Точки пересечения окружности с прямой линией
 		if (primitive.isLinear) {
 			var linear = primitive;
-			
 			matrix.rotate(Math.PI / 2 - linear.getAngle(), cx, cy);
-			
 			linear = linear.getTransformLinear(matrix);
-			
 			x = -linear.c() / linear.a();
-			
 			if (radius < Math.abs(x)) return null;
-			
 			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
-			
 			result.push([x, y]);
-			
-			if (radius > x) result.push([x, -y]);
-			
+			if (radius > Math.abs(x)) result.push([x, -y]);
 		}
 		
 		return result.map(function(point) {
@@ -205,7 +198,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	toString: function(fixed) {
 		var f = function(v) { return fixed !== undefined ? v.toFixed(fixed) : v; };
 		return Ext.String.format(
-			"(x - {0})^2 + (y - {1})^2 = {2}^2",
+			"Circular { (x - {0})^2 + (y - {1})^2 = {2}^2 }",
 			f(this.getCenter().x()),
 			f(this.getCenter().y()),
 			f(this.getRadius())

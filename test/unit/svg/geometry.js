@@ -77,4 +77,30 @@ Ext.onReady(function() {
 		
 	});
 	
+	
+	
+});
+
+
+
+
+/**
+ * Khusamov.svg.geometry.equation.Circular
+ */
+ 
+
+Ext.require("Khusamov.svg.geometry.equation.Circular");
+
+Ext.onReady(function() {
+	
+	// Тестирование окружности
+	
+	QUnit.test("Khusamov.svg.geometry.equation.Circular: Создание уравнения окружности", function(assert) {
+		
+		var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", 100, 200, 300);
+		
+		assert.equal(circular.toString(), "Circular { (x - 100)^2 + (y - 200)^2 = 300^2 }", "Преобразование уравнения окружности в строку");
+		
+	});
+	
 });
