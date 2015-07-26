@@ -1,7 +1,7 @@
 
 /**
  * Уравнение окружности.
- * ax + by + c = 0
+ * (x - xc)^2 + (y - yc)^2 = r^2
  */
 
 Ext.define("Khusamov.svg.geometry.equation.Circular", {
@@ -202,11 +202,14 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	
 	
 	
-	toString: function() {
-		var result = [];
-		
-		
-		return result.join(" ");
+	toString: function(fixed) {
+		var f = function(v) { return fixed !== undefined ? v.toFixed(fixed) : v; };
+		return Ext.String.format(
+			"(x - {0})^2 + (y - {1})^2 = {2}^2",
+			f(this.getCenter().x()),
+			f(this.getCenter().y()),
+			f(this.getRadius())
+		);
 	},
 	
 	toArray: function() {
