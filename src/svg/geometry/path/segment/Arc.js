@@ -34,14 +34,17 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point);
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point, radius);
 	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", point, radius, config);
+	 * Внимание, есть возможность point не задавать, для этого нужно вызывать конструктор так:
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius);
+	 * Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config);
 	 */
 	constructor: function(point, radius, config) {
 		var me = this;
 		config = config || {};
 		if (arguments.length == 1) config = point;
 		if (arguments.length > 1) {
-			config.point = point;
-			config.radius = radius;
+			if (!Ext.isEmpty(point)) config.point = point;
+			if (!Ext.isEmpty(radius)) config.radius = radius;
 		}
 		me.callParent([config]);
 	},
