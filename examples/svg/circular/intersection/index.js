@@ -20,10 +20,14 @@ Ext.onReady(function() {
 	
 	// Определяем прямую и окружность через их уравнения.
 	
-	
+
 	
 	var linear = Ext.create("Khusamov.svg.geometry.equation.Linear", -201, -102, 173955);
 	var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", 680.889981443295, 218.92467537232847, 100);
+	var circular2 = Ext.create("Khusamov.svg.geometry.equation.Circular", 600, 210, 60);
+	
+	//var circular = Ext.create("Khusamov.svg.geometry.equation.Circular", 793.5364353922048, 284.90424873168536, 134.1525);
+	//var circular2 = Ext.create("Khusamov.svg.geometry.equation.Circular", 759.7864613217582, 375.4801902487128, 184.1125);
 	
 	// Создаем холст.
 	
@@ -88,7 +92,9 @@ Ext.onReady(function() {
 	
 	
 	
-	var circular2 = Ext.create("Khusamov.svg.geometry.equation.Circular", 600, 210, 60);
+	// Создаем вторую окружность и добавляем ее на холст.
+	// Для поиска пересечения двух окружностей.
+	
 	
 	svg.add(Ext.create("Khusamov.svg.element.Circle", {
 		center: circular2.getCenter(),

@@ -150,23 +150,24 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 		if (primitive.isCircular) {
 			var circular = primitive;
 			
+			var r1 = radius;
+			var r2 = circular.getRadius();
+			
 			var bridgeLine = Ext.create("Khusamov.svg.geometry.Line", circular.getCenter(), this.getCenter());
 			var bridge = bridgeLine.getLength();
-			var bridgeLinear = bridgeLine.toLinear();
 			
+			var bridgeLinear = bridgeLine.toLinear();
 			matrix.rotate(-bridgeLinear.getAngle(), cx, cy);
 			
-			if (radius + circular.getRadius() < bridge) return null; // Окружности не соприкосаются.
-			if (Math.abs(radius - circular.getRadius()) > bridge) return null; // Окружность внутри другой.
+			if (r1 + r2 < bridge) return null; // Окружности не соприкосаются.
+			if (Math.abs(r1 - r2) > bridge) return null; // Окружность внутри другой.
 			
-			var triangle1 = Triangle.createByPerimeter(circular.getRadius(), bridge, radius);
-			y = triangle1.height();
+			y = Triangle.createByPerimeter(r2, bridge, r1).height();
+			x = Triangle.createByPerimeter(r1, 2 * y, r1).height();
+			x *= r2 > r1 && Triangle.createByPerimeter(r2, 2 * y, r2).height() > bridge ? -1 : 1;
 			
-			var triangle2 = Triangle.createByPerimeter(radius, 2 * y, radius);
-			x = triangle2.height();
-			
-			result.push([x, -y]);
-			if (radius + circular.getRadius() > bridge) result.push([x, y]);
+			result.push([x, y]);
+			if (r1 + r2 > bridge) result.push([x, -y]);
 		}
 		
 		// Точки пересечения окружности с прямой линией
