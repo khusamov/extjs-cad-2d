@@ -10,6 +10,7 @@ Ext.require([
 	"Khusamov.svg.element.Circle",
 	"Khusamov.svg.geometry.equation.Linear",
 	"Khusamov.svg.geometry.equation.Circular",
+	"Khusamov.svg.element.Title",
 ]);
 
 Ext.onReady(function() {
@@ -161,6 +162,8 @@ Ext.onReady(function() {
 		
 		
 		var intersection2 = circular.intersection(circular2);
+		//var intersection2 = circular2.intersection(circular);
+		
 		
 		// Проверяем, есть ли пересечения. 
 		
@@ -168,7 +171,7 @@ Ext.onReady(function() {
 			
 			// Если есть, то в цикле отображаем их в виде маленьких кружочков.
 			
-			intersection2.forEach(function(point) {
+			intersection2.forEach(function(point, index) {
 				var circle = Khusamov.svg.Element.createCircle(point, 4);
 				circle.setStyle({
 					stroke: "red",
@@ -176,6 +179,8 @@ Ext.onReady(function() {
 					fill: "red"
 				});
 				linearElements.push(svg.add(circle));
+				var title = Khusamov.svg.Element.createTitle(index + 1);
+				circle.add(title);
 			});
 			
 		}
