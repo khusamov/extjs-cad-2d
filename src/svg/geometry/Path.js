@@ -259,6 +259,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {Khusamov.svg.geometry.Path}
 	 */
 	arc: function(radius, config) {
+		if (!(Ext.isArray(radius) || Ext.isNumeric(radius))) {
+			config = radius;
+			radius = null;
+		}
 		return this.segment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config));
 	},
 	
