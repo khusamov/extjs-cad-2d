@@ -165,8 +165,8 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			var triangle2 = Triangle.createByPerimeter(radius, 2 * y, radius);
 			x = triangle2.height();
 			
-			result.push([x, y]);
-			if (radius + circular.getRadius() > bridge) result.push([x, -y]);
+			result.push([x, -y]);
+			if (radius + circular.getRadius() > bridge) result.push([x, y]);
 		}
 		
 		// Точки пересечения окружности с прямой линией
@@ -177,8 +177,8 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			x = -linear.c() / linear.a();
 			if (radius < Math.abs(x)) return null;
 			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
-			result.push([x, -y]);
-			if (radius > Math.abs(x)) result.push([x, y]);
+			result.push([x, y]);
+			if (radius > Math.abs(x)) result.push([x, -y]);
 		}
 		
 		return result.map(function(point) {
