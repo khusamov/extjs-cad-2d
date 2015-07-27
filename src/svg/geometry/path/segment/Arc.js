@@ -40,10 +40,14 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		config = config || {};
 		if (arguments.length == 1) config = point;
 		if (arguments.length > 1) {
-			if (point) config.point = point;
-			config.radius = Ext.isNumber(radius) ? [radius, radius] : radius;
+			config.point = point;
+			config.radius = radius;
 		}
 		me.callParent([config]);
+	},
+	
+	applyRadius: function(radius) {
+		return Ext.isArray(radius) ? radius : [radius, radius];
 	},
 	
 	updateRadius: function() {
