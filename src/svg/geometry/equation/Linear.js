@@ -271,6 +271,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		if (primitive.isCircular) {
 			var circular = primitive;
 			result = circular.intersection(me);
+			result = result ? result.reverse() : result;
 		} else {
 			var linear = primitive;
 			var a1 = me.a();
