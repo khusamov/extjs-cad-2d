@@ -153,6 +153,20 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 		return Ext.create("Khusamov.svg.geometry.Point", this);
 	},
 	
+	/**
+	 * Возвращает true, если вектора коллинеарные.
+	 * Если codirectional === true, то возвращает true, если вектора коллинеарные и сонаправленные.
+	 * Если codirectional === false, то возвращает true, если вектора коллинеарные и разнонаправленные.
+	 */
+	isCollinear: function(vector, codirectional) {
+		var len = this.getLength() * vector.getLength();
+		var mul = this.multiply(vector);
+		var isCollinear = Math.abs(mul) == len;
+		if (codirectional === undefined) return isCollinear;
+		if (codirectional === true) return isCollinear && mul > 0;
+		if (codirectional === false) return isCollinear && mul < 0;
+	},
+	
 }, function(Vector) {
 	
 	Khusamov.svg.geometry.Point.override({
