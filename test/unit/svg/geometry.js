@@ -1,6 +1,4 @@
 
-Ext.scopeCSS = true;
-
 QUnit.module("svg.geometry");
 
 /**
