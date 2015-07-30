@@ -150,8 +150,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		
 		result.push(me.getLastPoint().isRelative() ? "a" : "A");
 		
-		result.push(me.getRadius()[0]);
-		result.push(me.getRadius()[1]);
+		result.push(me.getRadius(0));
+		result.push(me.getRadius(1));
 		result.push(me.getRotation());
 		result.push(me.isLarge() ? 1 : 0);
 		result.push(me.isSweep() ? 1 : 0);
