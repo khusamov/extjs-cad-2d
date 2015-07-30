@@ -62,11 +62,11 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	},
 	
 	getRadius: function(index) {
-		index = this.isCircular() ? 0 : index;
-		return index ? this.callParent()[index] : this.callParent();
+		var radius = this.callParent();
+		var isCircular = radius[0] == radius[1];
+		index = isCircular ? 0 : index;
+		return index !== undefined ? radius[index] : radius;
 	},
-	
-	
 	
 	updateRotation: function() {
 		this.onParamUpdate();
@@ -74,6 +74,14 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	updateLarge: function() {
 		this.onParamUpdate();
+	},
+	
+	isLarge: function() {
+		return this.getLarge();
+	},
+	
+	isSweep: function() {
+		return this.getSweep();
 	},
 	
 	updateRadius: function() {
@@ -103,7 +111,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 				this.getFirstPoint(), 
 				this.getLastPoint(), 
 				this.getRadius()
-			);
+			)[this.isLarge() ? 1 : 0];
 		}
 	},
 	
@@ -122,7 +130,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	getAngle: function() {
 		var first = this.getFirstRadiusLinear();
 		var last = this.getLastRadiusLinear();
-		return Math[this.getLarge() ? "max" : "min"].call(Math, first.angleTo(last), last.angleTo(first));
+		
+		console.log(this.getCenter(), this.getFirstPoint());
+		
+		return Math[this.isLarge() ? "max" : "min"].call(Math, first.angleTo(last), last.angleTo(first));
 	},
 	
 	getLength: function() {
@@ -142,8 +153,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		result.push(me.getRadius()[0]);
 		result.push(me.getRadius()[1]);
 		result.push(me.getRotation());
-		result.push(me.getLarge() ? 1 : 0);
-		result.push(me.getSweep() ? 1 : 0);
+		result.push(me.isLarge() ? 1 : 0);
+		result.push(me.isSweep() ? 1 : 0);
 		
 		result.push(me.getLastPoint().toString());
 		

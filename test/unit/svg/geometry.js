@@ -102,3 +102,34 @@ Ext.onReady(function() {
 	});
 	
 });
+
+
+
+
+/**
+ * Khusamov.svg.geometry.Path
+ * Khusamov.svg.geometry.path.segment.Arc
+ */
+ 
+
+Ext.require(["Khusamov.svg.geometry.Path", "Khusamov.svg.geometry.path.segment.Arc"]);
+
+Ext.onReady(function() {
+	
+	// Тестирование сегмента пути типа Дуга.
+	
+	QUnit.test("Khusamov.svg.geometry.path.segment.Arc: Общая работа класса", function(assert) {
+		
+		var path = Ext.create("Khusamov.svg.geometry.Path");
+		path.point(100, 100);
+		path.arc(100);
+		path.point(200, 200);
+		
+		var arc = path.getSegment(0);
+		
+		assert.equal(arc.getAngle(), 1.5707963267948966, "Угол дуги");
+		assert.equal(path.getLength(), 157.07963267948966, "Длина дуги");
+		
+	});
+	
+});
