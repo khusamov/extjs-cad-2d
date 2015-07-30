@@ -13,6 +13,11 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	statics: {
 		
+		/**
+		 * Вычисление высоты дуги.
+		 * 1) по трем точкам: концы дуги и центр окружности.
+		 * 2) по радиусу, хорде и индексу высоты.
+		 */
 		height: function(radius, chord, index) {
 			var result = [];
 			

@@ -1,4 +1,8 @@
 
+/**
+ * Внимание, дуга может работать пока только в режиме окружности (оба радиуса равны)!
+ */
+
 Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	extend: "Khusamov.svg.geometry.path.segment.Segment",
@@ -57,6 +61,13 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		this.onParamUpdate();
 	},
 	
+	getRadius: function(index) {
+		index = this.isCircular() ? 0 : index;
+		return index ? this.callParent()[index] : this.callParent();
+	},
+	
+	
+	
 	updateRotation: function() {
 		this.onParamUpdate();
 	},
@@ -78,15 +89,46 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		if (path) path.fireEvent("update");
 	},
 	
+	isCircular: function() {
+		return this.getRadius(0) == this.getRadius(1);
+	},
+	
+	isElliptical: function() {
+		return !this.isCircular();
+	},
+	
+	getCenter: function(index) {
+		if (this.isCircular()) {
+			return Khusamov.svg.geometry.equation.Circular.findCenter(
+				this.getFirstPoint(), 
+				this.getLastPoint(), 
+				this.getRadius()
+			);
+		}
+	},
+	
+	getFirstRadiusLinear: function() {
+		if (this.isCircular()) {
+			return Ext.create("Khusamov.svg.geometry.Line", this.getCenter(), this.getFirstPoint()).toLinear();
+		}
+	},
+	
+	getLastRadiusLinear: function() {
+		if (this.isCircular()) {
+			return Ext.create("Khusamov.svg.geometry.Line", this.getCenter(), this.getLastPoint()).toLinear();
+		}
+	},
+	
+	getAngle: function() {
+		var first = this.getFirstRadiusLinear();
+		var last = this.getLastRadiusLinear();
+		return Math[this.getLarge() ? "max" : "min"].call(Math, first.angleTo(last), last.angleTo(first));
+	},
+	
 	getLength: function() {
 		var length = 0;
-		var radius = this.getRadius();
-		if (radius[0] == radius[1]) radius = radius[0];
-		if (Ext.isNumber(radius)) {
-			var center = Khusamov.svg.geometry.equation.Circular.findCenter(this.getFirstPoint(), this.getLastPoint(), radius);
-			var first = Ext.create("Khusamov.svg.geometry.Line", center[0], this.getFirstPoint()).toLinear();
-			var last = Ext.create("Khusamov.svg.geometry.Line", center[0], this.getLastPoint()).toLinear();
-			length = radius * first.angleTo(last);
+		if (this.isCircular()) {
+			length = this.getRadius() * this.getAngle();
 		}
 		return length;
 	},
