@@ -129,28 +129,41 @@ Ext.onReady(function() {
 		arc.setLarge(large);
 	});
 	
+	var radiusField = panel.down("#radius");
+	var angleField = panel.down("#angle");
+	var lengthField = panel.down("#length");
+	var chordField = panel.down("#chord");
+	
 	path.on("update", function() {
-		var minRadius = point1.distance(point2) / 2;
+		var minRadius = arc.getChordLength() / 2;
 		if (arc.getRadius() < minRadius) {
-			panel.down("#radius").setValue(minRadius);
+			
+			
+			radiusField.suspendEvent("change");
+			//http://javascript.ru/forum/extjs/57355-sobytie-change-ne-generiruetsya-pri-vyzove-ext-form-field-number-setvalue.html
+			radiusField.setValue(minRadius);
+			radiusField.resumeEvent("change");
+			
+			
 			arc.setRadius(minRadius);
+		} else {
+			display();
 		}
-		display();
 	});
 	
 	display();
 	
 	function display() {
 		var fixed = 2;
-		panel.down("#angle").setValue(Ext.String.format(
+		angleField.setValue(Ext.String.format(
 			"Угол дуги: {0}",
 			arc.getAngle(Khusamov.svg.geometry.Angle.DEGREE).toFixed(fixed)
 		));
-		panel.down("#length").setValue(Ext.String.format(
+		lengthField.setValue(Ext.String.format(
 			"Длина дуги: {0}",
 			arc.getLength().toFixed(fixed)
 		));
-		panel.down("#chord").setValue(Ext.String.format(
+		chordField.setValue(Ext.String.format(
 			"Длина хорды: {0}",
 			arc.getChordLength().toFixed(fixed)
 		));
