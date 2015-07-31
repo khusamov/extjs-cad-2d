@@ -9,7 +9,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	requires: [
 		"Khusamov.svg.geometry.equation.Circular", 
-		"Khusamov.svg.geometry.Line"
+		"Khusamov.svg.geometry.Line",
+		"Khusamov.svg.geometry.Angle"
 	],
 	
 	config: {
@@ -92,11 +93,6 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		this.onParamUpdate();
 	},
 	
-	onParamUpdate: function() {
-		var path = this.getPath();
-		if (path) path.fireEvent("update");
-	},
-	
 	isCircular: function() {
 		return this.getRadius(0) == this.getRadius(1);
 	},
@@ -127,13 +123,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		}
 	},
 	
-	getAngle: function() {
-		var first = this.getFirstRadiusLinear();
-		var last = this.getLastRadiusLinear();
-		
-		console.log(this.getCenter(), this.getFirstPoint());
-		
-		return Math[this.isLarge() ? "max" : "min"].call(Math, first.angleTo(last), last.angleTo(first));
+	getAngle: function(unit) {
+		// теорема косинусов
+		var angle = Math.acos(1 - Math.pow(this.getChordLength(), 2) / (2 * Math.pow(this.getRadius(), 2)));
+		return Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit);
 	},
 	
 	getLength: function() {
@@ -144,21 +137,36 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		return length;
 	},
 	
+	getChord: function() {
+		return Ext.create("Khusamov.svg.geometry.Line", this.getFirstPoint().clone(), this.getLastPoint().clone());
+	},
+	
+	getChordLength: function() {
+		return this.getChord().getLength();
+	},
+	
 	toString: function() {
 		var me = this;
-		var result = [];
+		var result = "";
 		
-		result.push(me.getLastPoint().isRelative() ? "a" : "A");
+		if (me.hasPath()) {
+			result = [];
+			
+			result.push(me.getLastPoint().isRelative() ? "a" : "A");
+			
+			result.push(me.getRadius(0));
+			result.push(me.getRadius(1));
+			result.push(me.getRotation());
+			result.push(me.isLarge() ? 1 : 0);
+			result.push(me.isSweep() ? 1 : 0);
+			
+			result.push(me.getLastPoint().toString());
+			
+			result = me.callParent([result.join(" ")]);
+		}
 		
-		result.push(me.getRadius(0));
-		result.push(me.getRadius(1));
-		result.push(me.getRotation());
-		result.push(me.isLarge() ? 1 : 0);
-		result.push(me.isSweep() ? 1 : 0);
-		
-		result.push(me.getLastPoint().toString());
-		
-		return me.callParent([result.join(" ")]);
+		return result;
+
 	}
 	
 });
