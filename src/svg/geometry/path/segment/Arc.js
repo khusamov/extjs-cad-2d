@@ -123,17 +123,16 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		}
 	},
 	
+	/**
+	 * На выходе NaN, если хорда больше двух радиусов.
+	 */
 	getAngle: function(unit) {
-		// теорема косинусов
+		// Теорема косинусов.
 		var angle = Math.acos(1 - Math.pow(this.getChordLength(), 2) / (2 * Math.pow(this.getRadius(), 2)));
-		
 		if (!isNaN(angle)) {
 			angle = this.isLarge() ? 2 * Math.PI - angle : angle;
 			angle = Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit);
 		}
-		
-		
-		
 		return angle;
 	},
 	
@@ -154,12 +153,9 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	},
 	
 	toString: function() {
-		var me = this;
-		var result = "";
-		
+		var me = this, result = "";
 		if (me.hasPath()) {
 			result = [];
-			
 			result.push(me.getLastPoint().isRelative() ? "a" : "A");
 			
 			result.push(me.getRadius(0));
@@ -169,10 +165,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 			result.push(me.isSweep() ? 1 : 0);
 			
 			result.push(me.getLastPoint().toString());
-			
 			result = me.callParent([result.join(" ")]);
 		}
-		
 		return result;
 
 	}

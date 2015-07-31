@@ -163,6 +163,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	/**
 	 * Угол между прямыми.
+	 * Выдает только минимальный угол.
 	 * http://hystory-for-vki.narod.ru/index/0-36
 	 */
 	angleTo: function(linear) {
