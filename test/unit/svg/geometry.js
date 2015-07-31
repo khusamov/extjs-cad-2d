@@ -127,8 +127,12 @@ Ext.onReady(function() {
 		
 		var arc = path.getSegment(0);
 		
+		var chord = Math.sqrt(Math.pow((200 - 100), 2) + Math.pow((200 - 100), 2));
+		
 		assert.equal(arc.getAngle(), 1.5707963267948966, "Угол дуги");
-		assert.equal(path.getLength(), 157.07963267948966, "Длина дуги");
+		assert.equal(arc.getLength(), 157.07963267948966, "Длина дуги");
+		assert.equal(arc.getChordLength(), chord, "Длина хорды");
+		assert.ok(arc.getLength() > chord, "Длина дуги больше хорды");
 		
 	});
 	
