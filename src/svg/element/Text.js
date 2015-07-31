@@ -72,8 +72,8 @@ Ext.define("Khusamov.svg.element.Text", {
 		var me = this;
 		me.callParent(arguments);
 		me.getEl().set({
-			x: me.getBoundPosition().x(),
-			y: me.getBoundPosition().y()
+			x: me.getTextBaseline().x(),
+			y: me.getTextBaseline().y()
 		});
 	}
 	
