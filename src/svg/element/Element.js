@@ -205,13 +205,17 @@ Ext.define("Khusamov.svg.element.Element", {
 		var me = this;
 		if (oldPosition) oldPosition.un("update", "onUpdateElementBoundPosition", me);
 		position.on("update", "onUpdateElementBoundPosition", me);
-		if (me.rendered) me.getEl().set({
+		/*if (me.rendered) me.getEl().set({
 			x: position.x(),
 			y: position.y()
-		});
+		});*/
 	},
 	
 	onUpdateElementBoundPosition: function() {
+		/*if (this.rendered) this.getEl().set({
+			x: this.getBoundPosition().x(),
+			y: this.getBoundPosition().y()
+		});*/
 		this.fireEvent("update");
 	},
 	

@@ -17,7 +17,7 @@ Ext.define("Khusamov.svg.element.Text", {
 	
 	config: {
 		
-		
+		textBaseline: [0, 0]
 		
 	},
 	
@@ -31,15 +31,41 @@ Ext.define("Khusamov.svg.element.Text", {
 		
 		if (arguments.length > 1) {
 			config = (arguments.length == 3) ? {
-				boundPosition: [arguments[0], arguments[1]],
+				textBaseline: [arguments[0], arguments[1]],
 				html: arguments[2]
 			} : {
-				boundPosition: arguments[0],
+				textBaseline: arguments[0],
 				html: arguments[1]
 			};
 		}
 		
 		me.callParent([config]);
+	},
+	
+	/**
+	 * Text.setTextBaseline(Number[x, y]);
+	 * Text.setTextBaseline(Khusamov.svg.geometry.Point);
+	 */
+	applyTextBaseline: function(position) {
+		return Ext.isArray(position) ? Ext.create("Khusamov.svg.geometry.Point", position) : position;
+	},
+	
+	updateTextBaseline: function(position, oldPosition) {
+		var me = this;
+		if (oldPosition) oldPosition.un("update", "onUpdateTextBaselinePoint", me);
+		position.on("update", "onUpdateTextBaselinePoint", me);
+		if (me.rendered) me.getEl().set({
+			x: position.x(),
+			y: position.y()
+		});
+	},
+	
+	onUpdateTextBaselinePoint: function() {
+		if (this.rendered) this.getEl().set({
+			x: this.getTextBaseline().x(),
+			y: this.getTextBaseline().y()
+		});
+		this.fireEvent("update");
 	},
 	
 	afterRender: function() {
