@@ -8,7 +8,8 @@ Ext.define("Khusamov.svg.element.Element", {
 	requires: [
 		"Khusamov.svg.layout.Svg", 
 		"Khusamov.svg.element.attribute.transform.Transform",
-		"Ext.draw.Matrix"
+		"Ext.draw.Matrix",
+		"Khusamov.svg.geometry.Point"
 	],
     
     xtype: "khusamov-svg-element",
@@ -84,7 +85,9 @@ Ext.define("Khusamov.svg.element.Element", {
 		 * Трансформации элемента.
 		 * @param {Khusamov.svg.element.attribute.transform.Transform}
 		 */
-		transform: null
+		transform: null,
+		
+		boundPosition: [0, 0]
 	
 	},
 	
@@ -188,6 +191,28 @@ Ext.define("Khusamov.svg.element.Element", {
 		me.repaintGeometry();
 		me.repaintTransform();
 		me._setSize(me.width, me.height);
+	},
+	
+	/**
+	 * Element.setBoundPosition(Number[x, y]);
+	 * Element.setBoundPosition(Khusamov.svg.geometry.Point);
+	 */
+	applyBoundPosition: function(position) {
+		return Ext.isArray(position) ? Ext.create("Khusamov.svg.geometry.Point", position) : position;
+	},
+	
+	updateBoundPosition: function(position, oldPosition) {
+		var me = this;
+		if (oldPosition) oldPosition.un("update", "onUpdateElementBoundPosition", me);
+		position.on("update", "onUpdateElementBoundPosition", me);
+		if (me.rendered) me.getEl().set({
+			x: position.x(),
+			y: position.y()
+		});
+	},
+	
+	onUpdateElementBoundPosition: function() {
+		this.fireEvent("update");
 	},
 	
 	/**
