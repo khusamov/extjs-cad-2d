@@ -42,6 +42,28 @@ Ext.define("Khusamov.svg.element.Text", {
 		me.callParent([config]);
 	},
 	
+	/**
+	 * Text.setAnchor(Number[x, y]);
+	 * Text.setAnchor(Khusamov.svg.geometry.Point);
+	 */
+	applyAnchor: function(anchor) {
+		return Ext.isArray(anchor) ? Ext.create("Khusamov.svg.geometry.Point", anchor) : anchor;;
+	},
+	
+	updateAnchor: function(anchor, oldAnchor) {
+		var me = this;
+		if (oldAnchor) oldAnchor.un("update", "onUpdateAnchorPoint", me);
+		anchor.on("update", "onUpdateAnchorPoint", me);
+		if (me.rendered) me.getEl().set({
+			x: anchor.x(),
+			y: anchor.y()
+		});
+	},
+	
+	onUpdateAnchorPoint: function() {
+		this.fireEvent("update");
+	},
+	
 	afterRender: function() {
 		var me = this;
 		me.callParent(arguments);
