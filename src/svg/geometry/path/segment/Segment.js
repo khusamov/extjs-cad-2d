@@ -11,30 +11,30 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		
 	},
 	
-	/**
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment");
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y);
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", x, y, relative);
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Number[x, y]);
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Mixed[x, y, relative]);
-	 * Ext.create("Khusamov.svg.geometry.path.segment.Segment", Khusamov.svg.geometry.path.Point);
-	 */
 	constructor: function(config) {
-		var me = this;
-		if (arguments.length > 1) config = Ext.Array.slice(arguments);
-		if (Ext.isArray(config)) config = { point: config };
-		if (config instanceof Khusamov.svg.geometry.path.Point) config = { point: config };
-		me.initConfig(config);
+		this.initConfig(config);
 	},
 	
 	applyPoint: function(point) {
-		point = Ext.isArray(point) ? Ext.create("Khusamov.svg.geometry.path.Point", point) : point;
-		point.setSegment(this);
-		return point;
+		return point ? (Ext.isArray(point) ? Ext.create("Khusamov.svg.geometry.path.Point", point) : point) : null;
+	},
+	
+	updatePoint: function(point, oldPoint) {
+		if (oldPoint) oldPoint.un("update", "onParamUpdate", this);
+		if (point) {
+			point.on("update", "onParamUpdate", this);
+			point.setSegment(this);
+		}
+	},
+	
+	onParamUpdate: function() {
+		var path = this.getPath();
+		if (path) path.fireEvent("update");
 	},
 	
 	getIndex: function() {
-		return this.getPath().indexOf(this);
+		var path = this.getPath();
+		return path ? path.indexOf(this) : null;
 	},
 	
 	isFirst: function() {
@@ -61,9 +61,13 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		return absolute ? this.getPoint().toAbsolute() : this.getPoint();
 	},
 	
+	hasPath: function() {
+		return !!this.getPath();
+	},
+	
 	getLastPoint: function(absolute) {
 		var path = this.getPath();
-		return this.isLast() && !path.closed ? (absolute ? path.lastPoint.toAbsolute() : path.lastPoint) : this.getNextSegment().getFirstPoint(absolute);
+		return path ? (this.isLast() && !path.closed ? (absolute ? path.lastPoint.toAbsolute() : path.lastPoint) : this.getNextSegment().getFirstPoint(absolute)) : null;
 	},
 	
 	getLength: function() {

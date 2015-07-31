@@ -28,15 +28,32 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 			config = { x: config[0], y: config[1], relative: arguments[1] };
 		}
 		if (arguments.length == 1 && config instanceof Khusamov.svg.geometry.Point) {
+			this.syncWith(config);
 			config = { x: config.x(), y: config.y() };
 		}
 		if (arguments.length == 2 && config instanceof Khusamov.svg.geometry.Point) {
+			this.syncWith(config);
 			config = { x: config.x(), y: config.y(), relative: arguments[1] };
 		}
 		if (arguments.length == 3) {
 			config = { x: arguments[0], y: arguments[1], relative: arguments[2] };
 		}
 		me.callParent([config]);
+	},
+	
+	syncWith: function(point) {
+		var me = this;
+		point.on("update", function() {
+			me.moveTo(point);
+		});
+	},
+	
+	unlinkSegment: function() {
+		this.setSegment(null);
+	},
+	
+	updateSegment: function(segment, oldSegment) {
+		if (oldSegment) this.getSegment().setPoint(null);
 	},
 	
 	applyRelative: function(value) {

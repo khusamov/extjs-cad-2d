@@ -45,7 +45,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		
 		/**
 		 * Последняя точка пути.
-		 * Если равно null, то последней точкой является первая точка пути.
+		 * Если равно null, то последней точкой считается первая точка пути.
 		 * @readonly
 		 * @property {null | Khusamov.svg.geometry.path.Point}
 		 */
@@ -62,7 +62,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		segment.setPath(this);
 		this.segments.push(segment);
 		this.closed = true;
+		
+		this.lastPoint.un("update", "onLastPointUpdate", this);
 		this.lastPoint = null;
+		
 		this.fireEvent("update");
 		return segment;
 	},
@@ -118,7 +121,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	clear: function() {
 		this.segments = [];
 		this.closed = false;
+		
+		this.lastPoint.un("update", "onLastPointUpdate", this);
 		this.lastPoint = null;
+		
 		this.fireEvent("update");
 		return this;
 	},
@@ -207,7 +213,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * 
 	 * @return {Khusamov.svg.geometry.Path}
 	 */
-	point: function(x, y, relative) {
+	point: function() {
 		var point = null;
 		if (arguments[0] instanceof Khusamov.svg.geometry.path.Point) {
 			point = arguments[0];
@@ -217,19 +223,24 @@ Ext.define("Khusamov.svg.geometry.Path", {
 				point = arguments[0];
 				point = Ext.create("Khusamov.svg.geometry.path.Point", point);
 			}
-			if (arguments.length == 2 && !Ext.isNumber(x)) {
+			if (arguments.length == 2 && !Ext.isNumber(arguments[0])) {
 				point = Ext.create("Khusamov.svg.geometry.path.Point", arguments[0], arguments[1]);
 			}
-			if (arguments.length == 3 || arguments.length == 2 && Ext.isNumber(x)) {
+			if ((arguments.length == 3 || arguments.length == 2) && Ext.isNumber(arguments[0])) {
 				point = Ext.Array.slice(arguments);
 				point = Ext.create("Khusamov.svg.geometry.path.Point", point);
 			}
 		}
 		this.lastPoint = point;
+		this.lastPoint.on("update", "onLastPointUpdate", this);
 		this.lastPoint.setPath(this);
 		this.closed = false;
 		this.fireEvent("update");
 		return this;
+	},
+	
+	onLastPointUpdate: function() {
+		this.fireEvent("update");
 	},
 	
 	/**
@@ -361,10 +372,12 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		});
 		points.forEach(function(point, index) {
 			var segment = me.getSegment(index);
+			point.unlinkSegment();
 			if (segment) {
 				segment.setPoint(point);
 			} else {
-				me.setLastPoint(point);
+				me.lastPoint = point;
+				me.lastPoint.on("update", "onLastPointUpdate", me);
 			}
 		});
 		me.fireEvent("update");
