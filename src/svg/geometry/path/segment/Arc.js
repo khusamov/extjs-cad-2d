@@ -126,8 +126,15 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	getAngle: function(unit) {
 		// теорема косинусов
 		var angle = Math.acos(1 - Math.pow(this.getChordLength(), 2) / (2 * Math.pow(this.getRadius(), 2)));
-		angle = this.isLarge() ? 2 * Math.PI - angle : angle;
-		return Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit);
+		
+		if (!isNaN(angle)) {
+			angle = this.isLarge() ? 2 * Math.PI - angle : angle;
+			angle = Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit);
+		}
+		
+		
+		
+		return angle;
 	},
 	
 	getLength: function() {
