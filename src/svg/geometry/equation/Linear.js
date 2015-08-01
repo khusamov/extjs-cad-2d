@@ -27,7 +27,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 			normal = Ext.create("Khusamov.svg.geometry.Vector", normal);
 			
 			translation.rotate(split.rotation);
-			var point = translation.transformPoint([0, linear.y(0)]);
+			var point = translation.transformPoint(linear.b() ? [0, linear.y(0)] : [linear.x(0), 0]);
 			
 			return this.createByNormal(normal, point);
 		},
