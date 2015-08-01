@@ -3,7 +3,7 @@ Ext.define("Khusamov.browser.Console", {
 	
 	alternateClassName: "Khusamov.Console",
 	
-	singlton: true,
+	singleton: true,
 	
 	constructor: function() {
 		var me = this;
