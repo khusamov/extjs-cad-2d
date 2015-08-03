@@ -23,6 +23,7 @@ Ext.onReady(function() {
 		plugins: "viewport",
 		renderTo: Ext.getBody(),
 		layout: "fit",
+		border: false,
 		items: [svg],
 		tbar: [{
 			itemId: "radius",
@@ -30,7 +31,11 @@ Ext.onReady(function() {
 			fieldLabel: "Радиус",
 			labelWidth: 50,
 			step: 10,
-			value: 100
+			value: 100,
+			
+			//http://javascript.ru/forum/extjs/57355-sobytie-change-ne-generiruetsya-pri-vyzove-ext-form-field-number-setvalue.html
+			decimalPrecision: 10
+			
 		}, {
 			xtype: "tbseparator",
 			margin: "0px 11px 0px 5px",
@@ -139,13 +144,19 @@ Ext.onReady(function() {
 		if (arc.getRadius() < minRadius) {
 			
 			
-			radiusField.suspendEvent("change");
+			/*console.log(
+				"!suspendCheckChange=", !radiusField.suspendCheckChange,
+				"!isDestroyed=", !radiusField.isDestroyed,
+				"didValueChange=", radiusField.didValueChange(minRadius, radiusField.getValue())
+			);*/
+			
+			//radiusField.suspendEvent("change");
 			//http://javascript.ru/forum/extjs/57355-sobytie-change-ne-generiruetsya-pri-vyzove-ext-form-field-number-setvalue.html
 			radiusField.setValue(minRadius);
-			radiusField.resumeEvent("change");
+			//radiusField.resumeEvent("change");
+			//console.log(minRadius, radiusField.getValue(), arc.getRadius());
 			
-			
-			arc.setRadius(minRadius);
+			//arc.setRadius(minRadius);
 		} else {
 			display();
 		}
