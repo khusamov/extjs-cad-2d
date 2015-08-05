@@ -82,38 +82,52 @@ Ext.define("Kitchen.view.page.Page", {
 		var me = this;
 		var uxiframe = this.down("uxiframe");
 		me.fireEvent("load", uxiframe);
-		
 		switch (me.getSrcType()) {
-			case "js":
-				
-				var win = uxiframe.getWin();
-				var khusamovFolder = "";
-				var extFolder = "http://localhost/ext-5.1.1";
-				var extall = extFolder + "/build/ext-all-debug.js";
-				
-				win.loadScript(extall, function() {
-					var url = [
-						extFolder + "/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all-debug.css",
-						extFolder + "/build/packages/sencha-charts/build/sencha-charts-debug.js",
-						extFolder + "/build/packages/ext-locale/build/ext-locale-ru-debug.js",
-						khusamovFolder + "/packages/delegates.js",
-						khusamovFolder + "/packages/svg/style.css",
-						me.src
-					];
-					win.Ext.Loader.setPath("Khusamov", khusamovFolder + "/src");
-					win.Ext.Loader.loadScript({ url: url });
-				});
-				
-				break;
-			case "md":
-				
-				break;
-			case "html":
-
-				break;
+			case "js": me.loadScriptInFrame(); break;
+			case "md": break;
+			case "html": break;
 		}
-		
-		
 	},
+	
+	getKhusamovFolder: function() {
+		return Ext.Loader.getPath("Khusamov").replace("/src", "");
+	},
+	
+	getExtjsFolder: function() {
+		var result = "";
+		var source = "/build/ext-all-debug.js";
+		Ext.getHead().query("script").forEach(function(script) {
+			if (script.src.indexOf(source) != -1) {
+				result = script.src.replace(source, "");
+				return false;
+			}
+		});
+		return result;
+	},
+	
+	loadScriptInFrame: function() {
+		var me = this;
+		var uxiframe = this.down("uxiframe");
+		
+		
+		var win = uxiframe.getWin();
+		var khusamovFolder = me.getKhusamovFolder();
+		var extFolder = me.getExtjsFolder(); // "http://localhost/ext-5.1.1"
+		
+		var extall = extFolder + "/build/ext-all-debug.js";
+		
+		win.loadScript(extall, function() {
+			var url = [
+				extFolder + "/build/packages/ext-theme-crisp/build/resources/ext-theme-crisp-all-debug.css",
+				extFolder + "/build/packages/sencha-charts/build/sencha-charts-debug.js",
+				extFolder + "/build/packages/ext-locale/build/ext-locale-ru-debug.js",
+				khusamovFolder + "/packages/delegates.js",
+				khusamovFolder + "/packages/svg/style.css",
+				me.src
+			];
+			win.Ext.Loader.setPath("Khusamov", khusamovFolder + "/src");
+			win.Ext.Loader.loadScript({ url: url });
+		});
+	}
 	
 });

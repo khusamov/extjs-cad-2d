@@ -6,7 +6,7 @@ Ext.define("Kitchen.controller.Root", {
 	requires: ["Kitchen.view.page.Page"],
 	
 	init: function(application) {
-		this.pages = {};
+		//this.pages = {};
 	},
 	
 	onLaunch: function(application) {
@@ -17,7 +17,7 @@ Ext.define("Kitchen.controller.Root", {
 		});
 	},
 	
-	refs: [{
+	/*refs: [{
 		ref: "desktop",
 		selector: "uxiframe#desktop"
 	}],
@@ -26,11 +26,11 @@ Ext.define("Kitchen.controller.Root", {
 		"treepanel#mainmenu": {
 			itemclick: "onTreePanelItemClick"
 		}
-	},
+	},*/
 	
-	onTreePanelItemClick: function(treePanel, record) {
+	/*onTreePanelItemClick: function(treePanel, record) {
 		var me = this;
-		var src = record.getPath("path") + "/index.js";
+		var src = record.getPath("path") + "/" + (record.get("file") || "index.js");
 		var pages = this.getApplication().getMainView().lookupReference("pages");
 		
 		if (this.pages[src]) {
@@ -63,7 +63,7 @@ Ext.define("Kitchen.controller.Root", {
 	
 	onPageTabClick: function(src) {
 		this.pages[src].reload();
-	},
+	},*/
 	
 	
 });

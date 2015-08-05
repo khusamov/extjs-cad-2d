@@ -7,15 +7,12 @@ Ext.define("Kitchen.store.Examples", {
 	
 	model: "Kitchen.model.Example",
 	
-	autoLoad: true,
-	
 	proxy: {
 		type: "ajax"
 	},
 	
 	root: {
-		text: null,
-		expanded: true
+		text: null
 	}
 	
 });

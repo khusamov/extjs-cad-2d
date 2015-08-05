@@ -14,6 +14,9 @@ Ext.define("Kitchen.model.Example", {
 	fields: [{
 		name: "path",
 		type: "string"
+	}, {
+		name: "file",
+		type: "string"
 	}]
 	
 });

@@ -1,24 +1,27 @@
 [{
+	
 	"text": "Тесты",
 	"path": "test",
 	"leaf": true,
+	
 }, {
+	
 	"text": "Примеры",
 	"path": "examples",
-	"expanded": true,
 	"children": [{
 		"text": "SVG",
 		"path": "svg",
-		"expanded": true,
 		"children": [{
 			"path": "path",
+			"file": "index.js",
 			"text": "Элемент «Khusamov.svg.element.Path»",
-			"expanded": true,
 			"children": [{
 				"path": "arc",
+				"file": "index.js",
 				"text": "Сегмент типа «Арка»",
 				"leaf": true,
 			}]
 		}]
 	}]
+	
 }]
