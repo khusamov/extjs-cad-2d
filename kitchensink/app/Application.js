@@ -5,22 +5,25 @@ Ext.define("Kitchen.Application", {
 	
 	requires: [
 		"Khusamov.override.Override", 
-		"Kitchen.override.ux.IFrame"
+		"Kitchen.override.Override"
 	],
 	
 	name: "Kitchen",
 	
 	config: {
-		title: "Кухня"
+		title: "Khusamov ExtJS Private Library"
 	},
+	
+	// http://javascript.ru/forum/extjs/56202-paths-processed-true.html
+	"paths processed": true,
 	
 	autoCreateViewport: "Kitchen.view.main.Main", 
 	
 	controllers: ["Root"],
 	
-	/*models: ["Example"],*/
+	//models: ["Example"],
 	
-	stores: ["Examples"],
+	//stores: ["Examples"],
 	
 	init: function() {
 		console.log("Kitchen. Кухня экспериментов, сниппетов и примеров.");

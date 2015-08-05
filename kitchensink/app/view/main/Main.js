@@ -6,7 +6,9 @@ Ext.define("Kitchen.view.main.Main", {
 	requires: [
 		"Kitchen.view.main.MainModel", 
 		"Kitchen.view.main.MainController",
-		"Ext.ux.IFrame"
+		"Ext.ux.IFrame",
+		"Kitchen.store.Examples",
+		"Kitchen.view.pagetabpanel.PageTabPanel"
 	],
 	
 	plugins: "viewport",
@@ -21,25 +23,26 @@ Ext.define("Kitchen.view.main.Main", {
 	border: false,
 	
 	items: [{
-		title: "Пример",
-		xtype: "panel",
-		layout: "fit",
-		region: "center",
-		border: false,
-		items: [{
-			border: false,
-			itemId: "desktop",
-			xtype: "uxiframe",
-		}]
-	}, {
+		region: "west",
+		
+		title: "&nbsp",
 		itemId: "mainmenu",
 		xtype: "treepanel",
-		title: "Примеры",
-		region: "west",
 		split: true,
 		width: 400,
 		border: false,
-		store: "Examples"
+		rootVisible: false,
+		bind: {
+			title: "{siteTitle}",
+			store: "{mainMenu}"
+		}
+	}, {
+		region: "center",
+		
+		reference: "pages",
+		xtype: "pagetabpanel",
+		border: false,
+		
 	}]
 	
 });
