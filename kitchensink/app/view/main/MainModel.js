@@ -6,7 +6,7 @@ Ext.define("Kitchen.view.main.MainModel", {
 	alias: "viewmodel.main",
 	
 	data: {
-		selection: null,
+		selectedPage: null,
 		siteTitle: null,
 		mainMenuUrl: null
 	},

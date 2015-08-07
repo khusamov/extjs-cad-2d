@@ -1,5 +1,5 @@
 
-Ext.define("Kitchen.view.code.Code", {
+Ext.define("Kitchen.view.code.CodeTabPanel", {
 	
 	extend: "Ext.panel.Panel",
 	
@@ -9,12 +9,16 @@ Ext.define("Kitchen.view.code.Code", {
 	
 	layout: "card",
 	
+	config: {
+		page: null
+	},
+	
 	initComponent: function() {
 		this.callParent();
 		this.cards = {};
 	},
 	
-	setSrc: function(record) {
+	updatePage: function(record) {
 		var me = this;
 		if (record) {
 			var src = record.getPath("path") + "/" + (record.get("file") || "index.js");
@@ -32,7 +36,6 @@ Ext.define("Kitchen.view.code.Code", {
 	},
 	
 	getCardConfig: function(title, src) {
-		var me = this;
 		return {
 			xtype: "codecard"
 		};

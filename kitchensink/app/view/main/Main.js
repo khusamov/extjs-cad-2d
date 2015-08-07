@@ -9,7 +9,7 @@ Ext.define("Kitchen.view.main.Main", {
 		"Ext.ux.IFrame",
 		"Kitchen.store.Examples",
 		"Kitchen.view.pagetabpanel.PageTabPanel",
-		"Kitchen.view.code.Code"
+		"Kitchen.view.code.CodeTabPanel"
 	],
 	
 	plugins: "viewport",
@@ -29,7 +29,6 @@ Ext.define("Kitchen.view.main.Main", {
 		width: 400,
 		
 		title: "&nbsp",
-		//itemId: "mainmenu",
 		reference: "mainmenu",
 		xtype: "treepanel",
 		border: false,
@@ -37,7 +36,7 @@ Ext.define("Kitchen.view.main.Main", {
 		bind: {
 			title: "{siteTitle}",
 			store: "{mainMenu}",
-			selection: "{selection}",
+			selection: "{selectedPage}",
 		},
 		tbar: [{
 			text: "Развернуть",
@@ -51,11 +50,8 @@ Ext.define("Kitchen.view.main.Main", {
 		reference: "pages",
 		xtype: "pagetabpanel",
 		border: false,
-		
-		
-		
 		bind: {
-			src: "{selection}"
+			page: "{selectedPage}"
 		}
 		
 	}, {
@@ -67,7 +63,7 @@ Ext.define("Kitchen.view.main.Main", {
 		xtype: "codetabpanel",
 		border: false,
 		bind: {
-			src: "{selection}"
+			page: "{selectedPage}"
 		}
 	}]
 	

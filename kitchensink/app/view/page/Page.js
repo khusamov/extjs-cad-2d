@@ -16,6 +16,7 @@ Ext.define("Kitchen.view.page.Page", {
 		this.src = null;
 		this.add({
 			border: false,
+			loadMask: false,
 			xtype: "uxiframe",
 			listeners: {
 				scope: this,

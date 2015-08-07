@@ -5,6 +5,10 @@ Ext.define("Kitchen.view.pagetabpanel.PageTabPanel", {
 	
 	xtype: "pagetabpanel",
 	
+	config: {
+		page: null
+	},
+	
 	initComponent: function() {
 		this.callParent();
 		this.pages = {};
@@ -22,64 +26,81 @@ Ext.define("Kitchen.view.pagetabpanel.PageTabPanel", {
 	},
 	
 	
-	
-	
-	onTabChange: function(tabPanel, newCard) {
-		this.src = newCard._src;
-		this.fireEvent("srcchange", tabPanel, newCard);
+	getPageByTab: function(pageTab) {
+		var result = null;
+		Ext.Object.each(this.pages, function(page) {
+			if (page.tab == pageTab) {
+				result = page;
+				return false;
+			}
+		});
+		return result;
 	},
 	
-	publishes: ["src"],
-	twoWayBindable: ["src"],
-	
-	getSrc: function() {
-		return this.src;
+	onTabChange: function(me, pageTab) {
+		var page = this.getPageByTab(pageTab);
+		this.setPage(page);
+		this.publishState("page", page);
 	},
 	
 	
 	
 	
-	setSrc: function(record) {
+	
+	
+	
+	
+	updatePage: function(page) {
 		var me = this;
-		this.src = record;
-		if (record) {
-			var src = record.getPath("path") + "/" + (record.get("file") || "index.js");
-			var pages = me;
+		
+		if (page) {
 			
-			if (this.pages[src]) {
-				pages.setActiveTab(this.pages[src]);
+			var id = page.getId();
+			
+			
+			var src = page.getPath("path") + "/" + (page.get("file") || "index.js");
+			
+			
+			if (me.pages[id]) {
+				me.setActiveTab(me.pages[id]);
 			} else {
-				var title = record.get("text");
-				var page = this.pages[src] = pages.add(me.getPageConfig(title, src));
-				pages.setActiveTab(page);
-				page.load(src);
+				var title = page.get("text");
+				var pageTab = me.add(me.getPageConfig(title, id));
+				me.setActiveTab(pageTab);
+				pageTab.load(src);
 				
-				page._src = record;
+				
+				me.pages[id] = {
+					record: page,
+					tab: pageTab
+				};
+				
+				
 				
 			}
 		}
 	},
 	
-	getPageConfig: function(title, src) {
+	getPageConfig: function(title, id) {
 		var me = this;
 		return {
 			xtype: "page",
 			title: title,
 			listeners: {
 				scope: me,
-				args: [src],
+				args: [id],
 				close: "onPageTabClose",
 				tabclick: "onPageTabClick"
 			}
 		};
 	},
 	
-	onPageTabClose: function(src) {
-		delete this.pages[src];
+	onPageTabClose: function(id) {
+		delete this.pages[id];
 	},
 	
-	onPageTabClick: function(src) {
-		this.pages[src].reload();
+	onPageTabClick: function(id) {
+		this.pages[id].tab.reload();
 	},
 	
 });
