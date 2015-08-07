@@ -22,9 +22,16 @@ Ext.define("Kitchen.view.main.Menu", {
 		this.expandAll();
 	},
 	
+	tools: [{
+		type: "refresh",
+		tooltip: "Обновить содержание сайта",
+		handler: function() {
+			this.up("mainmenu").getStore().load();
+		}
+	}],
+	
 	bind: {
 		store: "{mainMenu}",
-		//title: "{siteTitle}",
 		selection: "{selectedMenuItem}",
 	},
 	

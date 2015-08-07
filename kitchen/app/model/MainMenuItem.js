@@ -41,6 +41,10 @@ Ext.define("Kitchen.model.MainMenuItem", {
 		return this.get("attachments") || ["js"].indexOf(this.getFileType()) != -1;
 	},
 	
+	equal: function(menuItem) {
+		return this.getPath("path") == menuItem.getPath("path");
+	},
+	
 	getAttachmentList: function() {
 		var result = [];
 		if (this.hasAttachments()) {

@@ -24,6 +24,7 @@ Ext.onReady(function() {
 		plugins: "viewport",
 		renderTo: Ext.getBody(),
 		layout: "fit",
+		border: false,
 		items: [svg]
 	});
 	

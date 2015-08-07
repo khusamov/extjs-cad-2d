@@ -38,22 +38,23 @@ Ext.define("Kitchen.view.site.Site", {
 	},
 	
 	updateMenuItem: function(menuItem) {
-		var page = this.getPageByMenuItem(menuItem);
-		if (page) {
-			
-		} else {
-			page = this.add({
-				xtype: "page",
-				menuItem: menuItem
-			});
+		if (menuItem) {
+			var page = this.getPageByMenuItem(menuItem);
+			if (!page) {
+				page = this.add({
+					xtype: "page",
+					menuItem: menuItem
+				});
+			}
+			this.setActiveTab(page);
 		}
-		this.setActiveTab(page);
 	},
 	
 	getPageByMenuItem: function(menuItem) {
+		var me = this;
 		var result = null;
-		this.items.each(function(page) {
-			if (menuItem == page.getMenuItem()) {
+		me.items.each(function(page) {
+			if (menuItem.equal(page.getMenuItem())) {
 				result = page;
 				return false;
 			}
