@@ -87,6 +87,7 @@ Ext.define("Khusamov.text.Highlight", {
 			if (!me.getWrap()) Ext.util.CSS.createRule(css, ".ace_static_highlight", "white-space: pre;");
 			Ext.util.CSS.createRule(css, ".ace_static_highlight", "font-size: " + me.getFontSize() + ";");
 			if (me.getGutter()) {
+				Ext.util.CSS.createRule(css, ".ace_gutter", "z-index: initial;");
 				Ext.util.CSS.createRule(css, ".ace-clouds .ace_gutter", "background: white;");
 				Ext.util.CSS.createRule(css, ".ace-clouds .ace_gutter", "color: silver;");
 				Ext.util.CSS.createRule(css, ".ace-eclipse .ace_gutter", "background: #F5F5F5;");

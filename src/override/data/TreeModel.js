@@ -1,9 +1,15 @@
 
+/**
+ * Изменения:
+ * 1) getPath() Пропускаем пустые элементы пути.
+ * 2) getPath() Добавлена опция withoutFirstSeparator.
+ */
+
 Ext.define("Khusamov.override.data.TreeModel", {
 	
 	override: "Ext.data.TreeModel",
 	
-    getPath: function(field, separator) {
+    getPath: function(field, separator, withoutFirstSeparator) {
         field = field || this.idProperty;
         separator = separator || '/';
 
@@ -16,7 +22,7 @@ Ext.define("Khusamov.override.data.TreeModel", {
         	if (cur) path.unshift(cur);
             parent = parent.parentNode;
         }
-        return separator + path.join(separator);
+        return (withoutFirstSeparator ? "" : separator) + path.join(separator);
     },
 	
 });
