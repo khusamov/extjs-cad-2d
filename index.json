@@ -13,35 +13,40 @@
 		"text": "SVG",
 		"path": "svg",
 		"children": [{
-			"path": "path",
+			"path": "element",
 			"file": "index.js",
-			"text": "Элемент «Path»",
+			"text": "Элементы",
 			"children": [{
-				"path": "arc",
+				"path": "path",
 				"file": "index.js",
-				"text": "Арочный сегмент",
-				"leaf": true,
+				"text": "Элемент «Path»",
+				"children": [{
+					"path": "arc",
+					"file": "index.js",
+					"text": "Арочный сегмент",
+					"leaf": true,
+				}, {
+					"path": "archeight",
+					"file": "index.js",
+					"text": "Высота дуги",
+					"leaf": true,
+				}]
 			}, {
-				"path": "archeight",
+				"path": "line",
 				"file": "index.js",
-				"text": "Высота дуги",
+				"text": "Элемент «Line»",
+				"children": [{
+					"path": "length",
+					"file": "index.js",
+					"text": "Длина линии",
+					"leaf": true,
+				}]
+			}, {
+				"path": "text",
+				"file": "index.js",
+				"text": "Элемент «Text»",
 				"leaf": true,
 			}]
-		}, {
-			"path": "line",
-			"file": "index.js",
-			"text": "Элемент «Line»",
-			"children": [{
-				"path": "length",
-				"file": "index.js",
-				"text": "Длина линии",
-				"leaf": true,
-			}]
-		}, {
-			"path": "text",
-			"file": "index.js",
-			"text": "Элемент «Text»",
-			"leaf": true,
 		}, {
 			"path": "geometry",
 			"file": "index.js",
