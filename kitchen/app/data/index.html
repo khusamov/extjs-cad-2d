@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+	
+	<head>
+		
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		
+		<!-- Убрать когда выйдет Хром версии 44 -->
+			<!-- http://javascript.ru/forum/extjs/56067-input-vniz-sekhali-vse.html -->
+			<style type="text/css">.x-form-text { display: inherit; }</style>
+		<!-- / Убрать -->
+		
+		<script type="text/javascript">
+			window.loadScript = function(src, callback, appendTo) {
+				var script = document.createElement("script");
+				if (!appendTo) appendTo = document.getElementsByTagName("head")[0];
+				if (script.readyState && !script.onload) {
+					// IE, Opera
+					script.onreadystatechange = function() {
+						if (script.readyState == "loaded" || script.readyState == "complete") {
+							script.onreadystatechange = null;
+							callback();
+						}
+					};
+				} else {
+					// Rest
+					script.onload = callback;
+				}
+				script.src = src;
+				appendTo.appendChild(script);
+			};
+		</script>
+		
+	</head>
+	
+	<body></body>
+	
+</html>
+
+

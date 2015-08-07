@@ -1,0 +1,28 @@
+[{
+	
+	"text": "Тесты",
+	"path": "test",
+	"file": "index.html",
+	"leaf": true,
+	
+}, {
+	
+	"text": "Примеры",
+	"path": "examples",
+	"children": [{
+		"text": "SVG",
+		"path": "svg",
+		"children": [{
+			"path": "path",
+			"file": "index.js",
+			"text": "Элемент «Path»",
+			"children": [{
+				"path": "arc",
+				"file": "index.js",
+				"text": "Арочный сегмент",
+				"leaf": true,
+			}]
+		}]
+	}]
+	
+}]
