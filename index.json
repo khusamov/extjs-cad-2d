@@ -1,87 +1,68 @@
 [{
 	
 	"text": "Тесты",
-	"path": "test",
-	"file": "index.html",
+	"path": "test", "file": "index.html",
 	"leaf": true,
 	
 }, {
 	
-	"text": "Примеры",
-	"path": "examples",
+	"text": "Примеры", "path": "examples",
 	"children": [{
-		"text": "SVG",
-		"path": "svg",
+		"text": "SVG", "path": "svg",
 		"children": [{
-			"path": "element",
-			"file": "index.js",
-			"text": "Элементы",
+			
+			"text": "Элементы", "path": "element", "file": "index.js",
 			"children": [{
-				"path": "path",
-				"file": "index.js",
-				"text": "Элемент «Path»",
+				"text": "Элемент «Path»", "path": "path", "file": "index.js",
 				"children": [{
-					"path": "arc",
-					"file": "index.js",
 					"text": "Арочный сегмент",
+					"path": "arc", "file": "index.js",
 					"leaf": true,
 				}, {
-					"path": "archeight",
-					"file": "index.js",
 					"text": "Высота дуги",
+					"path": "archeight", "file": "index.js",
 					"leaf": true,
 				}]
 			}, {
-				"path": "line",
-				"file": "index.js",
-				"text": "Элемент «Line»",
+				"text": "Элемент «Line»", "path": "line", "file": "index.js",
 				"children": [{
-					"path": "length",
-					"file": "index.js",
 					"text": "Длина линии",
+					"path": "length", "file": "index.js",
 					"leaf": true,
 				}]
 			}, {
-				"path": "text",
-				"file": "index.js",
 				"text": "Элемент «Text»",
+				"path": "text", "file": "index.js",
 				"leaf": true,
 			}]
+			
 		}, {
-			"path": "geometry",
-			"file": "index.js",
-			"text": "Геометрическая библиотека",
+			
+			"text": "Геометрическая библиотека", "path": "geometry", "file": "index.js",
 			"children": [{
-				"path": "circular",
-				"file": "index.js",
-				"text": "Уравнение окружности",
+				"text": "Уравнение окружности", "path": "circular", "file": "index.js",
 				"children": [{
-					"path": "center",
-					"file": "index.js",
 					"text": "Поиск центра окружности",
+					"path": "center", "file": "index.js",
 					"leaf": true,
 				}, {
-					"path": "intersection",
-					"file": "index.js",
 					"text": "Пересечение окружности и прямой",
+					"path": "intersection", "file": "index.js",
 					"leaf": true,
 				}]
 			}, {
-				"path": "linear",
-				"file": "index.js",
-				"text": "Уравнение прямой линии",
+				"text": "Уравнение прямой линии", "path": "linear", "file": "index.js",
 				"children": [{
-					"path": "angle",
-					"file": "index.js",
 					"text": "Угол между прямой и осью Ох",
+					"path": "angle", "file": "index.js",
 					"leaf": true,
 				}, {
-					"path": "transform",
-					"file": "index.js",
 					"text": "Трансформация уравнения прямой",
+					"path": "transform", "file": "index.js",
 					"leaf": true,
 				}]
 			}]
+			
 		}]
 	}]
 	
