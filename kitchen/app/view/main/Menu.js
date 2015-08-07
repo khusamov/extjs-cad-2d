@@ -24,7 +24,7 @@ Ext.define("Kitchen.view.main.Menu", {
 	
 	bind: {
 		store: "{mainMenu}",
-		title: "{siteTitle}",
+		//title: "{siteTitle}",
 		selection: "{selectedMenuItem}",
 	},
 	

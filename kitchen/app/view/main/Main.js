@@ -19,13 +19,16 @@ Ext.define("Kitchen.view.main.Main", {
 	},
 	
 	layout: "border",
-	border: false,
+	
+	bind: {
+		title: "{siteTitle}"
+	},
 	
 	items: [{
 		region: "west",
 		xtype: "mainmenu",
 		reference: "mainmenu",
-		title: "&nbsp",
+		title: "Содержание",
 		width: 300,
 		split: true,
 	}, {

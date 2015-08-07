@@ -31,6 +31,7 @@ Ext.define("Kitchen.view.site.page.content.Html", {
 	},
 	
 	updateMenuItem: function(menuItem) {
+		this.callParent(arguments);
 		if (this.isItemsReady()) this.load();
 	},
 	

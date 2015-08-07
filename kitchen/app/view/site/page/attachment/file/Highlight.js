@@ -8,7 +8,8 @@ Ext.define("Kitchen.view.site.page.attachment.file.Highlight", {
 	requires: ["Khusamov.text.Highlight"],
 	
 	items: {
-		xtype: "highlight"
+		xtype: "highlight",
+		trim: false
 	},
 	
 	loadMask: "<div style='text-align: center'>Подождите,<br/>загружается файл...</div>",

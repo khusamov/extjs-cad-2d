@@ -44,27 +44,38 @@ Ext.define("Kitchen.view.site.page.Page", {
 	},
 	
 	setup: function() {
+		var me = this;
 		var panelType = {
 			js: "script",
 			html: "html",
 			md: "markdown"
 		};
-		if (this.getMenuItem()) {
-			this.removeAll();
-			this.add({
-				xtype: "content." + panelType[this.getMenuItem().getFileType()],
-				menuItem: this.getMenuItem(),
-				flex: 1
-			});
-			if (this.getMenuItem().hasAttachments()) {
-				this.add({
+		if (me.getMenuItem()) {
+			me.removeAll();
+			if (me.getMenuItem().hasAttachments()) {
+				me.add({
 					xtype: "splitter"
 				}, {
 					xtype: "attachment",
-					menuItem: this.getMenuItem(),
+					menuItem: me.getMenuItem(),
 					flex: 1
 				});
 			}
+			var content = me.insert(0, {
+				xtype: "content." + panelType[me.getMenuItem().getFileType()],
+				menuItem: me.getMenuItem(),
+				flex: 1
+			});
+			
+			
+			function setRefreshHandle() { content.down("tool[type=refresh]").on("click", "setup", me); }
+			if (content.rendered) {
+				setRefreshHandle();
+			} else {
+				content.on("render", setRefreshHandle);
+			}
+			
+
 		}
 	},
 	

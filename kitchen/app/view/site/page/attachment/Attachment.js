@@ -15,6 +15,10 @@ Ext.define("Kitchen.view.site.page.attachment.Attachment", {
 		menuItem: null
 	},
 	
+	tools: [{
+		type: "maximize"
+	}],
+	
 	initComponent: function() {
 		this.callParent();
 		this.setup();
@@ -24,7 +28,15 @@ Ext.define("Kitchen.view.site.page.attachment.Attachment", {
 		return this.items && this.items.isMixedCollection;
 	},
 	
+	onAdd: function() {
+		this.callParent(arguments);
+		var tabbar = this.getTabBar();
+		tabbar[this.items.getCount() > 1 ? "show" : "hide"].call(tabbar);
+	},
+	
 	updateMenuItem: function(menuItem) {
+		var title = menuItem.get("attachmentTitle");
+		this.setTitle(title || "Исходный код примера");
 		if (this.isItemsReady()) this.setup();
 	},
 	

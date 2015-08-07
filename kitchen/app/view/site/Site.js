@@ -9,6 +9,8 @@ Ext.define("Kitchen.view.site.Site", {
 	
 	border: false,
 	
+	tabPosition: "bottom",
+	
 	config: {
 		menuItem: null
 	},
@@ -26,9 +28,7 @@ Ext.define("Kitchen.view.site.Site", {
 	
 	onAdd: function(page, index) {
 		this.callParent(arguments);
-		//page.onTabCreate(this, index);
 		this.getTabButton(page).on("click", function() {
-			//page.fireEvent("tabclick", page);
 			page.onTabClick();
 		});
 	},

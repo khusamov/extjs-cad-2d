@@ -17,6 +17,12 @@ Ext.define("Kitchen.model.MainMenuItem", {
 	}, {
 		name: "file",
 		type: "string"
+	}, {
+		name: "attachmentTitle",
+		type: "string"
+	}, {
+		name: "attachments",
+		type: "auto"
 	}],
 	
 	getFilePath: function() {
