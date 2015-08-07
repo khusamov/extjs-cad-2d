@@ -4,6 +4,7 @@ Ext.define("Khusamov.override.Override", {
 	requires: [ 
 		
 		"Khusamov.override.data.Store",
+		"Khusamov.override.data.TreeModel",
 		
 		"Khusamov.override.form.Panel",
 		"Khusamov.override.form.FieldSet",
@@ -20,6 +21,8 @@ Ext.define("Khusamov.override.Override", {
 		"Khusamov.override.grid.Panel",
 		
 		"Khusamov.override.dd.DragTracker",
+		
+		"Khusamov.override.resizer.Splitter",
 		
 		"Khusamov.override.util.History",
 		"Khusamov.override.util.Format"
