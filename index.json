@@ -6,7 +6,7 @@
 	
 }, {
 	
-	"text": "Примеры", "path": "examples",
+	"text": "Примеры", "path": "examples", "file": "index.md",
 	"children": [{
 		"text": "SVG", "path": "svg",
 		"children": [{

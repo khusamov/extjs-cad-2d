@@ -20,9 +20,8 @@ Ext.define("Kitchen.view.site.page.attachment.file.Highlight", {
 	},
 	
 	initEvents: function() {
-		var me = this;
-		me.callParent();
-		this.connection.on("requestcomplete", "onRequestComplete", me);
+		this.callParent();
+		this.connection.on("requestcomplete", "onRequestComplete", this);
 	},
 	
 	onRequestComplete: function() {
