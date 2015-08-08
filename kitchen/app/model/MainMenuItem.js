@@ -26,7 +26,8 @@ Ext.define("Kitchen.model.MainMenuItem", {
 	}],
 	
 	getFilePath: function() {
-		return this.getPath("path") + "/" + this.getFileName();
+		var root = this.getPath("path");
+		return (root == "/" ? "" : root) + "/" + this.getFileName();
 	},
 	
 	getFileName: function() {
