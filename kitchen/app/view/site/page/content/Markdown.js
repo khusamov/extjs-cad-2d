@@ -1,6 +1,7 @@
 
 /**
  * https://github.com/markdown-it/markdown-it
+ * https://github.com/markdown-it
  * https://markdown-it.github.io/
  */
 
@@ -33,6 +34,9 @@ Ext.define("Kitchen.view.site.page.content.Markdown", {
 			typographer: true,
 			highlight: this.getHighlighter()
 		});
+		
+		// TODO добавить плагины со страницы https://github.com/markdown-it
+		// Думаю их надо загрузить в extra и прописать в html.
 		
 		//this.markdown.use(window.markdownitFootnote);
 		
