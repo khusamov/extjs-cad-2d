@@ -43,7 +43,7 @@ Ext.define("Kitchen.model.MainMenuItem", {
 	},
 	
 	equal: function(menuItem) {
-		return this.getPath("path") == menuItem.getPath("path");
+		return this.getFilePath() == menuItem.getFilePath();
 	},
 	
 	getAttachmentList: function() {
