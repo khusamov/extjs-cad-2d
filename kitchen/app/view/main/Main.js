@@ -29,7 +29,7 @@ Ext.define("Kitchen.view.main.Main", {
 		xtype: "mainmenu",
 		reference: "mainmenu",
 		title: "Содержание",
-		width: 300,
+		width: 366,
 		split: true,
 	}, {
 		region: "center",
