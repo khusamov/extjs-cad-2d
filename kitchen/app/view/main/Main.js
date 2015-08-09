@@ -35,7 +35,11 @@ Ext.define("Kitchen.view.main.Main", {
 		region: "center",
 		xtype: "site",
 		reference: "site",
-	}]
+	}],
+	
+	refresh: function() {
+		this.lookupReference("site").refresh();
+	},
 	
 });
 

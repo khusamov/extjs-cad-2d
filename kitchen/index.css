@@ -1,0 +1,35 @@
+
+.content-markdown-body {
+	padding: 30px 30px 30px 30px;
+}
+
+.content-markdown-body :first-child {
+	margin-top: 0px;
+}
+
+.content-markdown-body :last-child {
+	margin-bottom: 0px;
+}
+
+.content-markdown-body code {
+	padding: 1px 2px 2px 2px;
+	background-color: rgba(177, 168, 255, 0.19);
+}
+
+.content-markdown-body pre {
+	display: block;
+	word-break: break-all;
+	word-wrap: break-word;
+	background-color: #FBFBFB;
+	border: 1px solid #EAEAEA;
+	padding: 1em;
+	overflow-x: auto;
+}
+
+.content-markdown-body pre code {
+    padding: 0;
+    white-space: pre-wrap;
+	font-size: inherit;
+	color: inherit;
+	background-color: transparent;
+}

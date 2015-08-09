@@ -6,12 +6,11 @@
  */
 
 /*
-		<!-- markdown-it -->
-			<script src="//cdn.jsdelivr.net/markdown-it/4.4.0/markdown-it.min.js"></script>
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.2.0/css/bootstrap.css">
-			<script src="https://cdn.jsdelivr.net/highlight.js/8.5.0/highlight.min.js"></script>
-			<link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/8.5.0/styles/solarized_light.min.css">
-		<!-- / markdown-it -->
+	<!-- markdown-it -->
+		<script src="//cdn.jsdelivr.net/markdown-it/4.4.0/markdown-it.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/highlight.js/8.5.0/highlight.min.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/8.5.0/styles/default.min.css">
+	<!-- / markdown-it -->
 */
 
 Ext.define("Kitchen.view.site.page.content.Markdown", {
@@ -22,7 +21,7 @@ Ext.define("Kitchen.view.site.page.content.Markdown", {
 	
 	scrollable: true,
 	
-	bodyPadding: "30px 30px 30px 30px",
+	bodyCls: "content-markdown-body",
 	
 	loadMask: "<div style='text-align: center'>Подождите,<br/>загружается файл...</div>",
 	

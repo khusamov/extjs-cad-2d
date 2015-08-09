@@ -64,6 +64,10 @@ Ext.define("Kitchen.view.site.Site", {
 	
 	getTabButton: function(page) {
 		return this.getTabBar().items.getAt(this.items.indexOf(page));
-	}
+	},
+	
+	refresh: function() {
+		this.getPageByMenuItem(this.getMenuItem()).refresh();
+	},
 	
 });

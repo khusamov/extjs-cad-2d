@@ -43,6 +43,10 @@ Ext.define("Kitchen.view.site.page.Page", {
 		return this.items && this.items.isMixedCollection;
 	},
 	
+	refresh: function() {
+		this.setup();
+	},
+	
 	setup: function() {
 		var me = this;
 		var panelType = {

@@ -29,7 +29,20 @@ Ext.define("Kitchen.controller.Root", {
 	},
 	
 	init: function(application) {
+		var me = this;
 		this.currentPath = null;
+		
+		var keymap = Ext.create("Ext.util.KeyMap", {
+			target: Ext.getWin(),
+			key: Ext.event.Event.F5,
+			fn: function(key, event) {
+				if (!event.ctrlKey) {
+					application.getMainView().refresh();
+					event.stopEvent();
+				}
+			}
+		});
+		
 	},
 	
 	onLaunch: function(application) {
