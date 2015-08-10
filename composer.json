@@ -8,11 +8,19 @@
 	}],
 	
 	"require": {
-		"khusamov/sencha.extjs": "5.1.1"
+		"markdown-it/markdown-it-container": "1.0.0"
 	},
 	
 	"repositories": [{
-		"type": "git",
-		"url": "git@bitbucket.org:khusamov/sencha.extjs.git"
+		"type":"package",
+		"package": {
+			"name":"markdown-it/markdown-it-container",
+			"version": "1.0.0",
+			"source": {
+				"type": "git",
+				"url": "git@github.com:markdown-it/markdown-it-container.git",
+				"reference": "1.0.0"
+			}
+		}
 	}]
 }
