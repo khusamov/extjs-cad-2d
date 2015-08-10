@@ -5,7 +5,14 @@
 	"authors": [{
 		"name": "Хусамов Сухроб",
 		"email": "khusamov@yandex.ru"
+	}],
+	
+	"require": {
+		"khusamov/sencha.extjs": "5.1.1"
+	},
+	
+	"repositories": [{
+		"type": "git",
+		"url": "git@bitbucket.org:khusamov/sencha.extjs.git"
 	}]
-	
-	
 }
