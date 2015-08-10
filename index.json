@@ -12,6 +12,15 @@
 	
 }, {
 	
+	"text": "Статьи", "path": "articles", 
+	"children": [{
+		"text": "Свои компоненты с поддержкой Bindable",
+		"path": "bindable", "file": "index.md",
+		"leaf": true,
+	}],
+	
+}, {
+	
 	"text": "Примеры", "path": "examples", "file": "index.md",
 	"children": [{
 		"text": "SVG", "path": "svg",

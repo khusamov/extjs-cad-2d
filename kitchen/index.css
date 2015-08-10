@@ -1,4 +1,6 @@
 
+/* Kitchen.view.site.page.content.Markdown */
+
 .content-markdown-body {
 	padding: 30px 30px 30px 30px;
 }
@@ -32,4 +34,12 @@
 	font-size: inherit;
 	color: inherit;
 	background-color: transparent;
+}
+
+/* markdown-it/markdown-it-container */
+
+.content-markdown-body .note {
+	background-color: #FFFFD9;
+	padding: 5px 8px;
+	border: 1px solid #DADAAB;
 }

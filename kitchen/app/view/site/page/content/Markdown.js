@@ -38,6 +38,7 @@ Ext.define("Kitchen.view.site.page.content.Markdown", {
 		// Думаю их надо загрузить в extra и прописать в html.
 		
 		//this.markdown.use(window.markdownitFootnote);
+		this.markdown.use(window.markdownitContainer, "note");
 		
 	},
 	
