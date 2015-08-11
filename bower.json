@@ -1,0 +1,31 @@
+{
+	
+	"name": "khusamov-extjs",
+	"description": "Библиотека дополнительных компонент под Ext JS",
+	"authors": ["Khusamov Sukhrob <khusamov@yandex.ru> (http://khusamov.ru/)"],
+	
+	"license": "GPL",
+	"version": "0.0.1",
+	"keywords": ["extjs", "ext"],
+	"homepage": "https://bitbucket.org/khusamov/extjs",
+	
+	"main": [
+		"packages/delegates.js", 
+		"packages/svg/style.css"
+	],
+	
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	],
+	
+	"dependencies": {
+		"extjs": "*",
+		"markdown-it": "*",
+		"markdown-it-container": "*"
+	}
+	
+}
