@@ -66,6 +66,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		this.lastPoint.un("update", "onLastPointUpdate", this);
 		this.lastPoint = null;
 		
+		this.fireEvent("add");
 		this.fireEvent("update");
 		return segment;
 	},
@@ -76,6 +77,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 */
 	splice: function(index, deleteCount, segment) {
 		this.segments.splice(index, deleteCount, segment);
+		this.fireEvent("splice");
 		this.fireEvent("update");
 		return segment;
 	},
@@ -122,9 +124,12 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		this.segments = [];
 		this.closed = false;
 		
-		this.lastPoint.un("update", "onLastPointUpdate", this);
-		this.lastPoint = null;
+		if (this.lastPoint) {
+			this.lastPoint.un("update", "onLastPointUpdate", this);
+			this.lastPoint = null;
+		}
 		
+		this.fireEvent("clear");
 		this.fireEvent("update");
 		return this;
 	},
@@ -235,6 +240,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		this.lastPoint.on("update", "onLastPointUpdate", this);
 		this.lastPoint.setPath(this);
 		this.closed = false;
+		this.fireEvent("changelastpoint");
 		this.fireEvent("update");
 		return this;
 	},
@@ -380,6 +386,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 				me.lastPoint.on("update", "onLastPointUpdate", me);
 			}
 		});
+		me.fireEvent("turnout");
 		me.fireEvent("update");
 		return me;
 	},

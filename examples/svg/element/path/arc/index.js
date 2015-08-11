@@ -84,7 +84,7 @@ Ext.onReady(function() {
 	pathGeometry.arc(100);
 	pathGeometry.point(point2);
 	
-	var arc = pathGeometry.getSegment(0);
+	var arc = pathGeometry.getSegment(0).getArc();
 	
 	var path = Ext.create("Khusamov.svg.element.Path", {
 		geometry: pathGeometry,
@@ -142,21 +142,8 @@ Ext.onReady(function() {
 	path.on("update", function() {
 		var minRadius = arc.getChordLength() / 2;
 		if (arc.getRadius() < minRadius) {
-			
-			
-			/*console.log(
-				"!suspendCheckChange=", !radiusField.suspendCheckChange,
-				"!isDestroyed=", !radiusField.isDestroyed,
-				"didValueChange=", radiusField.didValueChange(minRadius, radiusField.getValue())
-			);*/
-			
-			//radiusField.suspendEvent("change");
 			//http://javascript.ru/forum/extjs/57355-sobytie-change-ne-generiruetsya-pri-vyzove-ext-form-field-number-setvalue.html
 			radiusField.setValue(minRadius);
-			//radiusField.resumeEvent("change");
-			//console.log(minRadius, radiusField.getValue(), arc.getRadius());
-			
-			//arc.setRadius(minRadius);
 		} else {
 			display();
 		}
