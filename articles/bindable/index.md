@@ -27,10 +27,12 @@ Ext.create("Ext.panel.Panel", {
 
 ::: note
 На заметку: 
-Для включения модели вида в компоненте оказывается достаточно прописать `viewModel: true`, несмотря на то, 
-что в [документации](http://docs.sencha.com/extjs/5.1/5.1.1-apidocs/#!/api/Ext.Component-cfg-viewModel)
-об этом ничего не сказано (там опция `viewModel` ограничена типами `String/Object/Ext.app.ViewModel`). 
+Для включения модели вида в компоненте оказывается достаточно прописать `viewModel: true`, 
+несмотря на то, что в [документации][viewmodel] об этом ничего не сказано 
+(там опция `viewModel` ограничена типами `String/Object/Ext.app.ViewModel`). 
 :::
+
+[viewmodel]: http://docs.sencha.com/extjs/5.1/5.1.1-apidocs/#!/api/Ext.Component-cfg-viewModel
 
 Чтобы добиться такого поведения для своего компонента следует воспользоваться 
 методом `Ext.mixin.Bindable.publishState()`.
@@ -79,3 +81,4 @@ Ext.create("Ext.panel.Panel", {
 
 Пример в действии можно посмотреть в песочнице: 
 https://fiddle.sencha.com/#fiddle/roh
+
