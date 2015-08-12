@@ -18,7 +18,8 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	requires: [
 		"Ext.util.Collection",
 		"Khusamov.svg.geometry.path.segment.Line",
-		"Khusamov.svg.geometry.path.segment.Arc"
+		"Khusamov.svg.geometry.path.segment.Arc",
+		"Khusamov.svg.geometry.Arc"
 	],
 	
 	isPath: true,
@@ -276,11 +277,18 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {Khusamov.svg.geometry.Path}
 	 */
 	arc: function(radius, config) {
-		if (!(Ext.isArray(radius) || Ext.isNumeric(radius))) {
-			config = radius;
-			radius = null;
+		var segment = null;
+		var ArcSegment = Khusamov.svg.geometry.path.segment.Arc;
+		if (radius instanceof Khusamov.svg.geometry.Arc) {
+			segment = ArcSegment.create(radius);
+		} else {
+			if (!(Ext.isArray(radius) || Ext.isNumeric(radius))) {
+				config = radius;
+				radius = null;
+			}
+			segment = ArcSegment.create(null, radius, config);
 		}
-		return this.segment(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config));
+		return this.segment(segment);
 	},
 	
 	/**

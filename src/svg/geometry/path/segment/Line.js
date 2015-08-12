@@ -5,8 +5,12 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 	
 	requires: ["Khusamov.svg.geometry.Line"],
 	
+	getLine: function() {
+		return Ext.create("Khusamov.svg.geometry.Line", this.getFirstPoint(), this.getLastPoint());
+	},
+	
 	getLength: function() {
-		return this.toLine().getLength();
+		return this.getLine().getLength();
 	},
 	
 	toString: function() {
@@ -18,10 +22,6 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 			result = me.callParent([result.join(" ")]);
 		}
 		return result;
-	},
-	
-	toLine: function() {
-		return Ext.create("Khusamov.svg.geometry.Line", this.getFirstPoint(), this.getLastPoint());
 	}
 	
 });

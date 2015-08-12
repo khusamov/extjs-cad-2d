@@ -19,6 +19,12 @@ Ext.onReady(function() {
 	
 	var svg = Ext.create("Khusamov.svg.Svg");
 	
+	var tbseparator = {
+		xtype: "tbseparator",
+		margin: "0px 10px 0px 5px",
+		height: 30
+	};
+	
 	var panel = Ext.create("Ext.panel.Panel", {
 		plugins: "viewport",
 		renderTo: Ext.getBody(),
@@ -36,11 +42,7 @@ Ext.onReady(function() {
 			//http://javascript.ru/forum/extjs/57355-sobytie-change-ne-generiruetsya-pri-vyzove-ext-form-field-number-setvalue.html
 			decimalPrecision: 10
 			
-		}, {
-			xtype: "tbseparator",
-			margin: "0px 11px 0px 5px",
-			height: 30
-		}, {
+		}, tbseparator, {
 			itemId: "sweep",
 			xtype: "checkbox",
 			boxLabel: "Sweep"
@@ -48,27 +50,15 @@ Ext.onReady(function() {
 			itemId: "large",
 			xtype: "checkbox",
 			boxLabel: "Large"
-		}, {
-			xtype: "tbseparator",
-			margin: "0px 10px 0px 5px",
-			height: 30
-		}, {
+		}, tbseparator, {
 			height: 24,
 			itemId: "angle",
 			xtype: "displayfield"
-		}, {
-			xtype: "tbseparator",
-			margin: "0px 10px 0px 5px",
-			height: 30
-		}, {
+		}, tbseparator, {
 			height: 24,
 			itemId: "length",
 			xtype: "displayfield"
-		}, {
-			xtype: "tbseparator",
-			margin: "0px 10px 0px 5px",
-			height: 30
-		}, {
+		}, tbseparator, {
 			height: 24,
 			itemId: "chord",
 			xtype: "displayfield"

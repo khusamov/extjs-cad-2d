@@ -125,7 +125,7 @@ Ext.onReady(function() {
 		path.arc(100);
 		path.point(200, 200);
 		
-		var arc = path.getSegment(0);
+		var arc = path.getSegment(0).getArc();
 		
 		var chord = Math.sqrt(Math.pow((200 - 100), 2) + Math.pow((200 - 100), 2));
 		
