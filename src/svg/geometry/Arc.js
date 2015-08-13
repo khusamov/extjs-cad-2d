@@ -70,9 +70,9 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	config: {
 		
-		firstPoint: [0, 0],
+		firstPoint: null,
 		
-		lastPoint: [0, 0],
+		lastPoint: null,
 		
 		radius: [0, 0],
 		

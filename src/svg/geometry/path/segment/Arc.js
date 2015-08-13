@@ -50,9 +50,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	},
 	
 	initArcPoints: function() {
-		if (this.getArc()) {
-			this.getArc().setFirstPoint(this.getFirstPoint());
-			if (this.getLastPoint()) this.getArc().setLastPoint(this.getLastPoint());
+		var me = this, arc = me.getArc();
+		if (arc) {
+			arc.setFirstPoint(me.getFirstPoint());
+			if (me.getLastPoint()) arc.setLastPoint(me.getLastPoint());
 		}
 	},
 	
@@ -68,10 +69,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 			.forEach(function(eventName) {
 				
 				//http://javascript.ru/forum/extjs/57614-metod-tostring-v-polzovatelskom-komponente-i-problemy-s-nim.html
-				path.on(eventName, function() {
+				/*path.on(eventName, function() {
 					me.initArcPoints();
-				});
-				
+				});*/
+				path.on(eventName, "initArcPoints", me);
 			});
 			
 		me.initArcPoints();
@@ -80,10 +81,11 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	toString: function() {
 		var me = this, result = "";
 		if (me.hasPath()) {
-			result = [];
 			var arc = me.getArc();
 			var point = arc.getLastPoint();
 			if (point) {
+				result = [];
+				
 				result.push(point.isRelative() ? "a" : "A");
 				
 				result.push(arc.getRadius(0));
@@ -98,7 +100,6 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 			}
 		}
 		return result;
-
 	}
 	
 });
