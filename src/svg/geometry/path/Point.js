@@ -41,6 +41,10 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		me.callParent([config]);
 	},
 	
+	/**
+	 * Включить синхронизацию с другой точкой.
+	 * @param {Khusamov.svg.geometry.Point} point Синхронизируемая точка. 
+	 */
 	syncWith: function(point) {
 		var me = this;
 		point.on("update", function() {
@@ -53,7 +57,7 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	},
 	
 	updateSegment: function(segment, oldSegment) {
-		if (oldSegment) this.getSegment().setPoint(null);
+		if (oldSegment) oldSegment.setPoint(null);
 	},
 	
 	applyRelative: function(value) {

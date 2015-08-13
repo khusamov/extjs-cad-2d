@@ -24,11 +24,11 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	 */
 	constructor: function(point, radius, config) {
 		var me = this;
-		config = config || {};
+		config = config ? { arc: config } : {};
 		if (arguments.length == 1) config = point;
 		if (point instanceof Khusamov.svg.geometry.Arc) config = { arc: point };
 		if (arguments.length > 1) {
-			config.arc = {};
+			config.arc = config.arc || {};
 			if (!Ext.isEmpty(radius)) config.arc.radius = radius;
 			if (!Ext.isEmpty(point)) config.point = point;
 		}

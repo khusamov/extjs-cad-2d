@@ -16,10 +16,17 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 	toString: function() {
 		var me = this, result = "";
 		if (me.hasPath()) {
-			result = [];
-			result.push(me.getLastPoint().isRelative() ? "l" : "L");
-			result.push(me.getLastPoint().toString());
-			result = me.callParent([result.join(" ")]);
+			
+			
+			var point = me.getLastPoint();
+			if (point) {
+				result = [];
+				result.push(me.getLastPoint().isRelative() ? "l" : "L");
+				result.push(me.getLastPoint().toString());
+				result = me.callParent([result.join(" ")]);
+			}
+			
+
 		}
 		return result;
 	}

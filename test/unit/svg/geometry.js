@@ -121,19 +121,27 @@ Ext.onReady(function() {
 	QUnit.test("Khusamov.svg.geometry.path.segment.Arc: Общая работа класса", function(assert) {
 		
 		var path = Ext.create("Khusamov.svg.geometry.Path");
-		path.point(100, 100);
-		path.arc(100);
-		path.point(200, 200);
+		var pathStr = "M 100 100 A 50 50 0 0 1 200 100 L 200 300 A 50 50 0 0 0 100 300 L 100 100 Z";
+		
+		path
+			.point(100, 100)
+			.arc(50, { sweep: true })
+			.point(200, 100)
+			.line()
+			.point(200, 300)
+			.arc(50, { sweep: false })
+			.point(100, 300)
+			.line();
 		
 		var arc = path.getSegment(0).getArc();
 		
-		var chord = Math.sqrt(Math.pow((200 - 100), 2) + Math.pow((200 - 100), 2));
+		var chord = Math.sqrt(Math.pow((200 - 100), 2) + Math.pow((100 - 100), 2));
 		
-		assert.equal(arc.getAngle(), 1.5707963267948966, "Угол дуги");
+		assert.equal(arc.getAngle(), 3.141592653589793, "Угол дуги");
 		assert.equal(arc.getLength(), 157.07963267948966, "Длина дуги");
 		assert.equal(arc.getChordLength(), chord, "Длина хорды");
 		assert.ok(arc.getLength() > chord, "Длина дуги больше хорды");
-		
+		assert.equal(path.toString(), pathStr, "Путь в виде строки");
 	});
 	
 });

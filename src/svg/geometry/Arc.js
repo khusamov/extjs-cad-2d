@@ -47,16 +47,19 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 			return result[index ? index : 0];
 		},
 		
-		radius: function(height, len) {
+		/**
+		 * Вычисление радиуса по высоте дуги и длине ее хорды.
+		 * Знак высоты сохраняется и для радиуса.
+		 */
+		radius: function(height, chord) {
 			var radius = Infinity;
 			if (height) {
-				
 				var sign = height >= 0 ? 1 : -1;
 				height = Math.abs(height);
 				// При пересечении двух хорд окружности, получаются отрезки, 
 				// произведение длин которых у одной хорды равно соответствующему произведению у другой
 				// https://ru.wikipedia.org/wiki/%D0%A5%D0%BE%D1%80%D0%B4%D0%B0_(%D0%B3%D0%B5%D0%BE%D0%BC%D0%B5%D1%82%D1%80%D0%B8%D1%8F)
-				radius = height / 2 + len * len / (8 * height);
+				radius = height / 2 + chord * chord / (8 * height);
 				radius *= sign;
 			}
 			return radius;
@@ -119,7 +122,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	updateFirstPoint: function(point, oldPoint) {
 		this.onParamUpdate();
 		if (oldPoint) oldPoint.un("update", "onParamUpdate", this);
-		point.on("update", "onParamUpdate", this);
+		if (point) point.on("update", "onParamUpdate", this);
 	},
 	
 	applyLastPoint: function(point) {
@@ -222,6 +225,10 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	getChordLength: function() {
 		return this.getChord().getLength();
+	},
+	
+	getHeight: function() {
+		return Khusamov.svg.geometry.Arc.height(this.getFirstPoint(), this.getLastPoint(), this.getCenter());
 	}
 	
 });

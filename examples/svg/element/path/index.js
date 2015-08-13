@@ -33,30 +33,6 @@ Ext.onReady(function() {
 	});
 	
 	var geometry = path.getGeometry();
-	
-	/*geometry
-	
-		.point(100, 100)
-		.arc(50, { sweep: true })
-		.point(200, 100)
-		.line()
-		.point(200, 300)
-		.arc(50, { sweep: false })
-		.point(100, 300)
-		.line()
-		.close()
-		
-		.point(200, 310)
-		.arc(50, { sweep: true })
-		.point(100, 310)
-		.close()
-		
-		.point(200, 410)
-		.arc(50, { sweep: true })
-		.point(100, 410)
-		.line()
-		.close();*/
-
 
 	geometry
 	

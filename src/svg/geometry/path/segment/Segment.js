@@ -78,12 +78,15 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		var me = this;
 		var result = [];
 		if (me.hasPath()) {
-			if (me.isFirst()) {
-				result.push("M " + me.getFirstPoint().toString());
-			}
-			result.push(body);
-			if (me.isLast() && me.getPath().closed) {
-				result.push("Z");
+			var point = me.getFirstPoint();
+			if (point) {
+				if (me.isFirst()) {
+					result.push("M " + me.getFirstPoint().toString());
+				}
+				result.push(body);
+				if (me.isLast() && me.getPath().closed) {
+					result.push("Z");
+				}
 			}
 		}
 		return result.join(" ");
