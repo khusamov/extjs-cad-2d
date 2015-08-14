@@ -31,7 +31,8 @@ Ext.define("Khusamov.svg.geometry.Triangle", {
 				};
 				this.getArea = function() {
 					var p = this.getSemiperimeter();
-					return Math.sqrt(p * (p - this.a) * (p - this.b) * (p - this.c));
+					var area = Math.sqrt(p * (p - this.a) * (p - this.b) * (p - this.c));
+					return isNaN(area) ? 0 : area;
 				};
 				
 				this.ha = function() {
