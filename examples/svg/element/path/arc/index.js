@@ -86,7 +86,6 @@ Ext.onReady(function() {
 	
 	svg.add(path);
 	
-	
 	var circle1 = Ext.create("Khusamov.svg.element.Circle", {
 		center: point1, 
 		radius: 10,
@@ -139,9 +138,23 @@ Ext.onReady(function() {
 		}
 	});
 	
-	display();
+	// Создаем кружок, показывающий где центр окружности, проходящей через дугу.
 	
+	var arcCenterCirleElement = svg.add(Khusamov.svg.Element.createCircle({
+		center: arc.getCenter(),
+		radius: 4,
+		style: {
+			stroke: "black",
+			strokeWidth: 0,
+			fill: "black"
+		}
+	}));
+
 	function display() {
+	
+		// Смещаем центр окружности дуги.
+		arcCenterCirleElement.getCenter().move(arc.getCenter());
+		
 		var fixed = 2;
 		angleField.setValue(Ext.String.format(
 			"Угол дуги: {0}",
@@ -157,6 +170,78 @@ Ext.onReady(function() {
 		));
 	}
 	
+	display();
+	
+	
+	
+	
+	/**
+	 * Задача о пересечении дуги и прямой линии
+	 */
+	
+	var point11 = Ext.create("Khusamov.svg.geometry.Point", 300, 100);
+	var point12 = Ext.create("Khusamov.svg.geometry.Point", 100, 300);
+	var line1 = Ext.create("Khusamov.svg.geometry.Line", point11, point12);
+	var intline1 = createInteractiveLine(point11, point12);
+	svg.add(intline1);
+	
+	// Создаем массив, для хранения точек (точнее кружков) пересечения дуги и отрезка.
+	
+	var intersectionCircle = [];
+	
+	function displayIntersection() {
+		Ext.destroy(intersectionCircle);
+		intersectionCircle = [];
+		var intersection = arc.intersection(line1.toLinear());
+		if (intersection) {
+			intersection.forEach(function(point) {
+				var circle = Khusamov.svg.Element.createCircle(point, 4);
+				circle.setStyle({
+					stroke: "black",
+					strokeWidth: 0,
+					fill: "black"
+				});
+				svg.add(circle);
+				intersectionCircle.push(circle);
+			});
+		}
+	}
+	
+	path.on("update", displayIntersection);
+	point11.on("update", displayIntersection);
+	point12.on("update", displayIntersection);
+	
 });
 
-
+/**
+ * Функция для создания интерактивной линии.
+ * На ее концах управляющие кружки.
+ * @param {Khusamov.svg.geometry.Point} point1
+ * @param {Khusamov.svg.geometry.Point} point2
+ * @param {String} color
+ * @return {Khusamov.svg.Element[]}
+ */
+function createInteractiveLine(point1, point2, color) {
+	var result = [];
+	color = color || "black";
+	result.push(Khusamov.svg.Element.createLine(point1, point2).setStyle({
+		stroke: color,
+		strokeWidth: 1
+	}));
+	[point1, point2].forEach(function(point, index) {
+		var circle = Ext.create("Khusamov.svg.element.Circle", {
+			center: point,
+			radius: 10,
+			draggable: true,
+			style: {
+				stroke: color,
+				strokeWidth: 1,
+				fill: index ? "white" : "yellow",
+				cursor: "pointer"
+			}
+		});
+		circle.add(Khusamov.svg.Element.createTitle("Точка № " + (index + 1)));
+		result.push(circle);
+	});
+	return result;
+}

@@ -17,10 +17,6 @@ Ext.require([
 
 Ext.onReady(function() {
 	
-	
-	
-	
-	
 	/**
 	 * Функция для создания интерактивной линии.
 	 * На ее концах управляющие кружки.
@@ -53,7 +49,6 @@ Ext.onReady(function() {
 		});
 		return result;
 	}
-	
 	
 	// Создаем холст.
 	
@@ -91,20 +86,13 @@ Ext.onReady(function() {
 	// Выводим разную информацию о линиях
 	
 	function display() {
-		//console.log(line1.toLinear().getAngle(Khusamov.svg.geometry.Angle.DEGREE));
-		
-		
-		//console.log(line1.toLinear().getNormal().isCollinear(line2.toLinear().getNormal(), true));
-		
 		var n1 = line1.toLinear().getNormal();
 		var n2 = line2.toLinear().getNormal();
-		
 		console.log(
 			n1.isCollinear(n2, true),
 			n1.multiply(n2),
 			n1.getLength() * n2.getLength()
 		);
-		
 	}
 	
 	display();
@@ -114,27 +102,125 @@ Ext.onReady(function() {
 	point22.on("update", display);
 	
 	
+	/*
 	// Проверка на колиннеарность клона-паралелли
-	
-	function turnOutLinear(linear) {
-		var matrix = Ext.create("Ext.draw.Matrix");
-		matrix.rotate(Math.PI, 0, linear.y(0));
-		return linear.getTransformLinear(matrix);
-	}
-	
 	var source = line1.toLinear().getNormal();
 	var clone = (line1.toLinear().getParallelLinearByDestination(100)).getNormal();
 	console.group("Проверка на колиннеарность клона-паралелли");
 	console.log("Колиннеарны", source.isCollinear(clone));
 	console.log("Сонаправлены", source.isCollinear(clone, true));
 	console.log("Разнонаправлены", source.isCollinear(clone, false));
-	
-	console.log(
-		source.multiply(clone),
-		source.getLength() * clone.getLength()
-	);
 		
 	console.groupEnd();
+	*/
+	
+	
+	
+	
+	
+	
+	// Выводим информацию о прямых в специальное окошко.
+	
+	var displayWindow = Ext.create("Ext.window.Window", {
+		title: "Углы прямых",
+		width: 280,
+		bodyPadding: 10,
+		closable: false,
+		collapsible: true,
+		layout: "anchor",
+		autoShow: true,
+		defaultAlign: "br-br", //http://javascript.ru/forum/extjs/57680-ext-window-window-razmeshhenie-okna-ne-po-centru.html
+		defaults: {
+			anchor: "100%",
+			labelWidth: 220,
+			style: {
+				margin: 0
+			}
+		},
+		listeners: {
+			resize: function(win, width, height) {
+				var body = Ext.getBody();
+				win.setX(body.getViewSize().width - width - 10);
+				win.setY(body.getViewSize().height - height - 10);
+			}
+		}
+	});
+	
+	var greenString = displayWindow.add({
+		xtype: "displayfield",
+		fieldStyle: "color: green"
+	});
+	
+	var greenAngle = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Угол зеленой линии",
+		labelStyle: "color: green"
+	});
+	
+	var greenCloneAngle = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Угол клона зеленой линии",
+		labelStyle: "color: green"
+	});
+	
+	var redString = displayWindow.add({
+		xtype: "displayfield",
+		fieldStyle: "color: red"
+	});
+	
+	var redAngle = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Угол красной линии",
+		labelStyle: "color: red"
+	});
+	
+	var collinear = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Линии коллинеарные"
+	});
+	
+	var codirectional = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Линии сонаправлены"
+	});
+	
+	var betweenMinAngle = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Угол (мин.) между линиями"
+	});
+	
+	var betweenAngle = displayWindow.add({
+		xtype: "displayfield",
+		fieldLabel: "Угол между линиями"
+	});
+	
+	var fixed = 0;
+	function displayWindowRefresh() {
+		var n1 = line1.toLinear();
+		var n2 = line2.toLinear();
+		collinear.setValue(n1.isCollinear(n2) ? "Да" : "Нет");
+		codirectional.setValue(n1.isCollinear(n2, true) ? "Да" : "Нет");
+		greenAngle.setValue(n1.getAngle("degree", fixed));
+		greenCloneAngle.setValue(n1.getParallelLinearByDestination(100).getAngle("degree", fixed));
+		greenCloneAngle.setValue(n1.getParallelLinear([0,0]).getAngle("degree", fixed));
+		redAngle.setValue(n2.getAngle("degree", fixed));
+		betweenMinAngle.setValue(n1.minAngleTo(n2, "degree", fixed));
+		
+		greenString.setValue(n1.toString(fixed));
+		redString.setValue(n2.toString(fixed));
+		
+		var between = n1.getAngle() - n2.getAngle();
+		betweenAngle.setValue(Ext.create("Khusamov.svg.geometry.Angle", between).get("degree", fixed));
+	}
+	
+	point11.on("update", displayWindowRefresh);
+	point12.on("update", displayWindowRefresh);
+	point21.on("update", displayWindowRefresh);
+	point22.on("update", displayWindowRefresh);
+	
+	
+	displayWindowRefresh();
+	
 	
 });
 

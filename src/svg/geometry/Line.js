@@ -83,6 +83,45 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	
 	getAngle: function(unit) {
 		return this.toLinear().getAngle(unit);
+	},
+	
+	intersection: function(primitive) {
+		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+	/**
+	 * Пересечение двух отрезков.
+	 */
+	intersectionWithLine: function(line) {
+		var intersection = this.intersectionWithLinear(line.toLinear());
+		if (intersection) {
+			intersection = line.isInsidePoint(intersection) ? intersection : null;
+		}
+		return intersection;
+	},
+	
+	/**
+	 * Пересечение отрезка и прямой линии.
+	 */
+	intersectionWithLinear: function(linear) {
+		var intersection = this.toLinear().intersection(linear);
+		if (intersection) {
+			intersection = this.isInsidePoint(intersection) ? intersection : null;
+		}
+		return intersection;
+	},
+	
+	/**
+	 * Определение принадлежности точки отрезку.
+	 * При условии, что заранее известно, что точка находится на прямой, проходящей через отрезок.
+	 */
+	isInsidePoint: function(point) {
+		var first = this.getFirstPoint();
+		var last = this.getLastPoint();
+		return (Math.min(first.x(), last.x()) <= point.x() && 
+			point.x() <= Math.max(first.x(), last.x()) &&
+			Math.min(first.y(), last.y()) <= point.y() && 
+			point.y() <= Math.max(first.y(), last.y()));
 	}
 	
 });

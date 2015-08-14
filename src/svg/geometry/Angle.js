@@ -39,9 +39,10 @@ Ext.define("Khusamov.svg.geometry.Angle", {
 		return Number(value);
 	},
 	
-	get: function(unit) {
+	get: function(unit, fixed) {
 		unit = (unit ? unit : Khusamov.svg.geometry.Angle.RADIAN).toLowerCase();
-		return this["get" + unit[0].toUpperCase() + unit.substr(1)].call(this);
+		var result = this["get" + unit[0].toUpperCase() + unit.substr(1)].call(this);
+		return fixed === undefined ? result : result.toFixed(fixed);
 	},
 	
 	/**

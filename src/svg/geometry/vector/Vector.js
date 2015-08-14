@@ -82,7 +82,7 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	 * @param value Khusamov.svg.geometry.vector.Vector
 	 * @return Number
 	 */
-	angleTo: function(vector) {
+	angleTo: function(vector, fixed) {
 		return vector.getAngle() - this.getAngle();
 	},
 	
@@ -130,6 +130,10 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 		return new this.self(this.x() * scale, this.y() * scale);
 	},
 	
+	inverse: function() {
+		return new this.self(-this.x(), -this.y());
+	},
+	
 	/**
 	 * Повернуть вектор на определенный угол.
 	 * @chainable
@@ -154,7 +158,8 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	},
 	
 	/**
-	 * Возвращает true, если вектора коллинеарные.
+	 * Возвращает true, если вектора коллинеарные (по сути паралелльные).
+	 * Для определения сонаправленности используйте опцию codirectional:
 	 * Если codirectional === true, то возвращает true, если вектора коллинеарные и сонаправленные.
 	 * Если codirectional === false, то возвращает true, если вектора коллинеарные и разнонаправленные.
 	 */

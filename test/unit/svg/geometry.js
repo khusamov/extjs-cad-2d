@@ -19,7 +19,7 @@ Ext.onReady(function() {
 		var pointEqual = Ext.create("Khusamov.svg.geometry.Point", [x, y]);
 		
 		var distance0 = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-		var angle = Math.atan2(y, x);
+		var angle = Math.atan2(y, x) + Math.PI;
 		
 		// Тесты
 		

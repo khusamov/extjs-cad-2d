@@ -152,7 +152,6 @@ Ext.define("Khusamov.svg.element.Circle", {
 			 */
 			createCircle: function() {
 				return Circle.create.apply(Circle, arguments);
-				//return Ext.create.apply(Ext, ["Khusamov.svg.element.Circle"].concat(Ext.Array.slice(arguments)));
 			}
 			
 		}

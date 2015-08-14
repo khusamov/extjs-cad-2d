@@ -55,6 +55,13 @@
 			
 			"text": "Геометрическая библиотека", "path": "geometry", "file": "index.js",
 			"children": [{
+				"text": "Отрезок", "path": "line", "file": "index.js",
+				"children": [{
+					"text": "Пересечение отрезков",
+					"file": "intersection.js",
+					"leaf": true,
+				}]
+			}, {
 				"text": "Уравнение окружности", "path": "circular", "file": "index.js",
 				"children": [{
 					"text": "Поиск центра окружности",

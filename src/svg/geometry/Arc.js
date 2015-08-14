@@ -12,6 +12,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		"Khusamov.svg.geometry.Point",
 		"Khusamov.svg.geometry.equation.Circular",
 		"Khusamov.svg.geometry.Line",
+		"Khusamov.svg.geometry.equation.Linear",
 		"Khusamov.svg.geometry.Angle"
 	],
 	
@@ -176,13 +177,22 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		return !this.isCircular();
 	},
 	
+	xor: function(a, b) {
+		return a ? !b : b;
+	},
+	
+	getCenterIndex: function() {
+		return this.xor(this.isSweep(), this.isLarge()) ? 0 : 1;
+	},
+	
 	getCenter: function(index) {
 		if (this.isCircular()) {
-			return Khusamov.svg.geometry.equation.Circular.findCenter(
+			var center = Khusamov.svg.geometry.equation.Circular.findCenter(
 				this.getFirstPoint(), 
 				this.getLastPoint(), 
 				this.getRadius()
-			)[this.isLarge() ? 1 : 0];
+			)[this.getCenterIndex()];
+			return center;
 		}
 	},
 	
@@ -195,6 +205,12 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	getLastRadiusLinear: function() {
 		if (this.isCircular()) {
 			return Ext.create("Khusamov.svg.geometry.Line", this.getCenter(), this.getLastPoint()).toLinear();
+		}
+	},
+	
+	getRadiusLinear: function(point) {
+		if (this.isCircular()) {
+			return Ext.create("Khusamov.svg.geometry.Line", this.getCenter(), point).toLinear();
 		}
 	},
 	
@@ -229,6 +245,54 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	getHeight: function() {
 		return Khusamov.svg.geometry.Arc.height(this.getFirstPoint(), this.getLastPoint(), this.getCenter());
+	},
+	
+	intersection: function(primitive) {
+		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+	/**
+	 * Пересечение дуги и прямой линии.
+	 */
+	intersectionWithLinear: function(linear) {
+		var me = this;
+		var result = null;
+		var intersection = me.toCircular().intersection(linear);
+		if (intersection) {
+			result = [];
+			intersection.forEach(function(point) {
+				if (me.isInsidePoint(point)) {
+					result.push(point);
+				}
+			});
+			result = result.length ? result : null;
+		}
+		return result;
+	},
+	
+	/**
+	 * Определение принадлежности точки дуге.
+	 * При условии, что заранее известно, что точка находится на окружности, проходящей через дугу.
+	 */
+	isInsidePoint: function(point) {
+		
+		//return true;
+		
+		var angle1 = this.getFirstRadiusLinear().getAngle();
+		var angle2 = this.getLastRadiusLinear().getAngle();
+		var angle = this.getRadiusLinear(point).getAngle();
+		
+		if (this.isSweep()) {
+			return angle1 <= angle && angle <= angle2;
+		} else {
+			return angle2 <= angle && angle <= angle1;
+		}
+		
+		
+	},
+	
+	toCircular: function() {
+		return Ext.create("Khusamov.svg.geometry.equation.Circular", this.getCenter(), this.getRadius());
 	}
 	
 });
