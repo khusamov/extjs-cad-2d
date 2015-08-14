@@ -41,7 +41,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			point1 = Ext.isArray(point1) ? point1 : point1.toArray();
 			point2 = Ext.isArray(point2) ? point2 : point2.toArray();
 			
-			var chordLine = Ext.create("Khusamov.svg.geometry.Line", point2, point1);
+			var chordLine = Ext.create("Khusamov.svg.geometry.Line", point1, point2);
 			var chord = chordLine.getLength();
 			var chordLinear = chordLine.toLinear();
 			
@@ -153,7 +153,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			var r1 = radius;
 			var r2 = circular.getRadius();
 			
-			var bridgeLine = Ext.create("Khusamov.svg.geometry.Line", circular.getCenter(), this.getCenter());
+			var bridgeLine = Ext.create("Khusamov.svg.geometry.Line", this.getCenter(), circular.getCenter());
 			var bridge = bridgeLine.getLength();
 			
 			var bridgeLinear = bridgeLine.toLinear();
@@ -176,7 +176,7 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 			matrix.rotate(Math.PI / 2 - linear.getAngle(), cx, cy);
 			linear = linear.getTransformLinear(matrix);
 			x = -linear.c() / linear.a();
-			if (radius < Math.abs(x)) return null;
+			if (radius < Math.abs(x)) return null; // Пересечения нет.
 			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
 			result.push([x, y]);
 			if (radius > Math.abs(x)) result.push([x, -y]);

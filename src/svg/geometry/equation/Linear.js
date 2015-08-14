@@ -11,7 +11,8 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	requires: [
 		"Ext.draw.Matrix",
 		"Khusamov.svg.geometry.Point", 
-		"Khusamov.svg.geometry.vector.Vector"
+		"Khusamov.svg.geometry.vector.Vector",
+		"Khusamov.svg.geometry.Angle"
 	],
 	
 	statics: {
@@ -166,13 +167,14 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	 * Выдает только минимальный угол.
 	 * http://hystory-for-vki.narod.ru/index/0-36
 	 */
-	angleTo: function(linear) {
+	minAngleTo: function(linear, unit, fixed) {
 		var me = this;
 		var a1 = me.a();
 		var b1 = me.b();
 		var a2 = linear.a();
 		var b2 = linear.b();
-		return Math.acos(Math.abs(a1 * a2 + b1 * b2) / (me.getNormalVectorLength() * linear.getNormalVectorLength()));
+		var result = Math.acos(Math.abs(a1 * a2 + b1 * b2) / (me.getNormalVectorLength() * linear.getNormalVectorLength()));
+		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
 	},
 	
 	/**
@@ -180,8 +182,8 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
 	 * @return {Number}
 	 */
-	getAngle: function(unit) {
-		return this.getParallel().getAngle(unit);
+	getAngle: function(unit, fixed) {
+		return this.getParallel().getAngle(unit, fixed);
 	},
 	
 	getTransformLinear: function(matrix) {
@@ -236,11 +238,12 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	 * @return Khusamov.svg.geometry.vector.Vector
 	 */
 	getParallel: function() {
-		return this.getNormal().getNormal();
+		return this.getNormal().getNormal().inverse();
 	},
 	
 	/**
 	 * Создать линейное уравнение паралельной прямой, проходящей через точку.
+	 * Важно: новая прямая коллинеарна и сонаправлена с исходной (направляющие).
 	 * @return Khusamov.svg.geometry.equation.Linear
 	 */
 	getParallelLinear: function(point) {
@@ -269,24 +272,41 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	intersection: function(primitive) {
 		var me = this;
 		var result = null;
-		if (primitive.isCircular) {
-			var circular = primitive;
-			result = circular.intersection(me);
-			result = result ? result.reverse() : result;
-		} else {
-			var linear = primitive;
-			var a1 = me.a();
-			var b1 = me.b();
-			var c1 = me.c();
-			var a2 = linear.a();
-			var b2 = linear.b();
-			var c2 = linear.c();
-			result = (a1 * b2 - a2 * b1 == 0) ? null : Ext.create("Khusamov.svg.geometry.Point", {
-				x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
-				y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
-			});
+		switch(primitive.type) {
+			case "line":
+				var line = primitive;
+				result = line.intersection(me);
+				break;
+			case "circular":
+				var circular = primitive;
+				result = circular.intersection(me);
+				result = result ? result.reverse() : result;
+				break;
+			case "linear":
+				var linear = primitive;
+				var a1 = me.a();
+				var b1 = me.b();
+				var c1 = me.c();
+				var a2 = linear.a();
+				var b2 = linear.b();
+				var c2 = linear.c();
+				result = (a1 * b2 - a2 * b1 == 0) ? null : Ext.create("Khusamov.svg.geometry.Point", {
+					x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
+					y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
+				});
+				break;
 		}
 		return result;
+	},
+	
+	/**
+	 * Возвращает true, если вектора-нормали коллинеарные (по сути паралелльные).
+	 * Для определения сонаправленности используйте опцию codirectional:
+	 * Если codirectional === true, то возвращает true, если вектора коллинеарные и сонаправленные.
+	 * Если codirectional === false, то возвращает true, если вектора коллинеарные и разнонаправленные.
+	 */
+	isCollinear: function(linear, codirectional) {
+		return this.getNormal().isCollinear(linear.getNormal(), codirectional);
 	},
 	
 	/**
