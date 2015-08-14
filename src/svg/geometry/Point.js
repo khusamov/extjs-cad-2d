@@ -211,12 +211,12 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	},
 	
 	/**
-	 * Получить полярный угол точки (в диапазоне от -PI до PI).
+	 * Получить полярный угол точки (в диапазоне от 0 до 2*PI).
 	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
 	 * @return {Number}
 	 */
-	getAngle: function(unit) {
-		return Khusamov.svg.geometry.Angle.create(Math.atan2(this.y(), this.x())).get(unit);
+	getAngle: function(unit, fixed) {
+		return Khusamov.svg.geometry.Angle.create(Math.atan2(this.y(), this.x()) + Math.PI).get(unit, fixed);
 	},
 	
 	/**
