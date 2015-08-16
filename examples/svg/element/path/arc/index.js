@@ -92,7 +92,7 @@ Ext.onReady(function() {
 		draggable: true,
 		style: {
 			stroke: "black",
-			fill: "white",
+			fill: "yellow",
 			cursor: "pointer"
 		}
 	});
@@ -188,21 +188,27 @@ Ext.onReady(function() {
 	// Создаем массив, для хранения точек (точнее кружков) пересечения дуги и отрезка.
 	
 	var intersectionCircle = [];
+	[0, 1].forEach(function(index) {
+		intersectionCircle[index] = svg.add({
+			type: "circle",
+			radius: 4,
+			hidden: true,
+			style: {
+				stroke: "black",
+				strokeWidth: 0,
+				fill: "black"
+			}
+		});
+	});
 	
 	function displayIntersection() {
-		Ext.destroy(intersectionCircle);
-		intersectionCircle = [];
-		var intersection = arc.intersection(line1.toLinear());
+		intersectionCircle[0].hide();
+		intersectionCircle[1].hide();
+		var intersection = arc.intersection(line1);
 		if (intersection) {
-			intersection.forEach(function(point) {
-				var circle = Khusamov.svg.Element.createCircle(point, 4);
-				circle.setStyle({
-					stroke: "black",
-					strokeWidth: 0,
-					fill: "black"
-				});
-				svg.add(circle);
-				intersectionCircle.push(circle);
+			intersection.forEach(function(point, index) {
+				intersectionCircle[index].getCenter().moveTo(point);
+				intersectionCircle[index].show();
 			});
 		}
 	}

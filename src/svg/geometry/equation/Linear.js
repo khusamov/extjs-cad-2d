@@ -164,17 +164,13 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	/**
 	 * Угол между прямыми.
-	 * Выдает только минимальный угол.
-	 * http://hystory-for-vki.narod.ru/index/0-36
 	 */
-	minAngleTo: function(linear, unit, fixed) {
-		var me = this;
-		var a1 = me.a();
-		var b1 = me.b();
-		var a2 = linear.a();
-		var b2 = linear.b();
-		var result = Math.acos(Math.abs(a1 * a2 + b1 * b2) / (me.getNormalVectorLength() * linear.getNormalVectorLength()));
-		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
+	getAngleTo: function(linear, unit, fixed) {
+		return this.getParallel().getAngleTo(linear.getParallel(), unit, fixed);
+	},
+	
+	getAngleBy: function(linear, unit, fixed) {
+		return this.getParallel().getAngleBy(linear.getParallel(), unit, fixed);
 	},
 	
 	/**

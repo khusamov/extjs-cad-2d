@@ -10,6 +10,8 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	
 	extend: "Khusamov.svg.geometry.Point",
 	
+	requires: ["Khusamov.svg.geometry.Angle"],
+	
 	uses: ["Khusamov.svg.geometry.equation.Linear"],
 	
 	type: "vector",
@@ -78,12 +80,28 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	
 	/**
 	 * Получить угол между двумя векторами.
+	 * http://hystory-for-vki.narod.ru/index/0-36
 	 * @chainable
 	 * @param value Khusamov.svg.geometry.vector.Vector
 	 * @return Number
 	 */
-	angleTo: function(vector, fixed) {
-		return vector.getAngle() - this.getAngle();
+	getAngleTo: function(vector, unit, fixed) {
+		var result = Math.acos(this.multiply(vector) / this.getLength() * vector.getLength());
+		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
+	},
+	
+	// @deprecated
+	angleTo: function() {
+		return this.getAngleTo.apply(this, arguments);
+	},
+	
+	/**
+	 * Получить угол вектора, относительно другого вектора (будто бы он является осью Ох).
+	 */
+	getAngleBy: function(vector, unit, fixed) {
+		var result = this.getAngle() - vector.getAngle();
+		result = result >= 0 ? result : this.getAngle() + (2 * Math.PI - vector.getAngle());
+		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
 	},
 	
 	/**
@@ -115,8 +133,8 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	 * @return Number
 	 */
 	multiply: function(vector) {
-		return this.getLength() * vector.getLength() * Math.cos(this.angleTo(vector));
-		//return this.x() * vector.x() + this.y() * vector.y();
+		//return this.getLength() * vector.getLength() * Math.cos(this.getAngleTo(vector));
+		return this.x() * vector.x() + this.y() * vector.y();
 	},
 	
 	/**
@@ -130,8 +148,12 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 		return new this.self(this.x() * scale, this.y() * scale);
 	},
 	
+	/**
+	 * Инверсия вектора (обратный вектор).
+	 * @return Khusamov.svg.geometry.vector.Vector
+	 */
 	inverse: function() {
-		return new this.self(-this.x(), -this.y());
+		return this.moveTo(-this.x(), -this.y());
 	},
 	
 	/**
@@ -142,7 +164,7 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	 */
 	rotate: function(angle) {
 		
-		return this.move(
+		return this.moveTo(
 			this.getLength() * Math.cos(this.getAngle() + angle),
 			this.getLength() * Math.sin(this.getAngle() + angle)
 		);

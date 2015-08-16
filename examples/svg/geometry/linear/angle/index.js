@@ -40,7 +40,7 @@ Ext.onReady(function() {
 				style: {
 					stroke: color,
 					strokeWidth: 1,
-					fill: index ? "white" : "yellow",
+					fill: index == 0 ? "yellow" : "white",
 					cursor: "pointer"
 				}
 			});
@@ -186,12 +186,12 @@ Ext.onReady(function() {
 	
 	var betweenMinAngle = displayWindow.add({
 		xtype: "displayfield",
-		fieldLabel: "Угол (мин.) между линиями"
+		fieldLabel: "Угол между линиями"
 	});
 	
 	var betweenAngle = displayWindow.add({
 		xtype: "displayfield",
-		fieldLabel: "Угол между линиями"
+		fieldLabel: "Угол зеленой относит. красной"
 	});
 	
 	var fixed = 0;
@@ -204,13 +204,12 @@ Ext.onReady(function() {
 		greenCloneAngle.setValue(n1.getParallelLinearByDestination(100).getAngle("degree", fixed));
 		greenCloneAngle.setValue(n1.getParallelLinear([0,0]).getAngle("degree", fixed));
 		redAngle.setValue(n2.getAngle("degree", fixed));
-		betweenMinAngle.setValue(n1.minAngleTo(n2, "degree", fixed));
+		betweenMinAngle.setValue(n1.getAngleTo(n2, "degree", fixed));
 		
 		greenString.setValue(n1.toString(fixed));
 		redString.setValue(n2.toString(fixed));
 		
-		var between = n1.getAngle() - n2.getAngle();
-		betweenAngle.setValue(Ext.create("Khusamov.svg.geometry.Angle", between).get("degree", fixed));
+		betweenAngle.setValue(n1.getAngleBy(n2, "degree", fixed));
 	}
 	
 	point11.on("update", displayWindowRefresh);

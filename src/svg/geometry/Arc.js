@@ -221,12 +221,12 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	/**
 	 * На выходе NaN, если хорда больше двух радиусов.
 	 */
-	getAngle: function(unit) {
+	getAngle: function(unit, fixed) {
 		// Теорема косинусов.
 		var angle = Math.acos(1 - Math.pow(this.getChordLength(), 2) / (2 * Math.pow(this.getRadius(), 2)));
 		if (!isNaN(angle)) {
 			angle = this.isLarge() ? 2 * Math.PI - angle : angle;
-			angle = Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit);
+			angle = Ext.create("Khusamov.svg.geometry.Angle", angle).get(unit, fixed);
 		}
 		return angle;
 	},
@@ -249,6 +249,25 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	intersection: function(primitive) {
 		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+	/**
+	 * Пересечение дуги и отрезка.
+	 */
+	intersectionWithLine: function(line) {
+		var me = this;
+		var result = null;
+		var intersection = me.toCircular().intersection(line.toLinear());
+		if (intersection) {
+			result = [];
+			intersection.forEach(function(point) {
+				if (me.isInsidePoint(point) && line.isInsidePoint(point)) {
+					result.push(point);
+				}
+			});
+			result = result.length ? result : null;
+		}
+		return result;
 	},
 	
 	/**
@@ -275,20 +294,19 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	 * При условии, что заранее известно, что точка находится на окружности, проходящей через дугу.
 	 */
 	isInsidePoint: function(point) {
-		
-		//return true;
-		
-		var angle1 = this.getFirstRadiusLinear().getAngle();
-		var angle2 = this.getLastRadiusLinear().getAngle();
-		var angle = this.getRadiusLinear(point).getAngle();
-		
+		var firstLinear = this.getFirstRadiusLinear();
+		var lastLinear = this.getLastRadiusLinear();
+		var controlledLinear = this.getRadiusLinear(point);
+		var last = lastLinear.getAngle();
+		var controlled;
 		if (this.isSweep()) {
-			return angle1 <= angle && angle <= angle2;
+			last = lastLinear.getAngleBy(firstLinear);
+			controlled = controlledLinear.getAngleBy(firstLinear);
 		} else {
-			return angle2 <= angle && angle <= angle1;
+			last = firstLinear.getAngleBy(lastLinear);
+			controlled = controlledLinear.getAngleBy(lastLinear);
 		}
-		
-		
+		return controlled >= 0 && controlled <= last;
 	},
 	
 	toCircular: function() {
