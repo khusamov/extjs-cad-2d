@@ -5,6 +5,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 	
 	requires: ["Khusamov.svg.geometry.Line"],
 	
+	isLineSegment: true,
+	
 	getLine: function() {
 		return Ext.create("Khusamov.svg.geometry.Line", this.getFirstPoint(), this.getLastPoint());
 	},

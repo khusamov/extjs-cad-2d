@@ -311,6 +311,43 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	
 	toCircular: function() {
 		return Ext.create("Khusamov.svg.geometry.equation.Circular", this.getCenter(), this.getRadius());
+	},
+	
+	/**
+	 * Разделить дугу на две или три части прямой линией.
+	 * @param {Khusamov.svg.geometry.equation.Linear} linear
+	 * @return {null | Khusamov.svg.geometry.Arc[]}
+	 */
+	split: function(linear) {
+		var result = null;
+		var intersection = this.intersectionWithLinear(linear);
+		if (intersection) {
+			result = [];
+			var points = [].concat(this.getFirstPoint(), intersection, this.getLastPoint());
+			var first;
+			points.forEach(function(point, index) {
+				if (index != 0) {
+					var part = this.clone();
+					part.setFirstPoint(first);
+					part.setLastPoint(point);
+					result.push(part);
+				}
+				first = point;
+			});
+		}
+		return result;
+	},
+	
+	toObject: function() {
+		var me = this;
+		return Ext.Object.merge(me.callParent(), {
+			firstPoint: me.getFirstPoint(),
+			lastPoint: me.getLastPoint(),
+			radius: me.getRadius(),
+			rotation: me.getRotation(),
+			large: me.getLarge(),
+			sweep: me.getSweep()
+		});
 	}
 	
 });

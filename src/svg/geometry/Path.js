@@ -408,6 +408,19 @@ Ext.define("Khusamov.svg.geometry.Path", {
 			result += segment.getLength();
 		});
 		return result;
+	},
+	
+	intersection: function(primitive) {
+		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+	intersectionWithLinear: function(linear) {
+		var result = [];
+		this.eachSegment(function(segment) {
+			var intersection = segment.intersection(linear);
+			if (intersection) result = result.concat(intersection);
+		});
+		return result.length ? result : null;
 	}
 	
 });

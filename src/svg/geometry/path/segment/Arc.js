@@ -5,6 +5,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	requires: ["Khusamov.svg.geometry.Arc"],
 	
+	isArcSegment: true,
+	
 	config: {
 		
 		/**
