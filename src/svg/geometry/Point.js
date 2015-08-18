@@ -153,6 +153,10 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		return result;
 	},
 	
+	getDistanceTo: function(point) {
+		return this.distance.apply(this, arguments);
+	},
+	
 	/**
 	 * Получить полярные координаты точки.
 	 * @return Array

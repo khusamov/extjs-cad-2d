@@ -38,6 +38,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		me.initArcPoints();
 	},
 	
+	getPrimitive: function() {
+		return this.getArc();
+	},
+	
 	applyArc: function(arc) {
 		if (!(arc instanceof Khusamov.svg.geometry.Arc)) {
 			arc = Ext.create("Khusamov.svg.geometry.Arc", arc);

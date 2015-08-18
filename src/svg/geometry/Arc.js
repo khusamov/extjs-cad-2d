@@ -261,7 +261,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		if (intersection) {
 			result = [];
 			intersection.forEach(function(point) {
-				if (me.isInsidePoint(point) && line.isInsidePoint(point)) {
+				if (me.isInnerPoint(point) && line.isInnerPoint(point)) {
 					result.push(point);
 				}
 			});
@@ -280,7 +280,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		if (intersection) {
 			result = [];
 			intersection.forEach(function(point) {
-				if (me.isInsidePoint(point)) {
+				if (me.isInnerPoint(point)) {
 					result.push(point);
 				}
 			});
@@ -293,7 +293,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	 * Определение принадлежности точки дуге.
 	 * При условии, что заранее известно, что точка находится на окружности, проходящей через дугу.
 	 */
-	isInsidePoint: function(point) {
+	isInnerPoint: function(point) {
 		var firstLinear = this.getFirstRadiusLinear();
 		var lastLinear = this.getLastRadiusLinear();
 		var controlledLinear = this.getRadiusLinear(point);
@@ -348,6 +348,21 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 			large: me.getLarge(),
 			sweep: me.getSweep()
 		});
+	},
+	
+	/**
+	 * Получить координаты точки, находящейся на дуге 
+	 * на расстоянии от первой точки дуги.
+	 */
+	getInnerPoint: function(x) {
+		var me = this;
+		var result = null;
+		var circle = Ext.create("Khusamov.svg.geometry.equation.Circular", me.getFirstPoint(), x);
+		var intersection = circle.intersection(me);
+		intersection.forEach(function(point) {
+			if (me.isInnerPoint(point)) result = point;
+		});
+		return result;
 	}
 	
 });

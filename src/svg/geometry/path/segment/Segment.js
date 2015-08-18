@@ -32,6 +32,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		if (path) path.fireEvent("update");
 	},
 	
+	getPrimitive: Ext.emptyFn,
+	
 	getIndex: function() {
 		var path = this.getPath();
 		return path ? path.indexOf(this) : null;

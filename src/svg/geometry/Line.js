@@ -9,7 +9,8 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	
 	requires: [
 		"Khusamov.svg.geometry.Point", 
-		"Khusamov.svg.geometry.equation.Linear"
+		"Khusamov.svg.geometry.equation.Linear",
+		"Khusamov.svg.geometry.equation.Circular"
 	],
 	
 	isLine: true,
@@ -95,7 +96,7 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	intersectionWithLine: function(line) {
 		var intersection = this.intersectionWithLinear(line.toLinear());
 		if (intersection) {
-			intersection = line.isInsidePoint(intersection) ? intersection : null;
+			intersection = line.isInnerPoint(intersection) ? intersection : null;
 		}
 		return intersection;
 	},
@@ -106,7 +107,7 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	intersectionWithLinear: function(linear) {
 		var intersection = this.toLinear().intersection(linear);
 		if (intersection) {
-			intersection = this.isInsidePoint(intersection) ? intersection : null;
+			intersection = this.isInnerPoint(intersection) ? intersection : null;
 		}
 		return intersection;
 	},
@@ -115,13 +116,28 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	 * Определение принадлежности точки отрезку.
 	 * При условии, что заранее известно, что точка находится на прямой, проходящей через отрезок.
 	 */
-	isInsidePoint: function(point) {
+	isInnerPoint: function(point) {
 		var first = this.getFirstPoint();
 		var last = this.getLastPoint();
 		return (Math.min(first.x(), last.x()) <= point.x() && 
 			point.x() <= Math.max(first.x(), last.x()) &&
 			Math.min(first.y(), last.y()) <= point.y() && 
 			point.y() <= Math.max(first.y(), last.y()));
+	},
+	
+	/**
+	 * Получить координаты точки, находящейся на отрезке 
+	 * на расстоянии от первой точки отрезка.
+	 */
+	getInnerPoint: function(x) {
+		var me = this;
+		var result = null;
+		var circle = Ext.create("Khusamov.svg.geometry.equation.Circular", me.getFirstPoint(), x);
+		var intersection = circle.intersection(me);
+		intersection.forEach(function(point) {
+			if (me.isInnerPoint(point)) result = point;
+		});
+		return result;
 	}
 	
 });

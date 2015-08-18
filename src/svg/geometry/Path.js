@@ -19,7 +19,8 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		"Ext.util.Collection",
 		"Khusamov.svg.geometry.path.segment.Line",
 		"Khusamov.svg.geometry.path.segment.Arc",
-		"Khusamov.svg.geometry.Arc"
+		"Khusamov.svg.geometry.Arc",
+		"Khusamov.svg.geometry.equation.Linear"
 	],
 	
 	isPath: true,
@@ -410,17 +411,48 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return result;
 	},
 	
-	intersection: function(primitive) {
-		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	/**
+	 * @param {Boolean} segmented Если равен true, то на выходе будет массив точек с 
+	 * 1) индексом сегмента,
+	 * 2) координатой точки внутри сегмента (расстояние до точки от начала сегмента),
+	 * 3) координатой точки внутри пути (расстояние до точки от начала пути).
+	 * (Эта информация добавляется прямо в объект точки в свойство segment{index, distance, distanceByPath}).
+	 */
+	intersection: function(primitive, segmented) {
+		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive, segmented);
 	},
 	
-	intersectionWithLinear: function(linear) {
-		var result = [];
-		this.eachSegment(function(segment) {
+	intersectionWithLinear: function(linear, segmented) {
+		var result = [], length = 0;
+		this.eachSegment(function(segment, index) {
 			var intersection = segment.intersection(linear);
-			if (intersection) result = result.concat(intersection);
+			if (intersection) {
+				result = result.concat(intersection);
+				
+				if (segmented) {
+					intersection = Ext.isArray(intersection) ? intersection: [intersection];
+					intersection.forEach(function(point) {
+						var distance = segment.getFirstPoint().getDistanceTo(point);
+						point.segment = {
+							index: index,
+							distance: distance,
+							distanceByPath: length + distance
+						};
+					});
+					length += segment.getLength();
+				}
+			}
 		});
 		return result.length ? result : null;
-	}
+	},
+	
+	/**
+	 * Разделить путь прямой линией.
+	 * @param {Khusamov.svg.geometry.equation.Linear} linear
+	 * @return {null | Khusamov.svg.geometry.Path[]}
+	 */
+	split: function(linear) {
+		
+	},
 	
 });
