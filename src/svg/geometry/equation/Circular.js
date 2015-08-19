@@ -10,10 +10,11 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	
 	requires: [
 		"Ext.draw.Matrix", 
-		"Khusamov.svg.geometry.Point", 
-		"Khusamov.svg.geometry.Line", 
+		"Khusamov.svg.geometry.Point",  
 		"Khusamov.svg.geometry.Triangle"
 	],
+	
+	uses: ["Khusamov.svg.geometry.Line"],
 	
 	statics: {
 		

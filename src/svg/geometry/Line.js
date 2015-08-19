@@ -10,8 +10,10 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	requires: [
 		"Khusamov.svg.geometry.Point", 
 		"Khusamov.svg.geometry.equation.Linear",
-		"Khusamov.svg.geometry.equation.Circular"
+		
 	],
+	
+	uses: ["Khusamov.svg.geometry.equation.Circular"],
 	
 	isLine: true,
 	
