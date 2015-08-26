@@ -148,10 +148,11 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	 * 
 	 * http://hystory-for-vki.narod.ru/index/0-36
 	 * 
-	 * @param point Array | Khusamov.svg.geometry.Point
-	 * @return Number
+	 * @param {Array | Khusamov.svg.geometry.Point} point 
+	 * @param {Boolean} directed Если равно true, то знак расстояния будет означать с какой стороны находится точка.
+	 * @return {Number}
 	 */
-	distance: function(point) {
+	distance: function(point, directed) {
 		var me = this;
 		if (Ext.isArray(point)) point = new Khusamov.svg.geometry.Point(point);
 		var a = me.a();
@@ -159,7 +160,8 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		var c = me.c();
 		var x = point.x();
 		var y = point.y();
-		return Math.abs(a * x + b * y + c) / me.getNormalVectorLength();
+		var distance = (a * x + b * y + c) / me.getNormalVectorLength();
+		return directed ? distance : Math.abs(distance);
 	},
 	
 	/**
