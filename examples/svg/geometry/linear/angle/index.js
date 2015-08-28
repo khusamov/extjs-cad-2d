@@ -126,6 +126,7 @@ Ext.onReady(function() {
 		width: 280,
 		bodyPadding: 10,
 		closable: false,
+		animCollapse: false,
 		collapsible: true,
 		layout: "anchor",
 		autoShow: true,

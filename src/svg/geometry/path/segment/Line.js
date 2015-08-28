@@ -22,8 +22,6 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 	toString: function() {
 		var me = this, result = "";
 		if (me.hasPath()) {
-			
-			
 			var point = me.getLastPoint();
 			if (point) {
 				result = [];
@@ -31,8 +29,6 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 				result.push(me.getLastPoint().toString());
 				result = me.callParent([result.join(" ")]);
 			}
-			
-
 		}
 		return result;
 	}

@@ -92,6 +92,33 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 			}
 		}
 		return result.join(" ");
+	},
+	
+	/**
+	 * Получить сегмент в виде объекта.
+	 * Объект оформляется в виде конфига (по нему можно делать клона), все узлы имеют примитивные типы.
+	 * @return {Object}
+	 */
+	toObject: function() {
+		return {
+			point: this.getPoint().toObject()
+		};
+	},
+	
+	/**
+	 * Клонировать (сделать копию) сегмент.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	clone: function() {
+		return new this.self(this.toObject());
+	},
+	
+	split: function(distance) {
+		var result = [];
+		result.push(this.clone());
+		result.push(this.clone());
+		result[1].setPoint(this.getPrimitive().getInnerPoint(distance).toArray());
+		return result;
 	}
 	
 });
