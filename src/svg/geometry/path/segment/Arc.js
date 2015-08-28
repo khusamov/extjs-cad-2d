@@ -84,6 +84,12 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 		me.initArcPoints();
 	},
 	
+	toObject: function() {
+		return Ext.Object.merge(this.callParent(), {
+			arc: this.getArc().toObject()
+		});
+	},
+	
 	toString: function() {
 		var me = this, result = "";
 		if (me.hasPath()) {
