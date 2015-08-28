@@ -20,7 +20,9 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		"Khusamov.svg.geometry.path.segment.Line",
 		"Khusamov.svg.geometry.path.segment.Arc",
 		"Khusamov.svg.geometry.Arc",
-		"Khusamov.svg.geometry.equation.Linear"
+		"Khusamov.svg.geometry.equation.Linear",
+		"Khusamov.svg.discrete.graph.AdjacencyList",
+		"Khusamov.svg.geometry.Line"
 	],
 	
 	isPath: true,
@@ -319,6 +321,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return segment ? segment.getPoint() : ((!me.closed && index == me.getCount()) ? me.lastPoint : null);
 	},
 	
+	getFirstPoint: function() {
+		return this.getPoint(0);
+	},
+	
 	/**
 	 * Получить массив точек пути.
 	 * @return {Array}
@@ -425,7 +431,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	intersectionWithLinear: function(linear, segmented) {
 		var result = [], length = 0;
 		this.eachSegment(function(segment, index) {
-			var intersection = segment.intersection(linear);
+			var intersection = segment.getPrimitive().intersection(linear);
 			if (intersection) {
 				result = result.concat(intersection);
 				
@@ -447,12 +453,149 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	},
 	
 	/**
+	 * Разделить путь.
+	 * @param {Khusamov.svg.geometry.Primitive} primitive
+	 * @return {null | Khusamov.svg.geometry.Path[]}
+	 */
+	split: function(primitive) {
+		return this["splitWith" + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+	/**
 	 * Разделить путь прямой линией.
 	 * @param {Khusamov.svg.geometry.equation.Linear} linear
 	 * @return {null | Khusamov.svg.geometry.Path[]}
 	 */
-	split: function(linear) {
+	splitWithLinear: function(linear) {
+		var me = this;
 		
+		var intersection = me.intersectionWithLinear(linear, true);
+		
+		var intersectionLinear = Ext.create(
+			"Khusamov.svg.geometry.Line", 
+			intersection[0], 
+			intersection[intersection.length - 1]
+		).toLinear();
+		
+		var graph = Ext.create("Khusamov.svg.discrete.graph.AdjacencyList", {
+			directed: true
+		});
+		
+		// Добавляем в граф точки на пересеченных гранях.
+		var visited = [];
+		intersection.forEach(function(point, index) {
+			var segment = point.segment;
+			var distance = segment.distance;
+			visited.push(segment.index);
+			
+			var length = me.getSegment(segment.index).getLength();
+			var last = me.getSegment(segment.index).isLast();
+			
+			if (index % 2 == 0) {
+				graph.add("p" + segment.index, "i" + index, distance);
+				graph.add("p" + (last ? 0 : (segment.index + 1)), "i" + index, length - distance);
+				graph.add("i" + index, "i" + (index + 1), intersection[index + 1].distance(point));
+			} else {
+				graph.add("i" + index, "p" + segment.index, distance);
+				graph.add("i" + index, "p" + (last ? 0 : (segment.index + 1)), length - distance);
+			}
+		});
+		
+		// Далее добавляем точки граней, где пересечений не было.
+		me.eachSegment(function(segment, index) {
+			var last = segment.isLast();
+			if (!Ext.Array.contains(visited, index)) {
+				var from = "p" + index, to = "p" + (last ? 0 : (index + 1)), length = segment.getLength();
+				if (intersectionLinear.distance(segment.getFirstPoint(), true) > 0) {
+					graph.add(from, to, length);
+				} else {
+					graph.add(to, from, length);
+				}
+			}
+		});
+		
+		console.log("ГРАФ", graph.graph);
+		
+		// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
+		// искать все циклы, полученного графа... итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
+		// Если я правильно понял, что искомые многоугольники и есть циклы
+		// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
+		
+		// Ищем кратчайшие циклы (путь из вершины в себя) в графе.
+		var cycles = [];
+		function cyclesContains(node) {
+			var result = false;
+			cycles.forEach(function(cycle) {
+				if (Ext.Array.contains(cycle, node)) {
+					result = true;
+					return false;
+				}
+			});
+			return result;
+		}
+		function findPath(node) {
+			if (!cyclesContains(node)) {
+				cycles.push(graph.findBackPath(node));
+			}
+		}
+		intersection.forEach(function(point) {
+			var last = me.getSegment(point.segment.index).isLast();
+			findPath("p" + point.segment.index);
+			findPath("p" + (last ? 0 : (point.segment.index + 1)));
+		});
+		
+		
+		
+		// Конвертация циклов в Khusamov.svg.geometry.Path.
+		var result = [];
+		cycles.forEach(function(cycle) {
+			var path = new me.self();
+			cycle.forEach(function(node) {
+				var point = (node[0] == "p") ? me.getPoint(node.substring(1)).clone() : intersection[node.substring(1)];
+				path.point(point);
+				path.line();
+			});
+			result.push(path);
+		});
+		
+		return result;
 	},
+	
+	/**
+	 * Разбить полигон на две части отрезком, 
+	 * зная координаты первой и последней точек отрезка.
+	 * Причем координаты задаются следующим образом:
+	 * индекс сегмента пути, расстояние от первой точки сегмента.
+	 * Третий параметр это тип отрезка (потомок класса Khusamov.svg.geometry.path.segment.Segment).
+	 * @param {Object} first
+	 * @param {Number} first.index
+	 * @param {Number} first.distance
+	 * @param {Object} last
+	 * @param {Number} last.index
+	 * @param {Number} last.distance
+	 * @param {Khusamov.svg.geometry.path.segment.Segment} segment
+	 */
+	splitByPointPair: function(first, last, segment) {
+		var me = this;
+		
+		
+		
+		var firstSegment = me.getSegment(first.index);
+		var lastSegment = me.getSegment(last.index);
+		
+		
+		
+		var curSegment = lastSegment;
+		while (curSegment.getNextSegment().getIndex() != firstSegment.getIndex()) {
+			curSegment = curSegment.getNextSegment();
+		}
+		
+		
+		
+		
+		
+	}
+	
+	
 	
 });
