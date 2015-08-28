@@ -54,6 +54,14 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		
 		createByPoint: function(point) {},
 		
+		createVertical: function(x) {
+			return new Khusamov.svg.geometry.equation.Linear(1, 0, -x);
+		},
+		
+		createHorizontal: function(y) {
+			return new Khusamov.svg.geometry.equation.Linear(0, 1, -y);
+		},
+		
 		/**
 		 * Создать линейное уравнение прямой, проходящей через точку и перпендикулярной вектору.
 		 * @param normal Khusamov.svg.geometry.vector.Vector
