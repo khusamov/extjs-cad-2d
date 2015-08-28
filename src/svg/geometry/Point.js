@@ -91,9 +91,27 @@ Ext.define("Khusamov.svg.geometry.Point", {
 		return this.getY();
 	},
 	
+	/**
+	 * equal(point);
+	 * equal(point, tolerance);
+	 * equal(x, y);
+	 * equal(x, y, tolerance);
+	 */
 	equal: function() {
-		var point = Khusamov.svg.geometry.Point.create.apply(Khusamov.svg.geometry.Point, arguments);
-		return point.x() == this.x() && point.y() == this.y();
+		var me = this;
+		var point = [], tolerance;
+		if (Ext.isNumber(arguments[0])) {
+			point[0] = arguments[0];
+			point[1] = arguments[1];
+			tolerance = arguments[2] || 0;
+		} else {
+			point = arguments[0];
+			tolerance = arguments[1] || 0;
+		}
+		point = Khusamov.svg.geometry.Point.create(point);
+		var result = point.x() <= me.x() + tolerance && point.x() >= me.x() - tolerance;
+		result = result && point.y() <= me.y() + tolerance && point.y() >= me.y() - tolerance;
+		return result;
 	},
 	
 	/**
