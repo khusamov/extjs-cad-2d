@@ -37,6 +37,10 @@
 					"text": "Высота дуги",
 					"path": "archeight", "file": "index.js",
 					"leaf": true,
+				}, {
+					"text": "Деление пути",
+					"file": "split.js",
+					"leaf": true,
 				}]
 			}, {
 				"text": "Элемент «Line»", "path": "line", "file": "index.js",
@@ -81,6 +85,10 @@
 				}, {
 					"text": "Трансформация уравнения прямой",
 					"path": "transform", "file": "index.js",
+					"leaf": true,
+				}, {
+					"text": "Местоположение точки",
+					"file": "pointplace.js",
 					"leaf": true,
 				}]
 			}]
