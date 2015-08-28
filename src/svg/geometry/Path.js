@@ -468,97 +468,107 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 */
 	splitWithLinear: function(linear) {
 		var me = this;
+		var result = [];
 		
 		var intersection = me.intersectionWithLinear(linear, true);
 		
-		var intersectionLinear = Ext.create(
-			"Khusamov.svg.geometry.Line", 
-			intersection[0], 
-			intersection[intersection.length - 1]
-		).toLinear();
-		
-		var graph = Ext.create("Khusamov.svg.discrete.graph.AdjacencyList", {
-			directed: true
-		});
-		
-		// Добавляем в граф точки на пересеченных гранях.
-		var visited = [];
-		intersection.forEach(function(point, index) {
-			var segment = point.segment;
-			var distance = segment.distance;
-			visited.push(segment.index);
+		if (intersection) {
+
+			// Создаем прямую линию (по сути клон линии-делителя) 
+			// чтобы точно знать, что она направлена от первой точки пересечения.
+			var intersectionLinear = Ext.create(
+				"Khusamov.svg.geometry.Line", 
+				intersection[0], 
+				intersection[intersection.length - 1]
+			).toLinear();
 			
-			var length = me.getSegment(segment.index).getLength();
-			var last = me.getSegment(segment.index).isLast();
+			var graph = Ext.create("Khusamov.svg.discrete.graph.AdjacencyList", {
+				directed: true
+			});
 			
-			if (index % 2 == 0) {
-				graph.add("p" + segment.index, "i" + index, distance);
-				graph.add("p" + (last ? 0 : (segment.index + 1)), "i" + index, length - distance);
-				graph.add("i" + index, "i" + (index + 1), intersection[index + 1].distance(point));
-			} else {
-				graph.add("i" + index, "p" + segment.index, distance);
-				graph.add("i" + index, "p" + (last ? 0 : (segment.index + 1)), length - distance);
-			}
-		});
-		
-		// Далее добавляем точки граней, где пересечений не было.
-		me.eachSegment(function(segment, index) {
-			var last = segment.isLast();
-			if (!Ext.Array.contains(visited, index)) {
-				var from = "p" + index, to = "p" + (last ? 0 : (index + 1)), length = segment.getLength();
-				if (intersectionLinear.distance(segment.getFirstPoint(), true) > 0) {
-					graph.add(from, to, length);
+			// Добавляем в граф точки на пересеченных гранях.
+			var visited = [];
+			intersection.forEach(function(point, index) {
+				var segment = point.segment;
+				var distance = segment.distance;
+				visited.push(segment.index);
+				
+				var length = me.getSegment(segment.index).getLength();
+				var last = me.getSegment(segment.index).isLast();
+				
+				if (index % 2 == 0) {
+					graph.add("p" + segment.index, "i" + index, distance);
+					graph.add("p" + (last ? 0 : (segment.index + 1)), "i" + index, length - distance);
+					graph.add("i" + index, "i" + (index + 1), intersection[index + 1].distance(point));
 				} else {
-					graph.add(to, from, length);
+					graph.add("i" + index, "p" + segment.index, distance);
+					graph.add("i" + index, "p" + (last ? 0 : (segment.index + 1)), length - distance);
+				}
+			});
+			
+			// Далее добавляем точки граней, где пересечений не было.
+			me.eachSegment(function(segment, index) {
+				var last = segment.isLast();
+				if (!Ext.Array.contains(visited, index)) {
+					var from = "p" + index, to = "p" + (last ? 0 : (index + 1)), length = segment.getLength();
+					// Направление добавляемого в граф ребра зависит от местоположения точки относительно 
+					// прямой и как был задан путь (по часовой стрелке или нет).
+					var clockwize = me.isClockwiseDirection();
+					if (intersectionLinear.distance(segment.getFirstPoint(), true) > 0 ? !clockwize : clockwize) {
+						graph.add(from, to, length);
+					} else {
+						graph.add(to, from, length);
+					}
+				}
+			});
+			
+			console.log("ГРАФ", graph.graph, me.isClockwiseDirection());
+			
+			// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
+			// искать все циклы, полученного графа... итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
+			// Если я правильно понял, что искомые многоугольники и есть циклы
+			// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
+			
+			// Ищем кратчайшие циклы (путь из вершины в себя) в графе.
+			var cycles = [];
+			function cyclesContains(node) {
+				var result = false;
+				cycles.forEach(function(cycle) {
+					if (Ext.Array.contains(cycle, node)) {
+						result = true;
+						return false;
+					}
+				});
+				return result;
+			}
+			function findPath(node) {
+				if (!cyclesContains(node)) {
+					cycles.push(graph.findBackPath(node));
 				}
 			}
-		});
-		
-		console.log("ГРАФ", graph.graph);
-		
-		// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
-		// искать все циклы, полученного графа... итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
-		// Если я правильно понял, что искомые многоугольники и есть циклы
-		// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
-		
-		// Ищем кратчайшие циклы (путь из вершины в себя) в графе.
-		var cycles = [];
-		function cyclesContains(node) {
-			var result = false;
+			intersection.forEach(function(point) {
+				var last = me.getSegment(point.segment.index).isLast();
+				findPath("p" + point.segment.index);
+				findPath("p" + (last ? 0 : (point.segment.index + 1)));
+			});
+			
+			
+			
+			// Конвертация циклов в Khusamov.svg.geometry.Path.
+			
 			cycles.forEach(function(cycle) {
-				if (Ext.Array.contains(cycle, node)) {
-					result = true;
-					return false;
-				}
+				var path = new me.self();
+				cycle.forEach(function(node) {
+					var point = (node[0] == "p") ? me.getPoint(node.substring(1)).clone() : intersection[node.substring(1)];
+					path.point(point);
+					path.line();
+				});
+				result.push(path);
 			});
-			return result;
 		}
-		function findPath(node) {
-			if (!cyclesContains(node)) {
-				cycles.push(graph.findBackPath(node));
-			}
-		}
-		intersection.forEach(function(point) {
-			var last = me.getSegment(point.segment.index).isLast();
-			findPath("p" + point.segment.index);
-			findPath("p" + (last ? 0 : (point.segment.index + 1)));
-		});
 		
 		
-		
-		// Конвертация циклов в Khusamov.svg.geometry.Path.
-		var result = [];
-		cycles.forEach(function(cycle) {
-			var path = new me.self();
-			cycle.forEach(function(node) {
-				var point = (node[0] == "p") ? me.getPoint(node.substring(1)).clone() : intersection[node.substring(1)];
-				path.point(point);
-				path.line();
-			});
-			result.push(path);
-		});
-		
-		return result;
+		return result.length ? result : null;
 	},
 	
 	/**
@@ -578,7 +588,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	splitByPointPair: function(first, last, segment) {
 		var me = this;
 		
-		
+		// МЕТОД ПОКА НЕ ИСПОЛЬЗУЕТСЯ
 		
 		var firstSegment = me.getSegment(first.index);
 		var lastSegment = me.getSegment(last.index);
