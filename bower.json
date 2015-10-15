@@ -23,7 +23,7 @@
 	],
 	
 	"dependencies": {
-		"khusamov-sencha-extjs": "git@bitbucket.org:khusamov/sencha.extjs.git#~5.1.1",
+		"khusamov-sencha-extjs": "~5.1.1",
 		"markdown-it": "*",
 		"markdown-it-container": "*"
 	}
