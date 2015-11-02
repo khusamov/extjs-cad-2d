@@ -373,7 +373,31 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 			b: this.b(), 
 			c: this.c() 
 		});
-	}
+	},
+	
+	/**
+	 * Сортировка точек.
+	 * Точки должны лежать на одной (то есть на этой) прямой линии.
+	 * @param {Khusamov.svg.geometry.Point[]} points
+	 * @return {Khusamov.svg.geometry.Point[]}
+	 */
+	sort: function(points) {
+		var me = this, Line = Khusamov.svg.geometry.Line;
+		return Ext.Array.sort(points, function(point1, point2) {
+			if (point1.equal(point2)) return 0;
+			var angle = Line.create(point1, point2).toLinear().getAngleTo(me);
+			return (angle < Math.PI / 2) ? 1 : -1;
+		});
+		
+		
+		//var parallel = linear.getParallel();
+		
+		/*var vector1 = point1.toVector();
+		var vector2 = point2.toVector();
+		
+		var angle = vector2.sub(vector1).getAngleTo(parallel);*/
+		
+	},
 	
 });
 

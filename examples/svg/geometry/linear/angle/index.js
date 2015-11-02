@@ -5,14 +5,19 @@
 	 
 Ext.require([
 	"Khusamov.svg.Svg",
+	
 	"Khusamov.svg.element.Line",
 	"Khusamov.svg.element.Circle",
+	"Khusamov.svg.element.Title",
+	
+	"Khusamov.svg.geometry.Angle",
 	"Khusamov.svg.geometry.Point",
 	"Khusamov.svg.geometry.Line",
+	
 	"Khusamov.svg.geometry.equation.Linear",
 	"Khusamov.svg.geometry.equation.Circular",
-	"Khusamov.svg.element.Title",
-	"Khusamov.svg.geometry.Angle"
+	
+	"Khusamov.svg.geometry.vector.Vector"
 ]);
 
 Ext.onReady(function() {
@@ -85,7 +90,7 @@ Ext.onReady(function() {
 	
 	// Выводим разную информацию о линиях
 	
-	function display() {
+	/*function display() {
 		var n1 = line1.toLinear().getNormal();
 		var n2 = line2.toLinear().getNormal();
 		console.log(
@@ -99,7 +104,7 @@ Ext.onReady(function() {
 	point11.on("update", display);
 	point12.on("update", display);
 	point21.on("update", display);
-	point22.on("update", display);
+	point22.on("update", display);*/
 	
 	
 	/*
@@ -211,6 +216,7 @@ Ext.onReady(function() {
 		redString.setValue(n2.toString(fixed));
 		
 		betweenAngle.setValue(n1.getAngleBy(n2, "degree", fixed));
+		
 	}
 	
 	point11.on("update", displayWindowRefresh);
@@ -220,6 +226,7 @@ Ext.onReady(function() {
 	
 	
 	displayWindowRefresh();
+	
 	
 	
 });

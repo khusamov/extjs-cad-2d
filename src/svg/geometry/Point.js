@@ -10,7 +10,7 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	requires: ["Khusamov.svg.geometry.Angle"],
 	
 	statics: {
-		
+	
 		/**
 		 * Расстояние от начала координат до точки.
 		 * @param {Array[x, y] | Khusamov.svg.geometry.Point} point

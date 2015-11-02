@@ -29,7 +29,7 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 	},
 	
 	/**
-	 * Проложить путь в соседние вершины.
+	 * Добавление ребер.
 	 * add(index, list)
 	 * add(from, to, weight)
 	 */
@@ -121,39 +121,14 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 	findBackPath: function(index) {
 		var me = this;
 		var all = this.findPath(index);
-		
 		var min = { weight: Infinity };
 		Ext.Object.each(me.getBackAdjacent(index), function(adjacentIndex, weight) {
-			//weight += all[adjacentIndex][adjacentIndex];
-			
-			/*var path = Ext.Array.clone(all[adjacentIndex]);
-			path.unshift(index);*/
 			weight += me.getPathWeight(all[adjacentIndex]);
-			
-			
-			
-			
-			
-			/*var p = index;
-			all[adjacentIndex].forEach(function(i) {
-				weight += me.getWeight(p, i);
-				p = i;
-			});*/
-			
-			
-			
 			if (weight < min.weight) {
 				min.weight = weight;
 				min.index = adjacentIndex;
 			}
 		});
-		
-		/*var result = all[min.index];
-		result[index] = min.weight;*/
-		
-		
-		
-		
 		return all[min.index];
 	},
 	

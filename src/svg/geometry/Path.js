@@ -449,6 +449,30 @@ Ext.define("Khusamov.svg.geometry.Path", {
 				}
 			}
 		});
+		
+		
+		
+		// DEBUG
+			var res = [];
+			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
+			console.info(res);
+		// / DEBUG
+		
+		
+		// Отсортировать точки, чтобы в массиве начинались они с края многоугольника.
+		result = linear.sort(result);
+		
+		
+		
+		// DEBUG
+			res = [];
+			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
+			console.info(res);
+		// / DEBUG
+		
+
+		
+		
 		return result.length ? result : null;
 	},
 	
