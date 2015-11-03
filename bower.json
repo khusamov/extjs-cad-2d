@@ -5,14 +5,21 @@
 	"authors": ["Khusamov Sukhrob <khusamov@yandex.ru> (http://khusamov.ru/)"],
 	
 	"license": "GPL",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"keywords": ["extjs", "ext"],
-	"homepage": "https://bitbucket.org/khusamov/extjs",
+	"homepage": "https://github.com/khusamov/extjs",
+	
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/khusamov/extjs.git"
+	},
 	
 	"main": [
 		"packages/delegates.js", 
 		"packages/svg/style.css"
 	],
+	
+	"moduleType": "globals",
 	
 	"ignore": [
 		"**/.*",
