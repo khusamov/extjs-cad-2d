@@ -1,0 +1,8 @@
+{
+	"name": "khusamov/sencha.extjs",
+	"description": "Библиотека Ext JS",
+	"version": "5.1.1",
+	"authors": [{
+		"name": "Sencha"
+	}]
+}
