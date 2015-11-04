@@ -254,5 +254,5 @@
      *          }
      *      }
      */
-    "requires": ["sencha-charts"]
+    "requires": ["sencha-core", "sencha-charts", "ext-ux"]
 }
