@@ -1,5 +1,12 @@
 {
     /**
+     *  An array of the paths to all the applications present in this workspace
+     */
+    "apps": [
+        "examples/kitchen"
+    ],
+
+    /**
      * This is the folder for build outputs in the workspace.
      */
     "build": {
