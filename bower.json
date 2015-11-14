@@ -11,13 +11,10 @@
 	
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/khusamov/extjs.git"
+		"url": "git@github.com:khusamov/extjs.git"
 	},
 	
-	"main": [
-		"packages/delegates.js", 
-		"packages/svg/style.css"
-	],
+	"main": [],
 	
 	"moduleType": "globals",
 	
@@ -30,9 +27,9 @@
 	],
 	
 	"dependencies": {
-		"khusamov-sencha-extjs": "~5.1.1",
 		"markdown-it": "*",
-		"markdown-it-container": "*"
+		"markdown-it-container": "*",
+		"pace": "*"
 	}
 	
 }

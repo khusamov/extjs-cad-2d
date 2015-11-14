@@ -1,3 +1,8 @@
-vendor
+ext
+build
+
+
+node_modules
+bower_components
 temp
 VERSION_0.1.0
