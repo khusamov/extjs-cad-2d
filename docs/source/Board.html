@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-desktop-Board'>/**
+</span> * Кульман рабочего стола.
+ * Может содержать следующие дочерние объекты: Холст, Обработчики объектов холста.
+ * Кульман можно двигать мышкой относительно рабочего стола.
+ */
+
+Ext.define(&quot;Khusamov.svg.desktop.Board&quot;, {
+	
+	extend: &quot;Khusamov.svg.element.Group&quot;,
+	
+	xtype: &quot;khusamov-svg-desktop-board&quot;,
+	
+	requires: [&quot;Khusamov.svg.desktop.surface.Surface&quot;],
+    
+<span id='Khusamov-svg-desktop-Board-property-baseCls'>    baseCls: Ext.baseCSSPrefix + &quot;khusamov-svg-desktop-board&quot;,
+</span>	
+<span id='Khusamov-svg-desktop-Board-method-surface'>	/**
+</span>	 * @param Khusamov.svg.desktop.surface.Surface
+	 */
+	surface: null,
+	
+	config: {
+<span id='Khusamov-svg-desktop-Board-cfg-translatable'>		translatable: true
+</span>	},
+	
+<span id='Khusamov-svg-desktop-Board-method-initComponent'>	initComponent: function() {
+</span>		var me = this;
+		me.callParent(arguments);
+		
+		// Создаем холст.
+		me.surface = me.add(Ext.create(&quot;Khusamov.svg.desktop.surface.Surface&quot;));
+		
+		// Инициализация свойства Перемещаемость кульмана.
+		me.on(&quot;render&quot;, &quot;initTranslatable&quot;, me, {
+			single: true
+		});
+	},
+	
+<span id='Khusamov-svg-desktop-Board-method-initTranslatable'>	initTranslatable: function() {
+</span>		var me = this;
+		var desktop = me.getDesktop();
+		var desktopEl = desktop.getEl();
+		// Перемещение кульмана
+			
+		var mousedown = false;
+		var mousedownX = 0;
+		var mousedownY = 0;
+		
+		desktopEl.on(&quot;mousedown&quot;, function(e) {
+			if (e.button == 1) {
+				mousedown = true;
+				var matrix = me.getMatrix();
+				mousedownX = e.pageX - desktop.getX() - matrix.getDX();
+				mousedownY = e.pageY - desktop.getY() - matrix.getDY();
+				desktopEl.addCls(&quot;move2&quot;);
+			}
+		});
+		
+		desktopEl.on(&quot;mouseup&quot;, function() {
+			mousedown = false;
+			desktopEl.removeCls(&quot;move2&quot;);
+		});
+		
+		desktopEl.on(&quot;mouseout&quot;, function() {
+			mousedown = false;
+			desktopEl.removeCls(&quot;move2&quot;);
+		});
+		
+		desktopEl.on(&quot;mousemove&quot;, function(e) {
+			if (mousedown) {
+				var x = e.pageX - desktop.getX() - mousedownX;
+				var y = e.pageY - desktop.getY() - mousedownY;
+				
+				var matrix = me.getMatrix();
+				
+				/*x = x - mousedownX;
+				y = y - mousedownY;*/
+				
+				var point = matrix.inverse().transformPoint([x, y]);
+				x = point[0]; 
+				y = point[1];
+				
+				matrix.translate(x, y);
+				
+				me.transform.clear();
+				me.transform.matrix(matrix);
+			}
+		});
+	},
+    
+<span id='Khusamov-svg-desktop-Board-method-getDesktop'>    getDesktop: function() {
+</span>    	return this.getSvg();
+    },
+    
+<span id='Khusamov-svg-desktop-Board-method-getSurface'>    getSurface: function() {
+</span>    	return this.surface;
+    }
+    
+});
+
+</pre>
+</body>
+</html>

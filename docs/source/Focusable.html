@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+// удалить!
+
+// http://javascript.ru/forum/showthread.php?p=367507#post367507
+
+
+
+/*
+
+Итак, чтобы компонент сделать фокусируемый нужно добавить в него всего лишь две строчки.
+
+Вот код компонента с этими двумя строчками:
+
+показать чистый исходник в новом окнеСкрыть/показать номера строкпечать кода с сохранением подсветки
+1
+Ext.define(&quot;MyComponent&quot;, {
+2
+    extend: &quot;Ext.Component&quot;,
+3
+    focusable: true,
+4
+    tabIndex: 0, // без этой строчки не работает механизм фокусировки
+5
+});
+
+
+*/
+
+
+
+/*
+Ext.define(&quot;Khusamov.svg.element.mixin.Focusable&quot;, {
+	
+	focusable: true,
+	
+	initFocusable: function() {
+        var me = this;
+        me.callParent(arguments);
+        
+        me.on(&quot;render&quot;, function() {
+            Ext.override(this.getEl(), {
+                focus: function() {
+                    this.callParent(arguments);
+                    me.onFocus();
+                },
+                blur: function() {
+                    this.callParent(arguments);
+                    me.onBlur();
+                }
+            });
+        });
+    }
+	
+});
+
+
+Ext.define(&quot;MyFocusable&quot;, {
+    onClassMixedIn: function(mixinClass) {
+        Ext.override(mixinClass, {
+            focusable: true,
+            initFocusable: function() {
+                var me = this;
+                me.callParent(arguments);
+                me.on(&quot;render&quot;, function() {
+                    Ext.override(this.getEl(), {
+                        focus: function() {
+                            this.callParent(arguments);
+                            me.onFocus();
+                        },
+                        blur: function() {
+                            this.callParent(arguments);
+                            me.onBlur();
+                        }
+                    });
+                });
+            }
+        });
+    }
+});*/</pre>
+</body>
+</html>

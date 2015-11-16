@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.element.Group&quot;, {
+    
+    extend: &quot;Khusamov.svg.element.Element&quot;,
+    
+    xtype: &quot;khusamov-svg-element-group&quot;,
+    
+    isSvgGroup: true,
+    
+    type: &quot;group&quot;,
+    
+    baseCls: Ext.baseCSSPrefix + &quot;khusamov-svg-group&quot;,
+    
+    autoEl: {
+    	tag: &quot;g&quot;
+    }
+    
+}, function(Group) {
+	
+	Khusamov.svg.Element.override({
+		
+		statics: {
+			
+<span id='global-method-createGroup'>			/**
+</span>			 * Создать элемент Группа.
+			 * @return {Khusamov.svg.element.Group}
+			 */
+			createGroup: function() {
+				return Group.create.apply(Group, arguments);
+				//return Ext.create.apply(Ext, [&quot;Khusamov.svg.element.Group&quot;].concat(Ext.Array.slice(arguments)));
+			}
+			
+		}
+		
+	});
+	
+});
+
+</pre>
+</body>
+</html>

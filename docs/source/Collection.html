@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+
+// этот класс нужен был для генерации ID для точек полилинии
+// а также для переиндексации элементов
+// теперь в примитиве id автоматом генерится - осталась пока переиндексация
+// TODO надо бы избавиться от этого класса
+
+
+Ext.define(&quot;Khusamov.svg.geometry.point.Collection&quot;, {
+	
+	extend: &quot;Ext.util.Collection&quot;,
+	
+	requires: [&quot;Ext.data.identifier.Sequential&quot;],
+	
+	listeners: {
+		add: &quot;reindex&quot;,
+		remove: &quot;reindex&quot;
+	},
+	
+	constructor: function() {
+		var me = this;
+		me.callParent(arguments);
+		me.identifier = Ext.create(&quot;Ext.data.identifier.Sequential&quot;);
+	},
+	
+	reindex: function() {
+		var me = this;
+		me.each(function(point, index, length) {
+			point.setIndex(index);
+			point.isFirst = (index == 0);
+			point.isLast = (index == length - 1);
+		});
+		return me;
+	},
+	
+	add: function(items) {
+		var me = this;
+		
+		if (!Ext.isArray(items)) items = [items];
+		items.map(function(item) {
+			var key = me.getKey(item);
+			if (key === undefined || key === null) me.setKey(item);
+			return item;
+		});
+		
+		
+		return me.callParent(items);
+	},
+	
+	setKey: function(item, id) {
+		id = id || this.identifier.generate();
+		if (item.setId) item.setId(id); else item.id = id;
+        return this;
+	}
+	
+});</pre>
+</body>
+</html>

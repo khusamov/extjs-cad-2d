@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-equation-Linear'>/**
+</span> * Линейное уравнение прямой.
+ * ax + by + c = 0
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.equation.Linear&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	requires: [
+		&quot;Ext.draw.Matrix&quot;,
+		&quot;Khusamov.svg.geometry.Point&quot;, 
+		&quot;Khusamov.svg.geometry.vector.Vector&quot;,
+		&quot;Khusamov.svg.geometry.Angle&quot;
+	],
+	
+	statics: {
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-transform'>		transform: function(linear, matrix) {
+</span>			var split = matrix.split();
+			var rotation = Ext.create(&quot;Ext.draw.Matrix&quot;);
+			rotation.rotate(split.rotation);
+			var translation = Ext.create(&quot;Ext.draw.Matrix&quot;);
+			translation.translate(split.translateX, split.translateY);
+			
+			var normal = rotation.transformPoint(linear.getNormalVector().toArray());
+			normal = Ext.create(&quot;Khusamov.svg.geometry.Vector&quot;, normal);
+			
+			translation.rotate(split.rotation);
+			var point = translation.transformPoint(linear.b() ? [0, linear.y(0)] : [linear.x(0), 0]);
+			
+			return this.createByNormal(normal, point);
+		},
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createByLine'>		/**
+</span>		 * Создать линейное уравнение прямой по двум точкам.
+		 * @param line Khusamov.svg.geometry.Line
+		 * @return Khusamov.svg.geometry.equation.Linear
+		 */
+		createByLine: function(line) {
+			var x1 = line.getFirstPoint().x();
+			var y1 = line.getFirstPoint().y();
+			var x2 = line.getLastPoint().x();
+			var y2 = line.getLastPoint().y();
+			return new Khusamov.svg.geometry.equation.Linear({
+				a: y1 - y2,
+				b: x2 - x1,
+				c: x1 * y2 - x2 * y1
+			});
+		},
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createByVector'>		createByVector: function(vector) {},
+</span>		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createByPoint'>		createByPoint: function(point) {},
+</span>		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createVertical'>		createVertical: function(x) {
+</span>			return new Khusamov.svg.geometry.equation.Linear(1, 0, -x);
+		},
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createHorizontal'>		createHorizontal: function(y) {
+</span>			return new Khusamov.svg.geometry.equation.Linear(0, 1, -y);
+		},
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createByNormal'>		/**
+</span>		 * Создать линейное уравнение прямой, проходящей через точку и перпендикулярной вектору.
+		 * @param normal Khusamov.svg.geometry.vector.Vector
+		 * @param point Array | Khusamov.svg.geometry.Point
+		 * @return Khusamov.svg.geometry.equation.Linear
+		 */
+		createByNormal: function(normal, point) {
+			point = Ext.isArray(point) ? new Khusamov.svg.geometry.Point(point) : point;
+			return new Khusamov.svg.geometry.equation.Linear({
+				a: normal.x(),
+				b: normal.y(),
+				c: -(normal.x() * point.x() + normal.y() * point.y())
+			});
+		},
+		
+<span id='Khusamov-svg-geometry-equation-Linear-static-method-createByParallel'>		/**
+</span>		 * Создать линейное уравнение прямой, проходящей через точку и паралельной вектору.
+		 * @param parallel Khusamov.svg.geometry.vector.Vector
+		 * @param point Array | Khusamov.svg.geometry.Point
+		 * @return Khusamov.svg.geometry.equation.Linear
+		 */
+		createByParallel: function(parallel, point) {
+			point = Ext.isArray(point) ? new Khusamov.svg.geometry.Point(point) : point;
+			if (!parallel.x()) {
+				return new Khusamov.svg.geometry.equation.Linear({
+					a: 1,
+					b: 0,
+					c: -point.x()
+				});
+			}
+			if (!parallel.y()) {
+				return new Khusamov.svg.geometry.equation.Linear({
+					a: 0,
+					b: 1,
+					c: -point.y()
+				});
+			}
+			return new Khusamov.svg.geometry.equation.Linear({
+				a: 1 / parallel.x(),
+				b: -1 / parallel.y(),
+				c: point.y() / parallel.y() - point.x() / parallel.x()
+			});
+		},
+		
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-property-isLinear'>	isLinear: true,
+</span>	
+<span id='Khusamov-svg-geometry-equation-Linear-property-type'>	type: &quot;linear&quot;,
+</span>	
+	config: {
+<span id='Khusamov-svg-geometry-equation-Linear-cfg-a'>		a: 0,
+</span><span id='Khusamov-svg-geometry-equation-Linear-cfg-b'>		b: 0,
+</span><span id='Khusamov-svg-geometry-equation-Linear-cfg-c'>		c: 0
+</span>	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.equation.Linear&quot;, a, b, c);
+	 */
+	constructor: function(config) {
+		var me = this;
+		if (arguments.length == 3) config = {
+			a: arguments[0],
+			b: arguments[1],
+			c: arguments[2]
+		};
+		me.initConfig(config);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-a'>	a: function() {
+</span>		return this.getA();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-b'>	b: function() {
+</span>		return this.getB();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-c'>	c: function() {
+</span>		return this.getC();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-x'>	x: function(y) {
+</span>		return -(this.b() * y + this.c()) / this.a();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-y'>	y: function(x) {
+</span>		return -(this.a() * x + this.c()) / this.b();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-distance'>	/**
+</span>	 * Расстояние от прямой до точки.
+	 * 
+	 * http://hystory-for-vki.narod.ru/index/0-36
+	 * 
+	 * @param {Array | Khusamov.svg.geometry.Point} point 
+	 * @param {Boolean} directed Если равно true, то знак расстояния будет означать с какой стороны находится точка.
+	 * @return {Number}
+	 */
+	distance: function(point, directed) {
+		var me = this;
+		if (Ext.isArray(point)) point = new Khusamov.svg.geometry.Point(point);
+		var a = me.a();
+		var b = me.b();
+		var c = me.c();
+		var x = point.x();
+		var y = point.y();
+		var distance = (a * x + b * y + c) / me.getNormalVectorLength();
+		return directed ? distance : Math.abs(distance);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getAngleTo'>	/**
+</span>	 * Угол между прямыми.
+	 */
+	getAngleTo: function(linear, unit, fixed) {
+		return this.getParallel().getAngleTo(linear.getParallel(), unit, fixed);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getAngleBy'>	getAngleBy: function(linear, unit, fixed) {
+</span>		return this.getParallel().getAngleBy(linear.getParallel(), unit, fixed);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getAngle'>	/**
+</span>	 * Получить угол между прямой и осью Ох (в диапазоне от -PI до PI).
+	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
+	 * @return {Number}
+	 */
+	getAngle: function(unit, fixed) {
+		return this.getParallel().getAngle(unit, fixed);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getTransformLinear'>	getTransformLinear: function(matrix) {
+</span>		return Khusamov.svg.geometry.equation.Linear.transform(this, matrix);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getNormal'>	/**
+</span>	 * Нормаль прямой (единичный вектор, перпендикулярный прямой).
+	 * @return Khusamov.svg.geometry.vector.Vector
+	 */
+	getNormal: function() {
+		return this.getNormalVector().getIdentity();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getNormalLinear'>	/**
+</span>	 * Создать линейное уравнение перпендикулярной прямой, проходящей через точку.
+	 * @return Khusamov.svg.geometry.equation.Linear
+	 */
+	getNormalLinear: function(point) {
+		return Khusamov.svg.geometry.equation.Linear.createByParallel(this.getNormal(), point); 
+		//return Khusamov.svg.geometry.equation.Linear.createByNormal(this.getParallel(), point); 
+		
+		// TODO
+		/* Надо проверить это:
+		point = [x0, y0]
+		A и B это коэффициенты от исходной прямой
+		Перпедикуляр = (x - x0)/A + (y - y0)/B = 0
+		Паралель     = (x - x0)*A + (y - y0)*B = 0
+		а то у меня тут чето как-то сложно вычисляются перпендикуляры и паралели
+		*/
+		
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getNormalVector'>	/**
+</span>	 * Получить нормальный вектор прямой.
+	 * @return Khusamov.svg.geometry.vector.Vector
+	 */
+	getNormalVector: function() {
+		return Ext.create(&quot;Khusamov.svg.geometry.vector.Vector&quot;, this.a(), this.b());
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getNormalVectorLength'>	/**
+</span>	 * Длина нормального вектора прямой.
+	 * @return Number
+	 */
+	getNormalVectorLength: function() {
+		return Math.sqrt(Math.pow(this.a(), 2) + Math.pow(this.b(), 2));
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getParallel'>	/**
+</span>	 * Направляющая прямой (единичный вектор, паралельный прямой).
+	 * @return Khusamov.svg.geometry.vector.Vector
+	 */
+	getParallel: function() {
+		return this.getNormal().getNormal().inverse();
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getParallelLinear'>	/**
+</span>	 * Создать линейное уравнение паралельной прямой, проходящей через точку.
+	 * Важно: новая прямая коллинеарна и сонаправлена с исходной (направляющие).
+	 * @return Khusamov.svg.geometry.equation.Linear
+	 */
+	getParallelLinear: function(point) {
+		return Khusamov.svg.geometry.equation.Linear.createByParallel(this.getParallel(), point);
+		//return Khusamov.svg.geometry.equation.Linear.createByNormal(this.getNormal(), point);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-getParallelLinearByDestination'>	/**
+</span>	 * Создать линейное уравнение паралельной прямой, проходящей расстоянии.
+	 * @return Khusamov.svg.geometry.equation.Linear
+	 */
+	getParallelLinearByDestination: function(destination) {
+		// Практикум по высш математике 3 издание Соболь Мишняков стр 110 Пример 32 
+		return new this.self({
+			a: this.a(),
+			b: this.b(),
+			c: destination * this.getNormalVectorLength() + this.c()
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-intersection'>	/**
+</span>	 * Найти точку пересечения с другой прямой.
+	 * @param {Khusamov.svg.geometry.equation.Linear | Khusamov.svg.geometry.equation.Circular} primitive 
+	 * @return {Khusamov.svg.geometry.Point || Khusamov.svg.geometry.Point[] || null}
+	 */
+	intersection: function(primitive) {
+		var me = this;
+		var result = null;
+		switch(primitive.type) {
+			case &quot;line&quot;:
+				var line = primitive;
+				result = line.intersection(me);
+				break;
+			case &quot;circular&quot;:
+				var circular = primitive;
+				result = circular.intersection(me);
+				result = result ? result.reverse() : result;
+				break;
+			case &quot;linear&quot;:
+				var linear = primitive;
+				var a1 = me.a();
+				var b1 = me.b();
+				var c1 = me.c();
+				var a2 = linear.a();
+				var b2 = linear.b();
+				var c2 = linear.c();
+				result = (a1 * b2 - a2 * b1 == 0) ? null : Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, {
+					x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
+					y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
+				});
+				break;
+		}
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-isCollinear'>	/**
+</span>	 * Возвращает true, если вектора-нормали коллинеарные (по сути паралелльные).
+	 * Для определения сонаправленности используйте опцию codirectional:
+	 * Если codirectional === true, то возвращает true, если вектора коллинеарные и сонаправленные.
+	 * Если codirectional === false, то возвращает true, если вектора коллинеарные и разнонаправленные.
+	 */
+	isCollinear: function(linear, codirectional) {
+		return this.getNormal().isCollinear(linear.getNormal(), codirectional);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-isParallel'>	/**
+</span>	 * Проверка паралельности двух прямых.
+	 */
+	isParallel: function(linear) {
+		var me = this;
+		var a1 = me.a();
+		var b1 = me.b();
+		var a2 = linear.a();
+		var b2 = linear.b();
+		return a1 * b2 - a2 * b1 == 0;
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-isNormal'>	/**
+</span>	 * Проверка перпендикулярности двух прямых.
+	 */
+	isNormal: function(linear) {
+		var me = this;
+		var a1 = me.a();
+		var b1 = me.b();
+		var a2 = linear.a();
+		var b2 = linear.b();
+		return a1 * b2 + a2 * b1 == 0;
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-toString'>	toString: function(fixed) {
+</span>		var result = [];
+		function koeff(k, v) {
+			k = fixed ? k.toFixed(fixed) : k;
+			return Number(k) ? k + (v || &quot;&quot;) : &quot;&quot;;
+		}
+		function push(k, v) {
+			var str = arguments.length == 2 ? koeff(k, v) : k;
+			if (str) result.push(str);
+		}
+		push(&quot;Linear&quot;);
+		push(&quot;{&quot;);
+		push(this.a(), &quot;x +&quot;);
+		push(this.b(), &quot;y&quot; + (this.c() ? &quot; +&quot; : &quot;&quot;));
+		push(this.c(), null);
+		push(&quot;= 0&quot;);
+		push(&quot;}&quot;);
+		return result.join(&quot; &quot;);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-toArray'>	toArray: function() {
+</span>		return [this.a(), this.b(), this.c()];
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-toObject'>	/**
+</span>	 * Получить линейное уравнение прямой в виде объекта.
+	 * @return Object
+	 */
+	toObject: function() {
+		return Ext.Object.merge(this.callParent(), { 
+			a: this.a(), 
+			b: this.b(), 
+			c: this.c() 
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Linear-method-sort'>	/**
+</span>	 * Сортировка точек.
+	 * Точки должны лежать на одной (то есть на этой) прямой линии.
+	 * @param {Khusamov.svg.geometry.Point[]} points
+	 * @return {Khusamov.svg.geometry.Point[]}
+	 */
+	sort: function(points) {
+		var me = this, Line = Khusamov.svg.geometry.Line;
+		return Ext.Array.sort(points, function(point1, point2) {
+			if (point1.equal(point2)) return 0;
+			var angle = Line.create(point1, point2).toLinear().getAngleTo(me);
+			return (angle &lt; Math.PI / 2) ? 1 : -1;
+		});
+		
+		
+		//var parallel = linear.getParallel();
+		
+		/*var vector1 = point1.toVector();
+		var vector2 = point2.toVector();
+		
+		var angle = vector2.sub(vector1).getAngleTo(parallel);*/
+		
+	},
+	
+});
+
+
+</pre>
+</body>
+</html>

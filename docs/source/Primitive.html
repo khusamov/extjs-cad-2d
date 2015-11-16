@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Primitive'>/**
+</span> * Базовый, абстрактный класс геометрических элементов.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Primitive&quot;, {
+	
+	requires: [&quot;Ext.data.identifier.Sequential&quot;],
+	
+	mixins: [&quot;Ext.mixin.Observable&quot;],
+	
+	statics: {
+		
+<span id='Khusamov-svg-geometry-Primitive-static-property-identifier'>		/**
+</span>		 * @property {Ext.data.identifier.Sequential}
+		 */
+		identifier: null,
+		
+<span id='Khusamov-svg-geometry-Primitive-static-method-init'>		init: function() {
+</span>			var me = this;
+			me.identifier = Ext.create(&quot;Ext.data.identifier.Sequential&quot;, {
+				seed: 1000
+			});
+		},
+		
+<span id='Khusamov-svg-geometry-Primitive-static-method-generateId'>		generateId: function() {
+</span>			return this.identifier.generate();
+		}
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-property-isPrimitive'>	isPrimitive: true,
+</span>	
+<span id='Khusamov-svg-geometry-Primitive-property-type'>	/**
+</span>	 * Тип примитива.
+	 * @readonly
+	 * @property {String}
+	 */
+	type: &quot;primitive&quot;,
+	
+	config: {
+		
+<span id='Khusamov-svg-geometry-Primitive-property-id'>		/**
+</span>		 * Уникальный идентификатор примитива.
+		 * @property {String}
+		 */
+		id: null,
+		
+<span id='Khusamov-svg-geometry-Primitive-property-index'>		/**
+</span>		 * Индекс примитива.
+		 * @property {Number}
+		 */
+		index: null,
+		
+<span id='Khusamov-svg-geometry-Primitive-property-title'>		/**
+</span>		 * Имя, название или заголовок примитива.
+		 * @property {String}
+		 */
+		title: null,
+		
+<span id='Khusamov-svg-geometry-Primitive-property-description'>		/**
+</span>		 * Текстовое описание примитива.
+		 * @property {String}
+		 */
+		description: null,
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-constructor'>	constructor: function(config) {
+</span>		var me = this;
+		if (config &amp;&amp; !(&quot;id&quot; in config)) config.id = Khusamov.svg.geometry.Primitive.generateId();
+		me.mixins.observable.constructor.call(me, config);
+		me.initConfig(config);
+		me.initPrimitive();
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-applyId'>	applyId: function(value) {
+</span>		return String(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-applyIndex'>	applyIndex: function(value) {
+</span>		return Number(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-applyTitle'>	applyTitle: function(value) {
+</span>		return String(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-applyDescription'>	applyDescription: function(value) {
+</span>		return String(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-updateId'>	updateId: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;id&quot;, value, old, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-updateIndex'>	updateIndex: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;id&quot;, value, old, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-updateTitle'>	updateTitle: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;id&quot;, value, old, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-updateDescription'>	updateDescription: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;id&quot;, value, old, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-getType'>	/**
+</span>	 * Получить тип примитива.
+	 * @return {String}
+	 */
+	getType: function() {
+		return this.type;
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-initPrimitive'>	/**
+</span>	 * Инициализация примитива.
+	 * Шаблон метода.
+	 */
+	initPrimitive: Ext.emptyFn,
+	
+<span id='Khusamov-svg-geometry-Primitive-method-clone'>	/**
+</span>	 * Клонировать (сделать копию) примитив.
+	 * @return {Khusamov.svg.geometry.Primitive}
+	 */
+	clone: function() {
+		return new this.self(this.toObject());
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-toObject'>	/**
+</span>	 * Получить примитив в виде объекта.
+	 * Объект оформляется в виде конфига (по нему можно делать клона), все узлы имеют примитивные типы.
+	 * @return {Object}
+	 */
+	toObject: function() {
+		return {
+			type: this.getType(),
+			id: this.getId(),
+			index: this.getIndex(),
+			title: this.getTitle(),
+			description: this.getDescription()
+		};
+	},
+	
+<span id='Khusamov-svg-geometry-Primitive-method-toArray'>	/**
+</span>	 * Получить примитив в виде массива.
+	 * Все узлы имеют примитивные типы.
+	 * @return {Array}
+	 */
+	toArray: function() { return []; },
+	
+<span id='Khusamov-svg-geometry-Primitive-method-toString'>	/**
+</span>	 * Получить примитив в виде строки.
+	 * Строка оформляется по стандартам SVG.
+	 * @return {String}
+	 */
+	toString: function() { return String(); }
+	
+}, function(Primitive) {
+	
+	Primitive.init();
+	
+});</pre>
+</body>
+</html>

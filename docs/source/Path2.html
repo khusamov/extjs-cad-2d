@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Path'>/**
+</span> * Путь (сложная линия) на плоскости.
+ * 
+ * Структура класса
+ * 
+ * Путь (path) состоит из сегментов (segment).
+ * Каждый сегмент имеет первую точку.
+ * Путь может иметь последнюю точку. Если ее нет, то путь замыкается на первой.
+ * Точки (сегментов и последняя точка в пути) имеют опцию relative.
+ * 
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Path&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	requires: [
+		&quot;Ext.util.Collection&quot;,
+		&quot;Khusamov.svg.geometry.path.segment.Line&quot;,
+		&quot;Khusamov.svg.geometry.path.segment.Arc&quot;,
+		&quot;Khusamov.svg.geometry.Arc&quot;,
+		&quot;Khusamov.svg.geometry.equation.Linear&quot;,
+		&quot;Khusamov.svg.discrete.graph.AdjacencyList&quot;,
+		&quot;Khusamov.svg.geometry.Line&quot;
+	],
+	
+<span id='Khusamov-svg-geometry-Path-property-isPath'>	isPath: true,
+</span>	
+<span id='Khusamov-svg-geometry-Path-property-type'>	type: &quot;path&quot;,
+</span>	
+<span id='Khusamov-svg-geometry-Path-method-constructor'>	constructor: function() {
+</span>		
+		this.callParent(arguments);
+		
+<span id='Khusamov-svg-geometry-Path-property-segments'>		/**
+</span>		 * Массив сегментов пути.
+		 * @readonly
+		 * @property {Array}
+		 */
+		this.segments = [];
+		
+<span id='Khusamov-svg-geometry-Path-property-closed'>		/**
+</span>		 * Флаг, обозначающий открыт или закрыт путь.
+		 * @readonly
+		 * @property {Boolean}
+		 */
+		this.closed = false;
+		
+<span id='Khusamov-svg-geometry-Path-property-lastPoint'>		/**
+</span>		 * Последняя точка пути.
+		 * Если равно null, то последней точкой считается первая точка пути.
+		 * @readonly
+		 * @property {null | Khusamov.svg.geometry.path.Point}
+		 */
+		this.lastPoint = null;
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-add'>	/**
+</span>	 * Добавить сегмент пути.
+	 * Для набора пути используйте методы: point(), line() и arc().
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	add: function(segment) {
+		segment.setPath(this);
+		this.segments.push(segment);
+		this.closed = true;
+		
+		this.lastPoint.un(&quot;update&quot;, &quot;onLastPointUpdate&quot;, this);
+		this.lastPoint = null;
+		
+		this.fireEvent(&quot;add&quot;);
+		this.fireEvent(&quot;update&quot;);
+		return segment;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-splice'>	/**
+</span>	 * Замещение сегмента.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	splice: function(index, deleteCount, segment) {
+		this.segments.splice(index, deleteCount, segment);
+		this.fireEvent(&quot;splice&quot;);
+		this.fireEvent(&quot;update&quot;);
+		return segment;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-replace'>	/**
+</span>	 * Заменить выбранный сегмент.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	replace: function(index, segment, savePoint) {
+		if (savePoint) segment.setPoint(this.getPoint(index));
+		return this.splice(index, 1, segment);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-insert'>	/**
+</span>	 * Вставка сегмента.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	insert: function(index, segment) {
+		return this.splice(index, 0, segment);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-indexOf'>	/**
+</span>	 * Получить индекс (порядковый номер) сегмента.
+	 * Индексы начинаются с нуля.
+	 * @return {Number}
+	 */
+	indexOf: function(segment) {
+		return this.segments.indexOf(segment);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getCount'>	/**
+</span>	 * Получить количество сегментов пути.
+	 * @return {Number}
+	 */
+	getCount: function() {
+		return this.segments.length;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-clear'>	/**
+</span>	 * Очистить путь (удалить все сегменты и точки).
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	clear: function() {
+		this.segments = [];
+		this.closed = false;
+		
+		if (this.lastPoint) {
+			this.lastPoint.un(&quot;update&quot;, &quot;onLastPointUpdate&quot;, this);
+			this.lastPoint = null;
+		}
+		
+		this.fireEvent(&quot;clear&quot;);
+		this.fireEvent(&quot;update&quot;);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getSegment'>	/**
+</span>	 * Получить сегмент по его индексу.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getSegment: function(index) {
+		return this.segments[index];
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getFirstSegment'>	/**
+</span>	 * Получить первый сегмент пути.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getFirstSegment: function() {
+		return this.getSegment(0);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getLastSegment'>	/**
+</span>	 * Получить последний сегмент пути.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getLastSegment: function() {
+		return this.getSegment(this.getCount() - 1);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getNextSegment'>	/**
+</span>	 * Получить следущий сегмент пути.
+	 * При этом считается что путь замкнут.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getNextSegment: function(index) {
+		var segment = this.getSegment(index + 1);
+		return segment ? segment : this.getFirstSegment();
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getPrevSegment'>	/**
+</span>	 * Получить предыдущий сегмент пути.
+	 * При этом считается что путь замкнут.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getPrevSegment: function(index) {
+		var segment = this.getSegment(index - 1);
+		return segment ? segment : this.getLastSegment();
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-eachSegment'>	/**
+</span>	 * Цикл по сегментам пути.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	eachSegment: function(fn, scope) {
+		this.segments.forEach(fn, scope);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-toString'>	/**
+</span>	 * Получить путь в текстовом виде в формате SVG.
+	 * @return {String}
+	 */
+	toString: function() {
+		var me = this;
+		var result = [];
+		me.segments.forEach(function(segment) {
+			result.push(segment.toString());
+		});
+		return result.join(&quot; &quot;);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-point'>	/**
+</span>	 * Основной способ набора пути.
+	 * Добавление точки: первая точка сегмента или последняя точка пути.
+	 * 
+	 * point(Khusamov.svg.geometry.path.Point);
+	 * point(Khusamov.svg.geometry.Point);
+	 * point([x, y]);
+	 * point([x, y, relative]);
+	 * 
+	 * point(x, y);
+	 * point([x, y], relative);
+	 * point(Khusamov.svg.geometry.path.Point, relative);
+	 * point(Khusamov.svg.geometry.Point, relative);
+	 * 
+	 * point(x, y, relative);
+	 * 
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	point: function() {
+		var point = null;
+		if (arguments[0] instanceof Khusamov.svg.geometry.path.Point) {
+			point = arguments[0];
+			if (arguments.length == 2) point.setRelative(arguments[1]);
+		} else {
+			if (arguments.length == 1) {
+				point = arguments[0];
+				point = Ext.create(&quot;Khusamov.svg.geometry.path.Point&quot;, point);
+			}
+			if (arguments.length == 2 &amp;&amp; !Ext.isNumber(arguments[0])) {
+				point = Ext.create(&quot;Khusamov.svg.geometry.path.Point&quot;, arguments[0], arguments[1]);
+			}
+			if ((arguments.length == 3 || arguments.length == 2) &amp;&amp; Ext.isNumber(arguments[0])) {
+				point = Ext.Array.slice(arguments);
+				point = Ext.create(&quot;Khusamov.svg.geometry.path.Point&quot;, point);
+			}
+		}
+		this.lastPoint = point;
+		this.lastPoint.on(&quot;update&quot;, &quot;onLastPointUpdate&quot;, this);
+		this.lastPoint.setPath(this);
+		this.closed = false;
+		this.fireEvent(&quot;changelastpoint&quot;);
+		this.fireEvent(&quot;update&quot;);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-onLastPointUpdate'>	onLastPointUpdate: function() {
+</span>		this.fireEvent(&quot;update&quot;);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-segment'>	/**
+</span>	 * Основной способ набора пути.
+	 * Добавление сегмента.
+	 * Вместо этого метода используйте методы line() и arc().
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	segment: function(segment) {
+		segment.setPoint(this.lastPoint);
+		this.add(segment);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-line'>	/**
+</span>	 * Основной способ набора пути.
+	 * Добавление прямого сегмента пути.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	line: function() {
+		return this.segment(Ext.create(&quot;Khusamov.svg.geometry.path.segment.Line&quot;));
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-arc'>	/**
+</span>	 * Основной способ набора пути.
+	 * Добавление сегмента пути типа арка.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	arc: function(radius, config) {
+		var segment = null;
+		var ArcSegment = Khusamov.svg.geometry.path.segment.Arc;
+		if (radius instanceof Khusamov.svg.geometry.Arc) {
+			segment = ArcSegment.create(radius);
+		} else {
+			if (!(Ext.isArray(radius) || Ext.isNumeric(radius))) {
+				config = radius;
+				radius = null;
+			}
+			segment = ArcSegment.create(null, radius, config);
+		}
+		return this.segment(segment);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-replaceOfLine'>	/**
+</span>	 * Заменить выбранный сегмент на прямую.
+	 * @return {Khusamov.svg.geometry.path.segment.Line}
+	 */
+	replaceOfLine: function(index) {
+		return this.replace(Ext.create(&quot;Khusamov.svg.geometry.path.segment.Line&quot;), true);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-replaceOfArc'>	/**
+</span>	 * Заменить выбранный сегмент на арку.
+	 * @return {Khusamov.svg.geometry.path.segment.Arc}
+	 */
+	replaceOfArc: function(index, radius, config) {
+		return this.replace(Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, null, radius, config), true);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getPoint'>	/**
+</span>	 * Получить точку по индексу сегмента.
+	 * Возвращается первая точка запрошенного сегмента.
+	 * @return {Khusamov.svg.geometry.path.Point}
+	 */
+	getPoint: function(index) {
+		var me = this;
+		var segment = me.getSegment(index);
+		return segment ? segment.getPoint() : ((!me.closed &amp;&amp; index == me.getCount()) ? me.lastPoint : null);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getFirstPoint'>	getFirstPoint: function() {
+</span>		return this.getPoint(0);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getPoints'>	/**
+</span>	 * Получить массив точек пути.
+	 * @return {Array}
+	 */
+	getPoints: function() {
+		var result = [];
+		this.segments.forEach(function(segment) {
+			result.push(segment.getPoint());
+		});
+		if (this.lastPoint) result.push(this.lastPoint);
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-eachPoint'>	/**
+</span>	 * Цикл по точкам пути.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	eachPoint: function(fn, scope) {
+		this.getPoints().forEach(fn, scope);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getPolygonRawArea'>	/**
+</span>	 * Площадь многоугольника, образованного путем (как если сегменты были бы прямыми), со знаком обхода вершин.
+	 * Положительное число - Путь задан по часовой стрелке (при условии что ось Оу смотрит вверх).
+	 * Но обычно ось Оу смотрит вниз, поэтому положительное число указывает о направлении против часовой стрелки.
+	 * @return {Number}
+	 */
+	getPolygonRawArea: function() {
+		var me = this;
+		var result = 0;
+		me.eachPoint(function(point, index) {
+			var next = me.getPoint(index + 1);
+			next = next ? next : me.getPoint(0);
+			result += ((next.y() + point.y()) / 2) * (next.x() - point.x());
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-isClockwiseDirection'>	/**
+</span>	 * Определить направление пути.
+	 * 1. Ось Оу обращена вниз (ситуация по умолчанию):
+	 * Возвращает false при условии что путь задан по часовой стрелке и ось Оу смотрит вверх.
+	 * Возвращает true при условии что путь задан против часовой стрелке и ось Оу смотрит вниз.
+	 * 2. Ось Оу обращена наверх:
+	 * Возвращает true при условии что путь задан по часовой стрелке.
+	 * Возвращает false при условии что путь задан против часовой стрелке.
+	 * @return {Boolean}
+	 */
+	isClockwiseDirection: function() {
+		return this.getPolygonRawArea() &gt; 0;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-turnOut'>	/**
+</span>	 * Вывернуть путь наизнанку.
+	 * Последовательность сегментов меняется на обратную.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	turnOut: function() {
+		var me = this;
+		var points = me.getPoints().sort(function(point, next) {
+			return next.getIndex() - point.getIndex();
+		});
+		me.segments.sort(function(segment, next) {
+			return next.getIndex() - segment.getIndex();
+		});
+		points.forEach(function(point, index) {
+			var segment = me.getSegment(index);
+			point.unlinkSegment();
+			if (segment) {
+				segment.setPoint(point);
+			} else {
+				me.lastPoint = point;
+				me.lastPoint.on(&quot;update&quot;, &quot;onLastPointUpdate&quot;, me);
+			}
+		});
+		me.fireEvent(&quot;turnout&quot;);
+		me.fireEvent(&quot;update&quot;);
+		return me;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-getLength'>	/**
+</span>	 * Длина пути.
+	 */
+	getLength: function() {
+		var result = 0;
+		this.eachSegment(function(segment) {
+			result += segment.getLength();
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-intersection'>	/**
+</span>	 * @param {Boolean} segmented Если равен true, то на выходе будет массив точек с 
+	 * 1) индексом сегмента,
+	 * 2) координатой точки внутри сегмента (расстояние до точки от начала сегмента),
+	 * 3) координатой точки внутри пути (расстояние до точки от начала пути).
+	 * (Эта информация добавляется прямо в объект точки в свойство segment{index, distance, distanceByPath}).
+	 */
+	intersection: function(primitive, segmented) {
+		return this[&quot;intersectionWith&quot; + Ext.String.capitalize(primitive.type)].call(this, primitive, segmented);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-intersectionWithLinear'>	intersectionWithLinear: function(linear, segmented) {
+</span>		var result = [], length = 0;
+		this.eachSegment(function(segment, index) {
+			var intersection = segment.getPrimitive().intersection(linear);
+			if (intersection) {
+				result = result.concat(intersection);
+				
+				if (segmented) {
+					intersection = Ext.isArray(intersection) ? intersection: [intersection];
+					intersection.forEach(function(point) {
+						var distance = segment.getFirstPoint().getDistanceTo(point);
+						point.segment = {
+							index: index,
+							distance: distance,
+							distanceByPath: length + distance
+						};
+					});
+					length += segment.getLength();
+				}
+			}
+		});
+		
+		
+		
+		// DEBUG
+			var res = [];
+			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
+			console.info(res);
+		// / DEBUG
+		
+		
+		// Отсортировать точки, чтобы в массиве начинались они с края многоугольника.
+		result = linear.sort(result);
+		
+		
+		
+		// DEBUG
+			res = [];
+			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
+			console.info(res);
+		// / DEBUG
+		
+
+		
+		
+		return result.length ? result : null;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-split'>	/**
+</span>	 * Разделить путь.
+	 * @param {Khusamov.svg.geometry.Primitive} primitive
+	 * @return {null | Khusamov.svg.geometry.Path[]}
+	 */
+	split: function(primitive) {
+		return this[&quot;splitWith&quot; + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-splitWithLinear'>	/**
+</span>	 * Разделить путь прямой линией.
+	 * @param {Khusamov.svg.geometry.equation.Linear} linear
+	 * @return {null | Khusamov.svg.geometry.Path[]}
+	 */
+	splitWithLinear: function(linear) {
+		var me = this;
+		var result = [];
+		
+		var intersection = me.intersectionWithLinear(linear, true);
+		
+		if (intersection) {
+
+			// Создаем прямую линию (по сути клон линии-делителя) 
+			// чтобы точно знать, что она направлена от первой точки пересечения.
+			var intersectionLinear = Ext.create(
+				&quot;Khusamov.svg.geometry.Line&quot;, 
+				intersection[0], 
+				intersection[intersection.length - 1]
+			).toLinear();
+			
+			var graph = Ext.create(&quot;Khusamov.svg.discrete.graph.AdjacencyList&quot;, {
+				directed: true
+			});
+			
+			// Добавляем в граф точки на пересеченных гранях.
+			var visited = [];
+			intersection.forEach(function(point, index) {
+				var segment = point.segment;
+				var distance = segment.distance;
+				visited.push(segment.index);
+				
+				var length = me.getSegment(segment.index).getLength();
+				var last = me.getSegment(segment.index).isLast();
+				
+				if (index % 2 == 0) {
+					graph.add(&quot;p&quot; + segment.index, &quot;i&quot; + index, distance);
+					graph.add(&quot;p&quot; + (last ? 0 : (segment.index + 1)), &quot;i&quot; + index, length - distance);
+					graph.add(&quot;i&quot; + index, &quot;i&quot; + (index + 1), intersection[index + 1].distance(point));
+				} else {
+					graph.add(&quot;i&quot; + index, &quot;p&quot; + segment.index, distance);
+					graph.add(&quot;i&quot; + index, &quot;p&quot; + (last ? 0 : (segment.index + 1)), length - distance);
+				}
+			});
+			
+			// Далее добавляем точки граней, где пересечений не было.
+			me.eachSegment(function(segment, index) {
+				var last = segment.isLast();
+				if (!Ext.Array.contains(visited, index)) {
+					var from = &quot;p&quot; + index, to = &quot;p&quot; + (last ? 0 : (index + 1)), length = segment.getLength();
+					// Направление добавляемого в граф ребра зависит от местоположения точки относительно 
+					// прямой и как был задан путь (по часовой стрелке или нет).
+					var clockwize = me.isClockwiseDirection();
+					if (intersectionLinear.distance(segment.getFirstPoint(), true) &gt; 0 ? !clockwize : clockwize) {
+						graph.add(from, to, length);
+					} else {
+						graph.add(to, from, length);
+					}
+				}
+			});
+			
+			console.log(&quot;ГРАФ&quot;, graph.graph, me.isClockwiseDirection());
+			
+			// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
+			// искать все циклы, полученного графа... итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
+			// Если я правильно понял, что искомые многоугольники и есть циклы
+			// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
+			
+			// Ищем кратчайшие циклы (путь из вершины в себя) в графе.
+			var cycles = [];
+			function cyclesContains(node) {
+				var result = false;
+				cycles.forEach(function(cycle) {
+					if (Ext.Array.contains(cycle, node)) {
+						result = true;
+						return false;
+					}
+				});
+				return result;
+			}
+			function findPath(node) {
+				if (!cyclesContains(node)) {
+					cycles.push(graph.findBackPath(node));
+				}
+			}
+			intersection.forEach(function(point) {
+				var last = me.getSegment(point.segment.index).isLast();
+				findPath(&quot;p&quot; + point.segment.index);
+				findPath(&quot;p&quot; + (last ? 0 : (point.segment.index + 1)));
+			});
+			
+			
+			
+			// Конвертация циклов в Khusamov.svg.geometry.Path.
+			
+			cycles.forEach(function(cycle) {
+				var path = new me.self();
+				cycle.forEach(function(node) {
+					var point = (node[0] == &quot;p&quot;) ? me.getPoint(node.substring(1)).clone() : intersection[node.substring(1)];
+					path.point(point);
+					path.line();
+				});
+				result.push(path);
+			});
+		}
+		
+		
+		return result.length ? result : null;
+	},
+	
+<span id='Khusamov-svg-geometry-Path-method-splitByPointPair'>	/**
+</span>	 * Разбить полигон на две части отрезком, 
+	 * зная координаты первой и последней точек отрезка.
+	 * Причем координаты задаются следующим образом:
+	 * индекс сегмента пути, расстояние от первой точки сегмента.
+	 * Третий параметр это тип отрезка (потомок класса Khusamov.svg.geometry.path.segment.Segment).
+	 * @param {Object} first
+	 * @param {Number} first.index
+	 * @param {Number} first.distance
+	 * @param {Object} last
+	 * @param {Number} last.index
+	 * @param {Number} last.distance
+	 * @param {Khusamov.svg.geometry.path.segment.Segment} segment
+	 */
+	splitByPointPair: function(first, last, segment) {
+		var me = this;
+		
+		// МЕТОД ПОКА НЕ ИСПОЛЬЗУЕТСЯ
+		
+		var firstSegment = me.getSegment(first.index);
+		var lastSegment = me.getSegment(last.index);
+		
+		
+		
+		var curSegment = lastSegment;
+		while (curSegment.getNextSegment().getIndex() != firstSegment.getIndex()) {
+			curSegment = curSegment.getNextSegment();
+		}
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+});</pre>
+</body>
+</html>

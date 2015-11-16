@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Triangle'>/**
+</span> * Треугольник на плоскости.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Triangle&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Polygon&quot;,
+	
+	requires: [
+		&quot;Khusamov.svg.geometry.Point&quot;, 
+		&quot;Khusamov.svg.geometry.equation.Linear&quot;
+	],
+	
+<span id='Khusamov-svg-geometry-Triangle-property-isTriangle'>	isTriangle: true,
+</span>	
+<span id='Khusamov-svg-geometry-Triangle-property-type'>	type: &quot;triangle&quot;,
+</span>	
+	statics: {
+		
+<span id='Khusamov-svg-geometry-Triangle-static-method-createByPerimeter'>		createByPerimeter: function(a, b, c) {
+</span>			return new (function(a, b, c) {
+				this.a = a;
+				this.b = b;
+				this.c = c;
+				this.getPerimeter = function() {
+					return this.a + this.b + this.c;
+				};
+				this.getSemiperimeter = function() {
+					return this.getPerimeter() / 2;
+				};
+				this.getArea = function() {
+					var p = this.getSemiperimeter();
+					var area = Math.sqrt(p * (p - this.a) * (p - this.b) * (p - this.c));
+					return isNaN(area) ? 0 : area;
+				};
+				
+				this.ha = function() {
+					return 2 * this.getArea() / this.a;
+				};
+				
+				this.hb = function() {
+					return 2 * this.getArea() / this.b;
+				};
+				
+				this.height = this.hb;
+				
+				this.hc = function() {
+					return 2 * this.getArea() / this.c;
+				};
+				
+				this.ma = function() {
+					return Math.sqrt(2 * (Math.pow(this.b, 2) + Math.pow(this.c, 2)) - Math.pow(this.a, 2)) / 2;
+				};
+				
+				this.mb = function() {
+					return Math.sqrt(2 * (Math.pow(this.a, 2) + Math.pow(this.c, 2)) - Math.pow(this.b, 2)) / 2;
+				};
+				
+				this.mc = function() {
+					return Math.sqrt(2 * (Math.pow(this.a, 2) + Math.pow(this.b, 2)) - Math.pow(this.c, 2)) / 2;
+				};
+				
+			})(a, b, c);
+		}
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.Triangle&quot;, x1, y1, x2, y2, x3, y3);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Triangle&quot;, [x1, y1], [x2, y2], [x3, y3]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Triangle&quot;, Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Triangle&quot;, Khusamov.svg.geometry.Point[]);
+	 */
+	constructor: function(config) {
+		var me = this, args = arguments;
+		if (args.length == 6) config = [[args[0], args[1]], [args[2], args[3]], [args[4], args[5]]];
+		if (args.length == 3) config = [args[0], args[1], args[2]];
+		me.callParent([config]);
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-a'>	a: function() {
+</span>		return this.getLine(0).getLength();
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-b'>	b: function() {
+</span>		return this.getLine(1).getLength();
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-c'>	c: function() {
+</span>		return this.getLine(2).getLength();
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-getSemiperimeter'>	getSemiperimeter: function() {
+</span>		return this.getPerimeter() / 2;
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-getArea'>	getArea: function() {
+</span>		var p = this.getSemiperimeter();
+		var a = this.a(), b = this.b(), c = this.c();
+		return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+	},
+	
+	
+	
+	
+<span id='Khusamov-svg-geometry-Triangle-method-getHeight'>	// TODO в определении высоты и медианы исправить ошибку - когда берется высота или медиана вершины, то для расчета берется ПРОТИВОПОЛОЖНАЯ сторона
+</span>	// а здесь сделано что берется сторона по индексу, соответствующая индексу вершины
+	
+	getHeight: function(index) {
+		return 2 * this.getArea() / this.getLine(index).getLength();
+	},
+	
+<span id='Khusamov-svg-geometry-Triangle-method-getMedian'>	getMedian: function(index) {
+</span>		var result = 0;
+		this.eachLine(function(line, lineIndex) {
+			result += (lineIndex == index ? -1 : 2) * Math.pow(line.getLength(), 2);
+		});
+		return Math.sqrt(result) / 2;
+	},
+	
+	
+	
+	
+<span id='Khusamov-svg-geometry-Triangle-method-toPolygon'>	toPolygon: function() {
+</span>		return Ext.create(&quot;Khusamov.svg.geometry.Polygon&quot;, this.toArray());
+	}
+	
+});
+
+
+</pre>
+</body>
+</html>

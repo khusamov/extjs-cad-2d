@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Polygon'>/**
+</span> * Полигон (замкнутая полилиния) на плоскости.
+ * Длина складывается как длина полилинии плюс длина отрезка между последней точкой и первой.
+ * Команды получения следующей точки и предыдущей зациклены.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Polygon&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Polyline&quot;,
+	
+<span id='Khusamov-svg-geometry-Polygon-property-isPolygon'>	isPolygon: true,
+</span>	
+<span id='Khusamov-svg-geometry-Polygon-property-type'>	type: &quot;polygon&quot;,
+</span>	
+<span id='Khusamov-svg-geometry-Polygon-method-getNextPoint'>	/**
+</span>	 * Получить точку, следующую за index.
+	 * Если это последняя точка, то будет выдана первая.
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	getNextPoint: function(index) {
+		var me = this;
+		var result = me.callParent([index]);
+		return result ? result : me.getFirstPoint();
+	},
+	
+<span id='Khusamov-svg-geometry-Polygon-method-getPrevPoint'>	/**
+</span>	 * Получить точку, предыдущую перед index.
+	 * Если это первая точка, то будет выдана последняя.
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	getPrevPoint: function(index) {
+		var me = this;
+		var result = me.callParent([index]);
+		return result ? result : me.getLastPoint();
+	},
+	
+<span id='Khusamov-svg-geometry-Polygon-method-getPerimeter'>	getPerimeter: function() {
+</span>		return this.getLength();
+	},
+	
+<span id='Khusamov-svg-geometry-Polygon-method-toPolyline'>	toPolyline: function() {
+</span>		return Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, this.toArray());
+	}
+	
+}, function() {
+	
+	Khusamov.svg.geometry.Polyline.override({
+		
+		toPolygon: function() {
+			return Ext.create(&quot;Khusamov.svg.geometry.Polygon&quot;, this.toArray());
+		}
+		
+	});
+	
+});
+
+
+</pre>
+</body>
+</html>

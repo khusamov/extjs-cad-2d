@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+// http://javascript.ru/forum/extjs/54862-ext-container-container-so-svoim-shablonom-html.html
+
+Ext.define(&quot;Khusamov.svg.layout.Svg&quot;, {
+	extend: &quot;Ext.layout.container.Container&quot;,
+	alias: &quot;layout.khusamov-layout-svg&quot;,
+	
+	type: &quot;khusamov-layout-svg&quot;,
+	
+	renderTpl: [&quot;{%this.renderContent(out,values)%}&quot;],
+	
+	// http://stackoverflow.com/questions/12588913/svganimatedstring-missing-method-indexof
+	// решение проблемы с классом SVGAnimatedString
+    getItemLayoutEl: function(item) {
+        var dom = item.el ? item.el.dom : Ext.getDom(item),
+            parentNode = dom.parentNode,
+            className;
+
+        if (parentNode) {
+        	
+        	// parentNode.className является экземпляром SVGAnimatedString
+        	// и в нем искомое значение хранится в baseVal
+            //className = parentNode.className;
+            className = this._loadAttr(parentNode, &quot;className&quot;);
+            
+            //console.log(parentNode.className.baseVal == this._loadAttr(parentNode, &quot;className&quot;));
+            
+            
+            if (className &amp;&amp; className.indexOf(Ext.baseCSSPrefix + &#39;resizable-wrap&#39;) !== -1) {
+                dom = dom.parentNode;
+            }
+        }
+
+        return dom;
+    },
+    
+    _loadAttr: function(element, attributeName) {
+    	if (element instanceof SVGElement) {
+    		return element[attributeName].baseVal;
+    	} else {
+    		return element[attributeName];
+    	}
+    },
+	
+});
+
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.element.Line&quot;, {
+	
+	extend: &quot;Khusamov.svg.element.Polyline&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Line&quot;],
+	
+	xtype: &quot;khusamov-svg-element-line&quot;,
+    
+    isSvgLine: true,
+	
+	type: &quot;line&quot;,
+    
+    baseCls: Ext.baseCSSPrefix + &quot;khusamov-svg-line&quot;,
+	
+	autoEl: {
+		tag: &quot;line&quot;
+	},
+	
+	geometryClass: &quot;Line&quot;,
+	
+<span id='global-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, x1, y1, x2, y2);
+	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, [x1, y1], [x2, y2]);
+	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point);
+	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, Khusamov.svg.geometry.Point[]);
+	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, Mixed[]);
+	 * Ext.create(&quot;Khusamov.svg.element.Line&quot;, Khusamov.svg.geometry.Line);
+	 */
+	constructor: function(config) {
+		var me = this, args = Ext.Array.slice(arguments);
+		if (arguments.length == 4) config = [[args[0], args[1]], [args[2], args[3]]];
+		if (arguments.length == 2) config = [args[0], args[1]];
+		me.callParent([config]);
+	},
+	
+	repaintGeometry: function() {
+		var me = this;
+		if (me.geometryClass &amp;&amp; me.rendered) {
+			if (me.getFirstPoint() &amp;&amp; me.getLastPoint()) {
+				me.getEl().set({
+					x1: me.getFirstPoint().x(),
+					y1: me.getFirstPoint().y(),
+					x2: me.getLastPoint().x(),
+					y2: me.getLastPoint().y()
+				});
+			}
+		}
+	}
+    
+}, function(Line) {
+	
+	Khusamov.svg.Element.override({
+		
+		statics: {
+			
+<span id='global-method-createLine'>			/**
+</span>			 * Создать элемент Линия.
+			 * @return {Khusamov.svg.element.Line}
+			 */
+			createLine: function() {
+				return Line.create.apply(Line, arguments);
+				//return Ext.create.apply(Ext, [&quot;Khusamov.svg.element.Line&quot;].concat(Ext.Array.slice(arguments)));
+			}
+			
+		}
+		
+	});
+	
+});
+
+</pre>
+</body>
+</html>

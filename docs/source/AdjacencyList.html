@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-discrete-graph-AdjacencyList'>/**
+</span> * Класс для хранения графа при помощи списков смежности.
+ * 
+ * Ограничения:
+ * 1) Для алгоритма Дейкстры нельзя использовать отрицательные веса ребер.
+ * 2) Не поддерживаются паралельные ребра.
+ * 
+ */
+
+Ext.define(&quot;Khusamov.svg.discrete.graph.AdjacencyList&quot;, {
+	
+	config: {
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-cfg-directed'>		directed: false
+</span>	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-constructor'>	constructor: function(config) {
+</span>		
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-property-graph'>		/**
+</span>		 * Хранилище графа.
+		 * Формат: Object{ index: Object{ index: weight } }
+		 * Перечислены все вершины с массивом соседних вершин с весами ребер до них.
+		 * @readonly
+		 * @property {Object}
+		 */
+		this.graph = {};
+		
+		this.initConfig(config);
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-add'>	/**
+</span>	 * Добавление ребер.
+	 * add(index, list)
+	 * add(from, to, weight)
+	 */
+	add: function(index, list) {
+		if (arguments.length == 3) {
+			var _list = {};
+			_list[arguments[1]] = arguments[2];
+			list = _list;
+		}
+		this.graph[index] = Ext.applyIf(this.graph[index] || {}, list);
+		
+		if (!this.getDirected()) {
+			// Проложить обратные пути.
+			Ext.Object.each(list, function(adjacentIndex, weight) {
+				this.graph[adjacentIndex] = this.graph[adjacentIndex] || {};
+				this.graph[adjacentIndex][index] = weight;
+			});
+		}
+		
+		return this;
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-getAdjacent'>	/**
+</span>	 * Получить список соседних узлов.
+	 * Возвращается массив с индексами узлов и весами ребер до них.
+	 * @param {Number | String} index Номер узла.
+	 * @return {Object}
+	 */
+	getAdjacent: function(index) {
+		return Ext.Object.merge({}, 
+			this.getForwardAdjacent(index), 
+			this.getBackAdjacent(index)
+		);
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-getForwardAdjacent'>	/**
+</span>	 * Получить прямых соседей, 
+	 * на которые есть ориентированные пути от искомого узла.
+	 * Возвращается массив с индексами узлов и весами ребер до них.
+	 * @param {Number | String} index Номер узла.
+	 * @return {Object}
+	 */
+	getForwardAdjacent: function(index) {
+		return this.graph[index];
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-getBackAdjacent'>	/**
+</span>	 * Получить обратных соседей, 
+	 * от которых есть ориентированные пути к искомому узлу.
+	 * Возвращается массив с индексами узлов и весами ребер до них.
+	 * @param {Number | String} index Номер узла.
+	 * @return {Object}
+	 */
+	getBackAdjacent: function(index) {
+		var me = this, back = {};
+		Ext.Object.each(me.graph, function(i, adjacent) {
+			if (index in adjacent) back[i] = adjacent[index];
+		});
+		return back;
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-getWeight'>	getWeight: function(from, to) {
+</span>		return this.graph[from][to];
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-getPathWeight'>	getPathWeight: function(path) {
+</span>		var me = this, result = 0;
+		var from = path[0];
+		path.forEach(function(to, index) {
+			if (index) {
+				result += me.getWeight(from, to);
+				from = to;
+			}
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-each'>	/**
+</span>	 * Цикл по всем узлам. Будут доступны номер узла и массивы прямых ребер.
+	 */
+	each: function(fn, scope) {
+		Ext.Object.each(this.graph, fn, scope);
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-findBackPath'>	/**
+</span>	 * Найти кратчайший путь из узла в самого себя.
+	 * Используется алгоритм Дейкстры (только для ребер с положительным весом).
+	 */
+	findBackPath: function(index) {
+		var me = this;
+		var all = this.findPath(index);
+		var min = { weight: Infinity };
+		Ext.Object.each(me.getBackAdjacent(index), function(adjacentIndex, weight) {
+			weight += me.getPathWeight(all[adjacentIndex]);
+			if (weight &lt; min.weight) {
+				min.weight = weight;
+				min.index = adjacentIndex;
+			}
+		});
+		return all[min.index];
+	},
+	
+<span id='Khusamov-svg-discrete-graph-AdjacencyList-method-findPath'>	/**
+</span>	 * Поиск кратчайшего пути из одной вершины в другую.
+	 * Используется алгоритм Дейкстры (только для ребер с положительным весом).
+	 * Если to не определен, то на выходе объект с путями до всех узлов.
+	 * @param {Number | String} from Откуда строить путь.
+	 * @param {Number | String} [to] До куда строить путь.
+	 * @return {Array | Object}
+	 */
+	findPath: function(from, to) {
+		
+		// Веса кратчайших путей от искомой до всех остальных.
+		// Ключ это номер узла, значение = вес пути от искомой до данного узла.
+		var distance = {};
+		
+		// Кратчайшие пути от искомой до всех остальных.
+		// Формат: Object{ index: Array[index, index, ...] }
+		var paths = {};
+		
+		
+		// Список посещенных узлов. По алгоритму.
+		var visited = [];
+		
+		this.each(function(index) {
+			distance[index] = Infinity;
+		});
+		distance[from] = 0;
+		
+		var min;
+		
+		console.groupCollapsed(from);
+		console.log(this.graph);
+		
+		
+		do {
+			
+			min = null;
+			
+			Ext.Object.each(this.graph, function(index) {
+				if (!Ext.Array.contains(visited, index)) {
+					if (min == null || distance[index] &lt; distance[min]) {
+						min = index;
+					}
+				}
+			});
+			
+			if (min != null) {
+				
+				visited.push(min);
+				
+				Ext.Object.each(this.getForwardAdjacent(min), function(index, weight) {
+					if (!Ext.Array.contains(visited, index)) {
+						if (distance[index] &gt; distance[min] + weight) {
+							distance[index] = distance[min] + weight;
+							
+							
+							/*var predPath = Ext.Object.merge({}, path[min] || {});
+							predPath[index] = distance[index];*/
+							
+							
+							paths[index] = Ext.Array.clone(paths[min] || []);
+							paths[index].push(index);
+							
+						}
+					}
+				});
+				
+				
+				
+				// debug
+				var _distance = {};
+				Ext.Object.each(this.graph, function(index) {
+					_distance[index] = distance[index].toFixed(0);
+				});
+				console.info(&quot;distance&quot;, _distance);
+				// / debug
+				
+				
+			}
+			
+
+			
+			
+		} while (min != null)
+		
+		Ext.Object.each(paths, function(index, path) {
+			path.unshift(from);
+		});
+		
+		
+		console.info(&quot;visited&quot;, visited);
+		console.info(&quot;path&quot;, paths);
+		console.groupEnd();
+		
+		
+		
+		return to == undefined ? paths : paths[to];
+	}
+	
+});</pre>
+</body>
+</html>

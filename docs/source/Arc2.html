@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.path.segment.Segment&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Arc&quot;],
+	
+	isArcSegment: true,
+	
+	config: {
+		
+<span id='global-property-arc'>		/**
+</span>		 * Khusamov.svg.geometry.Arc
+		 */
+		arc: null
+		
+	},
+	
+<span id='global-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, arc);
+	 * Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, point, radius);
+	 * Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, point, radius, config);
+	 * Внимание, есть возможность point не задавать, для этого нужно вызывать конструктор так:
+	 * Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, null, radius);
+	 * Ext.create(&quot;Khusamov.svg.geometry.path.segment.Arc&quot;, null, radius, config);
+	 */
+	constructor: function(point, radius, config) {
+		var me = this;
+		config = config ? { arc: config } : {};
+		if (arguments.length == 1) config = point;
+		if (point instanceof Khusamov.svg.geometry.Arc) config = { arc: point };
+		if (arguments.length &gt; 1) {
+			config.arc = config.arc || {};
+			if (!Ext.isEmpty(radius)) config.arc.radius = radius;
+			if (!Ext.isEmpty(point)) config.point = point;
+		}
+		me.callParent([config]);
+		me.initArcPoints();
+	},
+	
+	getPrimitive: function() {
+		return this.getArc();
+	},
+	
+	applyArc: function(arc) {
+		if (!(arc instanceof Khusamov.svg.geometry.Arc)) {
+			arc = Ext.create(&quot;Khusamov.svg.geometry.Arc&quot;, arc);
+		}
+		return arc;
+	},
+	
+	updateArc: function(arc, oldArc) {
+		this.onParamUpdate();
+		if (oldArc) arc.un(&quot;update&quot;, &quot;onParamUpdate&quot;, this);
+		arc.on(&quot;update&quot;, &quot;onParamUpdate&quot;, this);
+	},
+	
+	initArcPoints: function() {
+		var me = this, arc = me.getArc();
+		if (arc) {
+			arc.setFirstPoint(me.getFirstPoint());
+			if (me.getLastPoint()) arc.setLastPoint(me.getLastPoint());
+		}
+	},
+	
+	updatePoint: function(point, oldPoint) {
+		this.callParent(arguments);
+		this.initArcPoints();
+	},
+	
+	updatePath: function(path) {
+		var me = this;
+		
+		[&quot;add&quot;, &quot;splice&quot;, &quot;clear&quot;, &quot;changelastpoint&quot;, &quot;turnout&quot;]
+			.forEach(function(eventName) {
+				
+				//http://javascript.ru/forum/extjs/57614-metod-tostring-v-polzovatelskom-komponente-i-problemy-s-nim.html
+				/*path.on(eventName, function() {
+					me.initArcPoints();
+				});*/
+				path.on(eventName, &quot;initArcPoints&quot;, me);
+			});
+			
+		me.initArcPoints();
+	},
+	
+	toObject: function() {
+		return Ext.Object.merge(this.callParent(), {
+			arc: this.getArc().toObject()
+		});
+	},
+	
+	toString: function() {
+		var me = this, result = &quot;&quot;;
+		if (me.hasPath()) {
+			var arc = me.getArc();
+			var point = arc.getLastPoint();
+			if (point) {
+				result = [];
+				
+				result.push(point.isRelative() ? &quot;a&quot; : &quot;A&quot;);
+				
+				result.push(arc.getRadius(0));
+				result.push(arc.getRadius(1));
+				result.push(arc.getRotation());
+				result.push(arc.isLarge() ? 1 : 0);
+				result.push(arc.isSweep() ? 1 : 0);
+				
+				result.push(point.toString());
+				
+				result = me.callParent([result.join(&quot; &quot;)]);
+			}
+		}
+		return result;
+	}
+	
+});</pre>
+</body>
+</html>

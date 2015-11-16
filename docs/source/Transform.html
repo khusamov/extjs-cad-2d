@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='global-property-'>/**
+</span> * Управление фильтрами параметра transform для SVG-элементов.
+ */
+
+
+
+
+// TODO сделать либо наследование либо на основе Коллекции
+
+
+
+
+Ext.define(&quot;Khusamov.svg.element.attribute.transform.Transform&quot;, {
+	
+	alternateClassName: &quot;Khusamov.svg.element.attribute.Transform&quot;,
+    
+    requires: [&quot;Khusamov.svg.element.attribute.transform.Filter&quot;],
+	
+	mixins: [&quot;Ext.mixin.Observable&quot;],
+	
+	statics: {
+		
+<span id='global-method-toArray'>		/**
+</span>		 * Конвертировать строку или массив строк transform в формате SVG в массив.
+		 * @param transform String | String[] | Khusamov.svg.element.attribute.transform.Filter[] | Ext.draw.Matrix | Ext.draw.Matrix[] | mixed[]
+		 * @return Khusamov.svg.element.attribute.transform.Filter[]
+		 */
+		toArray: function(transforms) {
+	    	var result = [];
+	    	var Filter = Khusamov.svg.element.attribute.transform.Filter;
+	    	if (transforms) {
+		    	if (Ext.isString(transforms) || transforms instanceof Filter || transforms instanceof Ext.draw.Matrix) transforms = [transforms];
+		    	transforms.forEach(function(transform) {
+		    		if (transform instanceof Filter) {
+		    			result.push(transform);
+		    		} else if (transform instanceof Ext.draw.Matrix) {
+		    			result.push(new Filter(transform));
+		    		} else {
+				    	//rotate(-30) translate(100, 200) translate(100 200) scale(0.5) matrix(a, b, c, d, e, f)
+				    	transform = transform.replace(/,/g, &quot; &quot;);
+				    	//rotate(-30) translate(100  200) translate(100 200) scale(0.5) matrix(a  b  c  d  e  f)
+				    	transform = transform.split(&quot;)&quot;);
+				    	//rotate(-30
+				    	//translate(100  200
+				    	//translate(100 200
+				    	//scale(0.5
+				    	//matrix(a  b  c  d  e  f
+				    	//
+				    	transform = transform.filter(function(filter) {
+				    		return filter.trim();
+				    	});
+				    	transform = transform.map(function(filter) {
+				    		return filter.replace(/ /g, &quot;, &quot;) + &quot;)&quot;;
+				    	});
+				    	//rotate(-30)
+				    	//translate(100, 200)
+				    	//translate(100, 200)
+				    	//scale(0.5)
+				    	//matrix(a, b, c, d, e, f)
+				    	transform.forEach(function(filter) {
+					    	result.push(new Filter(filter));
+				    	});
+		    		}
+		    	});
+	    	}
+	    	return result;
+		}
+		
+	},
+	
+	config: {
+		
+<span id='global-method-filters'>		/**
+</span>		 * Массив SVG-фильтров.
+		 * @param Khusamov.svg.element.attribute.transform.Filter[]
+		 */
+		filters: []
+		
+	},
+	
+<span id='global-event-update'>	/**
+</span>	 * @event update
+	 */
+	
+<span id='global-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, String);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, String[]);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, Ext.draw.Matrix);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, Ext.draw.Matrix[]);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, Khusamov.svg.element.attribute.transform.Filter);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, Khusamov.svg.element.attribute.transform.Filter[]);
+	 * Ext.create(&quot;Khusamov.svg.element.attribute.Transform&quot;, Mixed[]);
+	 */
+	constructor: function(config) {
+		var me = this;
+		me.mixins.observable.constructor.call(me, config);
+		
+		if (
+			Ext.isString(config) ||
+			Ext.isArray(config) ||
+			config instanceof Ext.draw.Matrix ||
+			config instanceof Khusamov.svg.element.attribute.transform.Filter
+		) {
+			config = { filters: config };
+		}
+		
+		me.initConfig(config);
+	},
+	
+<span id='global-method-applyFilters'>	/**
+</span>	 * Заменить фильтры.
+	 * Transform.setFilters(String) // Несколько фильтров через пробел
+	 * Transform.setFilters(String[])
+	 * Transform.setFilters(Ext.draw.Matrix)
+	 * Transform.setFilters(Ext.draw.Matrix[])
+	 * Transform.setFilters(Khusamov.svg.element.attribute.transform.Filter)
+	 * Transform.setFilters(Khusamov.svg.element.attribute.transform.Filter[])
+	 * Transform.setFilters(mixed[])
+	 * @return Khusamov.svg.element.attribute.transform.Transform
+	 */
+	applyFilters: function(filters) {
+		return Khusamov.svg.element.attribute.Transform.toArray(filters);
+	},
+	
+	updateFilters: function(filters, old) {
+		this.fireEvent(&quot;update&quot;, &quot;clear&quot;);
+		if (filters.length) this.fireEvent(&quot;update&quot;, &quot;add&quot;, filters);
+	},
+	
+<span id='global-method-add'>	/**
+</span>	 * Добавить фильтр(ы).
+	 * 
+	 * Transform.add(String) // matrix(a, b, c, d, e, f)
+	 * Transform.add(String) // Несколько фильтров через пробел
+	 * Transform.add(String[])
+	 * 
+	 * Transform.add(String, Number, Number, ...) // Тип фильтра и параметры
+	 * Transform.add(String, String) // Тип фильтра и параметры
+	 * Transform.add({ type: String, params: String | Number[] })
+	 * 
+	 * Transform.add(Ext.draw.Matrix)
+	 * Transform.add(Ext.draw.Matrix[])
+	 * Transform.add(Khusamov.svg.element.attribute.transform.Filter)
+	 * Transform.add(Khusamov.svg.element.attribute.transform.Filter[])
+	 * 
+	 * 
+	 * @return Khusamov.svg.element.attribute.transform.Transform
+	 */
+	add: function(filters) {
+    	var me = this;
+    	//var filterClass = &quot;Khusamov.svg.element.attribute.transform.Filter&quot;;
+    	
+    	var Filter = Khusamov.svg.element.attribute.transform.Filter;
+    	
+    	var Transform = Khusamov.svg.element.attribute.Transform;
+    	
+		if (
+			Ext.isString(filters) ||
+			Ext.isArray(filters) ||
+			filters instanceof Ext.draw.Matrix ||
+			filters instanceof Khusamov.svg.element.attribute.transform.Filter
+		) {
+			if (arguments.length &gt; 1) {
+				//filters = [Ext.create(filterClass, Ext.Array.slice(arguments))];
+				
+				
+				
+				filters = [Filter.create.apply(Filter, Ext.Array.slice(arguments))];
+				
+			} else {
+				filters = Transform.toArray(filters);
+			}
+		} else {
+			
+			
+			
+			filters = [Filter.create(filters)];
+			//filters = [Ext.create(filterClass, filters)];
+		}
+    	
+    	me.getFilters().push.apply(me.getFilters(), filters);
+    	me.fireEvent(&quot;update&quot;, &quot;add&quot;, filters);
+    	return me;
+	},
+	
+<span id='global-method-matrix'>    /**
+</span>     * Добавить матрицу.
+     * Element.matrix(xx, xy, yx, yy, dx, dy)
+     * Element.matrix(Ext.draw.Matrix)
+     */
+	matrix: function(xx, xy, yx, yy, dx, dy) {
+		if (xx instanceof Ext.draw.Matrix) {
+			return this.add(xx);
+		} else {
+			return this.add(&quot;matrix&quot;, xx, xy, yx, yy, dx, dy);
+		}
+	},
+	
+<span id='global-method-translate'>	/**
+</span>	 * Добавить матрицу переноса.
+	 */
+	translate: function(tx, ty) {
+		return this.add(&quot;translate&quot;, tx, ty);
+	},
+	
+<span id='global-method-scale'>	/**
+</span>	 * Добавить матрицу масштабирования.
+	 */
+	scale: function(sx, sy) {
+		return this.add(&quot;scale&quot;, sx, sy);
+	},
+	
+<span id='global-method-rotate'>	/**
+</span>	 * Добавить матрицу вращения.
+	 */
+	rotate: function(angle, cx, cy) {
+		return this.add(&quot;rotate&quot;, angle, cx, cy);
+	},
+	
+<span id='global-method-skewx'>	/**
+</span>	 * Добавить матрицу искажения по оси Ох.
+	 */
+	skewx: function(angle) {
+		return this.add(&quot;skewx&quot;, angle);
+	},
+	
+<span id='global-method-skewy'>	/**
+</span>	 * Добавить матрицу искажения по оси Оy.
+	 */
+	skewy: function(angle) {
+		return this.add(&quot;skewy&quot;, angle);
+	},
+	
+<span id='global-method-clear'>	/**
+</span>	 * Удаление всех фильтров.
+	 */
+	clear: function() {
+    	return this.setFilters();
+	},
+	
+<span id='global-method-each'>	/**
+</span>	 * Пройтись по всем фильтрам.
+	 */
+	each: function(fn) {
+		this.getFilters().forEach(fn);
+		return this;
+	},
+	
+<span id='global-method-count'>	/**
+</span>	 * Количество фильтров.
+	 */
+	count: function() {
+		return this.getFilters().length;
+	},
+	
+<span id='global-method-toMatrix'>	/**
+</span>	 * Получить все трансформации в виде результирующей матрицы.
+	 * @return Ext.draw.Matrix
+	 */
+	toMatrix: function() {
+    	var me = this;
+		var result = Ext.create(&quot;Ext.draw.Matrix&quot;);
+		me.each(function(filter) {
+			result.multiply(filter.toMatrix());
+		});
+		return result;
+	},
+	
+<span id='global-method-toString'>	/**
+</span>	 * Получить строку фильтров в формате SVG.transform.
+	 */
+	toString: function() {
+		var result = [];
+		this.each(function(filter) {
+			result.push(filter.toString());
+		});
+		return result.join(&quot; &quot;);
+	}
+	
+});
+
+
+</pre>
+</body>
+</html>

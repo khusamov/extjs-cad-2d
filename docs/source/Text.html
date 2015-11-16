@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.element.Text&quot;, {
+	
+	extend: &quot;Khusamov.svg.element.Element&quot;,
+	
+	xtype: &quot;khusamov-svg-element-text&quot;,
+    
+    isSvgText: true,
+    
+	type: &quot;text&quot;,
+    
+    baseCls: Ext.baseCSSPrefix + &quot;khusamov-svg-text&quot;,
+    
+	autoEl: {
+		tag: &quot;text&quot;
+	},
+	
+	config: {
+		
+		textBaseline: [0, 0]
+		
+	},
+	
+<span id='global-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.element.Text&quot;, x, y, text);
+	 * Ext.create(&quot;Khusamov.svg.element.Text&quot;, Number[x, y], text);
+	 * Ext.create(&quot;Khusamov.svg.element.Text&quot;, Khusamov.svg.geometry.Point, text);
+	 */
+	constructor: function(config) {
+		var me = this;
+		
+		if (arguments.length &gt; 1) {
+			config = (arguments.length == 3) ? {
+				textBaseline: [arguments[0], arguments[1]],
+				html: arguments[2]
+			} : {
+				textBaseline: arguments[0],
+				html: arguments[1]
+			};
+		}
+		
+		me.callParent([config]);
+	},
+	
+<span id='global-method-applyTextBaseline'>	/**
+</span>	 * Text.setTextBaseline(Number[x, y]);
+	 * Text.setTextBaseline(Khusamov.svg.geometry.Point);
+	 */
+	applyTextBaseline: function(position) {
+		return Ext.isArray(position) ? Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, position) : position;
+	},
+	
+	updateTextBaseline: function(position, oldPosition) {
+		var me = this;
+		if (oldPosition) oldPosition.un(&quot;update&quot;, &quot;onUpdateTextBaselinePoint&quot;, me);
+		position.on(&quot;update&quot;, &quot;onUpdateTextBaselinePoint&quot;, me);
+		if (me.rendered) me.getEl().set({
+			x: position.x(),
+			y: position.y()
+		});
+	},
+	
+	onUpdateTextBaselinePoint: function() {
+		if (this.rendered) this.getEl().set({
+			x: this.getTextBaseline().x(),
+			y: this.getTextBaseline().y()
+		});
+		this.fireEvent(&quot;update&quot;);
+	},
+	
+	afterRender: function() {
+		var me = this;
+		me.callParent(arguments);
+		me.getEl().set({
+			x: me.getTextBaseline().x(),
+			y: me.getTextBaseline().y()
+		});
+	}
+	
+}, function(Text) {
+	
+	Khusamov.svg.Element.override({
+		
+		statics: {
+			
+<span id='global-method-createText'>			/**
+</span>			 * Создать элемент Текст.
+			 * @return {Khusamov.svg.element.Text}
+			 */
+			createText: function() {
+				return Text.create.apply(Text, arguments);
+			}
+			
+		}
+		
+	});
+	
+});
+
+</pre>
+</body>
+</html>

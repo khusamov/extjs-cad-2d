@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Point'>/**
+</span> * Точка на плоскости.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Point&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Angle&quot;],
+	
+	statics: {
+	
+<span id='Khusamov-svg-geometry-Point-static-method-distance'>		/**
+</span>		 * Расстояние от начала координат до точки.
+		 * @param {Array[x, y] | Khusamov.svg.geometry.Point} point
+		 * @return {Number}
+		 */
+		distance: function(point) {
+			point = arguments.length == 2 ? Ext.Array.slice(arguments) : point;
+			point = point instanceof Khusamov.svg.geometry.Point ? point.toArray() : point;
+			return Math.sqrt(Math.pow(point[0], 2) + Math.pow(point[1], 2));
+		}
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Point-property-isPoint'>	isPoint: true,
+</span>	
+<span id='Khusamov-svg-geometry-Point-property-type'>	type: &quot;point&quot;,
+</span>	
+<span id='Khusamov-svg-geometry-Point-event-update'>	/**
+</span>	 * @event update
+	 * Событие возникает при изменении координат точки.
+	 * @param {String} type Имя координаты = &quot;x&quot; | &quot;y&quot; | &quot;move&quot;.
+	 * @param {Khusamov.svg.geometry.Point} point Затронутая точка.
+	 * @param {Number | Array[x, y]} newValue Новое значение координат(ы).
+	 * @param {Number | Array[x, y]} oldValue Старое значение координат(ы).
+	 */
+	
+	config: {
+		
+<span id='Khusamov-svg-geometry-Point-property-x'>		/**
+</span>		 * Координата точки X.
+		 * @property {Number}
+		 */
+		x: 0,
+		
+<span id='Khusamov-svg-geometry-Point-property-y'>		/**
+</span>		 * Координата точки Y.
+		 * @property {Number}
+		 */
+		y: 0
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.Point&quot;);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, x, y);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, [x, y]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, Khusamov.svg.geometry.Point);
+	 */
+	constructor: function(config) {
+		var me = this;
+		if (arguments.length == 2) config = Ext.Array.slice(arguments);
+		if (config instanceof Khusamov.svg.geometry.Point) config = config.toArray();
+		if (Ext.isArray(config)) config = { x: config[0], y: config[1] };
+		me.callParent([config]);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-applyX'>	applyX: function(value) {
+</span>		return Number(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-applyY'>	applyY: function(value) {
+</span>		return Number(value);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-updateX'>	updateX: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;x&quot;, this, value, old);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-updateY'>	updateY: function(value, old) {
+</span>		this.fireEvent(&quot;update&quot;, &quot;y&quot;, this, value, old);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-x'>	x: function() {
+</span>		return this.getX();
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-y'>	y: function() {
+</span>		return this.getY();
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-equal'>	/**
+</span>	 * equal(point);
+	 * equal(point, tolerance);
+	 * equal(x, y);
+	 * equal(x, y, tolerance);
+	 */
+	equal: function() {
+		var me = this;
+		var point = [], tolerance;
+		if (Ext.isNumber(arguments[0])) {
+			point[0] = arguments[0];
+			point[1] = arguments[1];
+			tolerance = arguments[2] || 0;
+		} else {
+			point = arguments[0];
+			tolerance = arguments[1] || 0;
+		}
+		point = Khusamov.svg.geometry.Point.create(point);
+		var result = point.x() &lt;= me.x() + tolerance &amp;&amp; point.x() &gt;= me.x() - tolerance;
+		result = result &amp;&amp; point.y() &lt;= me.y() + tolerance &amp;&amp; point.y() &gt;= me.y() - tolerance;
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-moveTo'>	/**
+</span>	 * Изменить координаты точки.
+	 * Point.move(x, y)
+	 * Point.move([x, y])
+	 * Point.move(Khusamov.svg.geometry.Point)
+	 * @chainable
+	 * @param x Number
+	 * @param y Number
+	 * @param point Array[x, y] | Khusamov.svg.geometry.Point
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	moveTo: function() {
+		var me = this;
+		var newPosition = arguments.length == 2 ? Ext.Array.slice(arguments) : arguments[0];
+		newPosition = newPosition instanceof Khusamov.svg.geometry.Point ? newPosition.toArray() : newPosition;
+		var oldPosition = me.toArray();
+		
+		me.suspendEvents();
+		me.setX(me.applyX(newPosition[0]));
+		me.setY(me.applyY(newPosition[1]));
+		me.resumeEvents();
+		
+		me.fireEvent(&quot;update&quot;, &quot;move&quot;, me, newPosition, oldPosition);
+		return me;
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-move'>	// @deprecated
+</span>	move: function() {
+		return this.moveTo.apply(this, arguments);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-moveBy'>	/**
+</span>	 * Относительное перемещение точек.
+	 */
+	moveBy: function() {
+		var point = Khusamov.svg.geometry.Point.create.apply(Khusamov.svg.geometry.Point, arguments);
+		return this.moveTo(this.x() + point.x(), this.y() + point.y());
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-distance'>	/**
+</span>	 * Расстояние от начала координат.
+	 * Расстояние между двумя точками.
+	 * @param point undefined | Array[x, y] | Khusamov.svg.geometry.Point
+	 * @return Number
+	 */
+	distance: function(point) {
+		var me = this;
+		var result = 0;
+		if (Ext.isArray(point)) point = Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, point);
+		var x1 = me.x();
+		var y1 = me.y();
+		var x2 = point ? point.x() : 0;
+		var y2 = point ? point.y() : 0;
+		result = Khusamov.svg.geometry.Point.distance(x2 - x1, y2 - y1);
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-getDistanceTo'>	getDistanceTo: function(point) {
+</span>		return this.distance.apply(this, arguments);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-getPolar'>	/**
+</span>	 * Получить полярные координаты точки.
+	 * @return Array
+	 */
+	getPolar: function() {
+		return [this.getAngle(), this.getRadius()];
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-setPolar'>	/**
+</span>	 * Установить координаты точки, через полярные координаты.
+	 * Point.polar(angle, radius);
+	 * Point.polar([angle, radius]);
+	 * Point.polar(point);
+	 * @chainable
+	 * @param angle Number
+	 * @param radius Number
+	 * @param polar undefined | Array[angle, radius] | Khusamov.svg.geometry.Point
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	setPolar: function(polar) {
+		var me = this;
+		polar = arguments.length == 2 ? Ext.Array.slice(arguments) : polar;
+		polar = polar instanceof Khusamov.svg.geometry.Point ? polar.getPolar() : polar;
+		var angle = polar[0];
+		var radius = polar[1];
+		var x = radius * Math.cos(angle);
+		var y = radius * Math.sin(angle);
+		return me.moveTo(x, y);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-getRadius'>	/**
+</span>	 * Получить полярный радиус точки.
+	 * @chainable
+	 * @return Number
+	 */
+	getRadius: function() {
+		return this.distance();
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-setRadius'>	/**
+</span>	 * Установить полярный радиус точки.
+	 * @chainable
+	 * @param radius Number
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	setRadius: function(radius) {
+		var me = this;
+		var scale = radius * Math.sqrt(Math.pow(me.x(), 2) + Math.pow(me.y(), 2));
+		return me.moveTo(me.x() / scale, me.y() / scale);
+		
+		/* этот код неверный, так как дает полкруга
+		в итоге при вращении вектора он на вторую половину круга не заходит
+		var polar = me.getPolar();
+		polar[1] = Number(radius);
+		return me.setPolar(polar);*/
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-getAngle'>	/**
+</span>	 * Получить полярный угол точки (в диапазоне от 0 до 2*PI).
+	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
+	 * @return {Number}
+	 */
+	getAngle: function(unit, fixed) {
+		return Khusamov.svg.geometry.Angle.create(Math.atan2(this.y(), this.x()) + Math.PI).get(unit, fixed);
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-setAngle'>	/**
+</span>	 * Установить полярный угол точки.
+	 * @chainable
+	 * @param angle Number
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	setAngle: function(angle) {
+		var me = this;
+		var module = Math.sqrt(Math.pow(me.x(), 2) + Math.pow(me.y(), 2));
+		var x = module * Math.cos(angle);
+		var y = module * Math.sin(angle);
+		return me.moveTo(x, y);
+		
+		/*var polar = me.getPolar();
+		polar[0] = Number(angle);
+		return me.setPolar(polar);*/
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-toObject'>	/**
+</span>	 * Получить координаты точки в виде объекта.
+	 * @return Object
+	 */
+	toObject: function() {
+		return Ext.Object.merge(this.callParent(), { 
+			x: this.x(), 
+			y: this.y() 
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-toArray'>	/**
+</span>	 * Получить координаты точки в виде массива.
+	 * @return Array
+	 */
+	toArray: function() {
+		return [this.x(), this.y()];
+	},
+	
+<span id='Khusamov-svg-geometry-Point-method-toString'>	/**
+</span>	 * Получить координаты точки в виде строки (для формата SVG).
+	 * @return {String}
+	 */
+	toString: function(fixed) {
+		var f = function(v) { return fixed !== undefined ? v.toFixed(fixed) : v; };
+		return String(f(this.x())) + &quot;, &quot; + String(f(this.y()));
+	}
+	
+});
+
+
+</pre>
+</body>
+</html>

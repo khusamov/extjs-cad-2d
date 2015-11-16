@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+//
+// тестирование, потом все убрать и добавить реальный элемент image для svg
+//
+
+
+
+Ext.define(&#39;Khusamov.svg.element.Image&#39;, {
+    extend: &#39;Ext.Component&#39;, // subclass Ext.Component
+    alias: &#39;widget.managedimage&#39;, // this component will have an xtype of &#39;managedimage&#39;
+
+    autoEl: {
+        tag: &#39;img&#39;,
+        src: Ext.BLANK_IMAGE_URL,
+        cls: &#39;my-managed-image&#39;
+    },
+
+    // Add custom processing to the onRender phase.
+    // Add a &#39;load&#39; listener to the element.
+    beforeRender: function() {
+    	
+        this.autoEl = Ext.merge({}, this.autoEl, this.initialConfig);
+        
+        
+    	
+    	console.log(this.autoEl);
+        
+        
+        this.callParent(arguments);
+        //this.el.on(&#39;load&#39;, this.onLoad, this);
+    },
+
+    onLoad: function() {
+        this.fireEvent(&#39;load&#39;, this);
+    },
+
+    setSrc: function(src) {
+        if (this.rendered) {
+            this.el.dom.src = src;
+        } else {
+            this.src = src;
+        }
+    },
+
+    getSrc: function(src) {
+        return this.el.dom.src || this.src;
+    }
+});</pre>
+</body>
+</html>

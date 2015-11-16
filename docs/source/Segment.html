@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.path.segment.Segment&quot;, {
+	
+	requires: [&quot;Khusamov.svg.geometry.path.Point&quot;],
+	
+	config: {
+		
+		path: null,
+		
+		point: [0, 0]
+		
+	},
+	
+	constructor: function(config) {
+		this.initConfig(config);
+	},
+	
+	applyPoint: function(point) {
+		return point ? (Ext.isArray(point) ? Ext.create(&quot;Khusamov.svg.geometry.path.Point&quot;, point) : point) : null;
+	},
+	
+	updatePoint: function(point, oldPoint) {
+		if (oldPoint) oldPoint.un(&quot;update&quot;, &quot;onParamUpdate&quot;, this);
+		if (point) {
+			point.on(&quot;update&quot;, &quot;onParamUpdate&quot;, this);
+			point.setSegment(this);
+		}
+	},
+	
+	onParamUpdate: function() {
+		var path = this.getPath();
+		if (path) path.fireEvent(&quot;update&quot;);
+	},
+	
+	getPrimitive: Ext.emptyFn,
+	
+	getIndex: function() {
+		var path = this.getPath();
+		return path ? path.indexOf(this) : null;
+	},
+	
+	isFirst: function() {
+		return this.getIndex() == 0;
+	},
+	
+	isLast: function() {
+		return this.getIndex() == this.getPath().getCount() - 1;
+	},
+	
+	getNextSegment: function(index) {
+		return this.getPath().getNextSegment(this.getIndex());
+	},
+	
+	getPrevSegment: function(index) {
+		return this.getPath().getPrevSegment(this.getIndex());
+	},
+	
+	getPoint: function(absolute) {
+		return absolute ? this.callParent().toAbsolute() : this.callParent();
+	},
+	
+	getFirstPoint: function(absolute) {
+		return absolute ? this.getPoint().toAbsolute() : this.getPoint();
+	},
+	
+	hasPath: function() {
+		return !!this.getPath();
+	},
+	
+	getLastPoint: function(absolute) {
+		var path = this.getPath();
+		return path ? (this.isLast() &amp;&amp; !path.closed ? (absolute ? path.lastPoint.toAbsolute() : path.lastPoint) : this.getNextSegment().getFirstPoint(absolute)) : null;
+	},
+	
+	getLength: function() {
+		return 0;
+	},
+	
+	toString: function(body) {
+		var me = this;
+		var result = [];
+		if (me.hasPath()) {
+			var point = me.getFirstPoint();
+			if (point) {
+				if (me.isFirst()) {
+					result.push(&quot;M &quot; + me.getFirstPoint().toString());
+				}
+				result.push(body);
+				if (me.isLast() &amp;&amp; me.getPath().closed) {
+					result.push(&quot;Z&quot;);
+				}
+			}
+		}
+		return result.join(&quot; &quot;);
+	},
+	
+<span id='global-method-toObject'>	/**
+</span>	 * Получить сегмент в виде объекта.
+	 * Объект оформляется в виде конфига (по нему можно делать клона), все узлы имеют примитивные типы.
+	 * @return {Object}
+	 */
+	toObject: function() {
+		return {
+			point: this.getPoint().toObject()
+		};
+	},
+	
+<span id='global-method-clone'>	/**
+</span>	 * Клонировать (сделать копию) сегмент.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	clone: function() {
+		return new this.self(this.toObject());
+	},
+	
+	split: function(distance) {
+		var result = [];
+		result.push(this.clone());
+		result.push(this.clone());
+		result[1].setPoint(this.getPrimitive().getInnerPoint(distance).toArray());
+		return result;
+	}
+	
+});</pre>
+</body>
+</html>

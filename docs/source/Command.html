@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.path.Command&quot;, {
+	
+	requires: [&quot;Ext.data.identifier.Sequential&quot;],
+	
+	mixins: [&quot;Ext.mixin.Factoryable&quot;],
+	
+	factoryConfig: {
+		type: &quot;khusamov.svg.geometry.path.command&quot;
+	},
+	
+	statics: {
+		
+		map: {},
+		
+		typeByLetter: function(letter) {
+			return this.map[letter].toLowerCase();
+		},
+		
+		xclassPrefix: null,
+		
+		
+		
+		/*xclass: function(config) {
+			if (
+				Ext.isObject(config) &amp;&amp; 
+				!(config instanceof this.self) &amp;&amp; 
+				config.type &amp;&amp; 
+				!(&quot;xclass&quot; in config)
+			) config.xclass = this.xclassPrefix + config.type;
+		},*/
+		
+		configFromString: function(command) {
+			command = command.split(&quot; &quot;);
+			var letter = command[0];
+			command.shift();
+			
+			
+			
+			return {
+				type: this.typeByLetter(letter),
+				parameters: command
+			};
+			/*return this.xclass({
+				type: this.map[letter].toLowerCase(),
+				parameters: command
+			});*/
+		},
+		
+<span id='global-property-identifier'>		/**
+</span>		 * @property {Ext.data.identifier.Sequential}
+		 */
+		identifier: null,
+		
+		init: function() {
+			//var Command = Khusamov.svg.geometry.path.Command;
+			//this.xclassPrefix = Command.prototype.alias[0] + &quot;.&quot;;
+			this.identifier = Ext.create(&quot;Ext.data.identifier.Sequential&quot;);
+			//Ext.Factory.define(this.prototype.alias[0]);
+		},
+		
+		generateId: function() {
+			return this.identifier.generate();
+		}
+		
+	},
+	
+	letter: null,
+	
+	config: {
+		
+		id: 0,
+		
+		parameters: [],
+		
+	},
+	
+	constructor: function(config) {
+		var me = this;
+		
+		//console.info(config);
+		
+		config = config || {};
+		
+		
+		
+		me.initConfig(config);
+	},
+	
+	applyId: function(id) {
+		return id ? id : Khusamov.svg.geometry.path.Command.generateId();
+	},
+	
+	setParameter: function(index, value) {
+		this.getParameters()[index] = value;
+		return this;
+	},
+	
+	toString: function() {
+		return this.toArray().join(&quot; &quot;);
+	},
+	
+	toArray: function() {
+		return [this.letter].concat(this.getParameters());
+	},
+	
+	toObject: function() {
+		
+	},
+	
+	clone: function() {
+		return new this.self(this.toObject());
+	},
+	
+	/*onClassExtended: function(cls, data) {
+		var name = cls.getName().split(&quot;.&quot;);
+		name = Ext.String.uncapitalize(name[name.length - 1]);
+		Khusamov.svg.geometry.path.Command.map[data.letter] = name;
+		
+		console.dir(this);
+		console.dir(cls.letter);
+		
+	}*/
+	
+}, function(Command) {
+	
+	Command.init();
+	
+	Command.onExtended(function(cls, data) {
+		var name = cls.getName().split(&quot;.&quot;);
+		name = Ext.String.uncapitalize(name[name.length - 1]);
+		Command.map[data.letter] = name;
+	});
+	
+});</pre>
+</body>
+</html>

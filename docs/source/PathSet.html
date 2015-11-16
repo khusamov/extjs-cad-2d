@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.path.PathSet&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	isPathSet: true,
+	
+	type: &quot;pathset&quot;,
+	
+	config: {
+		
+		paths: []
+		
+	},
+	
+	add: function(path) {
+		this.getPaths().push(path);
+		this.fireEvent(&quot;update&quot;);
+		return this;
+	},
+	
+	eachPath: function(fn, scope) {
+		this.getPaths().forEach(fn, scope);
+		return this;
+	},
+	
+	clear: function() {
+		this.setPaths([]);
+		return this;
+	},
+	
+	toString: function() {
+		var result = [];
+		this.getPaths().forEach(function(path) {
+			result.push(path.toString());
+		});
+		return result.join(&quot; &quot;);
+	}
+	
+});</pre>
+</body>
+</html>

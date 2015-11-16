@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Polyline'>/**
+</span> * Полилиния на плоскости.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Polyline&quot;, {
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Point&quot;, &quot;Khusamov.svg.geometry.point.Collection&quot;],
+	
+	uses: [&quot;Khusamov.svg.geometry.Line&quot;],
+	
+	statics: {
+		
+<span id='Khusamov-svg-geometry-Polyline-static-method-parseSvgPointString'>		/**
+</span>		 * Конвертирование строки с описанием последовательности точек в формате SVG
+		 * в массив с точками, представленными в виде массива [x, y].
+		 * @return {Array[x, y][]}
+		 */
+		parseSvgPointString: function(value) {
+			var result = [];
+			// TODO
+			return result;
+		},
+		
+<span id='Khusamov-svg-geometry-Polyline-static-method-toCollection'>		/**
+</span>		 * Конвертировать строку (в формате SVG) или массив c точками в коллекцию.
+		 * Каждая точка конвертируется в экземпляр класса Khusamov.svg.geometry.Point.
+		 * @param {String | Array[x, y][] | Khusamov.svg.geometry.Point[] | Mixed[] | Khusamov.svg.geometry.point.Collection} points
+		 * @param {undefined | Number} offset
+		 * @return {Khusamov.svg.geometry.point.Collection}
+		 */
+		toCollection: function(points) {
+			var Point = Khusamov.svg.geometry.Point;
+			var Collection = Khusamov.svg.geometry.point.Collection;
+			var result = points instanceof Collection ? points.clone() : new Collection();
+			if (Ext.isString(points)) points = this.parseSvgPointString(points);
+			if (Ext.isArray(points)) {
+				points = points.map(function(point, index) {
+					return point instanceof Point ? point : new Point(point);
+				});
+				result.add(points);
+			}
+			return result;
+		}
+		
+	},
+	 
+<span id='Khusamov-svg-geometry-Polyline-property-privates'>	privates: {
+</span>		
+		
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-property-isPolyline'>	isPolyline: true,
+</span>	
+<span id='Khusamov-svg-geometry-Polyline-property-type'>	type: &quot;polyline&quot;,
+</span>	
+<span id='Khusamov-svg-geometry-Polyline-property-points'>	/**
+</span>	 * Доступ к точкам полилинии.
+	 * @readonly
+	 * @property {Khusamov.svg.geometry.point.Collection}
+	 */
+	points: null,
+	
+<span id='Khusamov-svg-geometry-Polyline-event-update'>	/**
+</span>	 * @event update Обновление полилинии.
+	 * @param {String} type Тип обновления (update | add | insert | remove | clear).
+	 * @param {Khusamov.svg.geometry.Point[]} points Затронутые точки.
+	 */
+	
+	config: {
+		
+<span id='Khusamov-svg-geometry-Polyline-property-points'>		/**
+</span>		 * Массив точек полилинии.
+		 * @property {Khusamov.svg.geometry.point.Collection}
+		 */
+		points: null
+		
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, String);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, Array[x, y][]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, Khusamov.svg.geometry.Point[]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, Mixed[]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Polyline&quot;, Khusamov.svg.geometry.point.Collection);
+	 */
+	constructor: function(config) {
+		var me = this;
+		if (Ext.isString(config) || Ext.isArray(config)) config = { points: config };
+		me.callParent([config]);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-initPrimitive'>	initPrimitive: function() {
+</span>		var me = this;
+		if (!me.points) me.setPoints();
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-applyPoints'>	/**
+</span>	 * Заменить массив точек на новый.
+	 * Polyline.setPoints(&quot;Строка точек в формате SVG&quot;);
+	 * Polyline.setPoints(Array[x, y][]);
+	 * Polyline.setPoints(Khusamov.svg.geometry.Point[]);
+	 * Polyline.setPoints(Mixed[]);
+	 * Polyline.setPoints(Khusamov.svg.geometry.point.Collection);
+	 */
+	applyPoints: function(points) {
+		var me = this;
+		points = Khusamov.svg.geometry.Polyline.toCollection(points);
+		return points;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-updatePoints'>	updatePoints: function(points, old) {
+</span>		var me = this;
+		me.points = points;
+		me.removePointCollectionListeners(old);
+		me.addPointCollectionListeners(points);
+		this.fireEvent(&quot;update&quot;, &quot;clear&quot;);
+		this.fireEvent(&quot;update&quot;, &quot;add&quot;, points);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-addPointCollectionListeners'>	/**
+</span>	 * Добавить в коллекцию  и в каждый элемент коллекции слушателей.
+	 * @param {Khusamov.svg.geometry.point.Collection} collection
+	 */
+	addPointCollectionListeners: function(collection) {
+		var me = this;
+		collection.on({
+			scope: me,
+			add: &quot;onAddPoints&quot;,
+			remove: &quot;onRemovePoints&quot;
+		});
+		collection.each(function(point) {
+			me.addPointListeners(point);
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-removePointCollectionListeners'>	/**
+</span>	 * @param {Khusamov.svg.geometry.point.Collection} collection
+	 */
+	removePointCollectionListeners: function(collection) {
+		var me = this;
+		if (collection) {
+			collection.un({
+				scope: me,
+				add: &quot;onAddPoints&quot;,
+				remove: &quot;onRemovePoints&quot;
+			});
+			collection.each(function(point) {
+				me.removePointListeners(point);
+			});
+		}
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-addPointListeners'>	/**
+</span>	 * @param {Khusamov.svg.geometry.Point} point
+	 */
+	addPointListeners: function(point) {
+		point.on(&quot;update&quot;, &quot;onUpdatePoint&quot;, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-removePointListeners'>	/**
+</span>	 * @param {Khusamov.svg.geometry.Point} point
+	 */
+	removePointListeners: function(point) {
+		point.un(&quot;update&quot;, &quot;onUpdatePoint&quot;, this);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-onUpdatePoint'>	/**
+</span>	 * Обработчик события &quot;Изменились координаты определенной точки&quot;.
+	 */
+	onUpdatePoint: function(type, point) {
+		this.fireEvent(&quot;update&quot;, &quot;points&quot;, [point]);
+		this.fireEvent(&quot;pointupdate&quot;, point);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-onAddPoints'>	onAddPoints: function(collection, details) {
+</span>		var me = this;
+		me.fireEvent(&quot;update&quot;, &quot;add&quot;, details.items);
+		details.items.forEach(function(point) {
+			me.addPointListeners(point);
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-onRemovePoints'>	onRemovePoints: function(collection, details) {
+</span>		var me = this;
+		me.fireEvent(&quot;update&quot;, &quot;remove&quot;, details.items);
+		details.items.forEach(function(point) {
+			me.addPointListeners(point);
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-toArray'>	/**
+</span>	 * Получить полилинию в виде массива точек.
+	 * @param {boolean} pointAsPoint Если равен true, то выдать массив Khusamov.svg.geometry.Point[].
+	 * @return {Number[x, y][] | Khusamov.svg.geometry.Point[]}
+	 */
+	toArray: function(pointAsPoint) {
+		var me = this;
+		var result = [];
+		me.points.each(function(point) {
+			result.push(pointAsPoint ? point : point.clone().toArray());
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-toObject'>	/**
+</span>	 * @return {Object}
+	 */
+	toObject: function() {
+		var me = this;
+		return Ext.Object.merge(me.callParent(), {
+			points: me.toArray()
+		});
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-toString'>	/**
+</span>	 * Конвертировать массив точек в строку в формате SVG.
+	 * @param points {Khusamov.svg.geometry.Polyline}
+	 */
+	toString: function() {
+		var me = this;
+		var result = [];
+		me.each(function(point) {
+			result.push(point.toString());
+		});
+		return result.join(&quot; &quot;);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-toCollection'>	/**
+</span>	 * @return {Khusamov.svg.geometry.point.Collection}
+	 */
+	toCollection: function() {
+		return this.points.clone();
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-addPoint'>	/**
+</span>	 * Добавить точку в конец полилинии.
+	 * @param {(Number, Number) | Array[x, y] | Khusamov.svg.geometry.Point} point
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	addPoint: function(point) {
+		if (arguments.length == 2) points = [arguments[1], arguments[2]];
+		if (Ext.isArray(point)) point = Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, point);
+		return this.points.add(point);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-addPoints'>	/**
+</span>	 * Добавить несколько точек в конец полилинии.
+	 * @param {String | Array[x, y][] | Khusamov.svg.geometry.Point[] | Khusamov.svg.geometry.point.Collection | Khusamov.svg.geometry.Polyline} points
+	 * @return Khusamov.svg.geometry.Point[]
+	 */
+	addPoints: function(points) {
+		if (arguments.length &gt; 1) points = Ext.Array.slice(arguments);
+		if (Ext.isString(points)) points = Khusamov.svg.geometry.Polyline.parseSvgPointString(points);
+		
+		if (points instanceof Khusamov.svg.geometry.point.Collection) {
+			var _points = [];
+			points.each(function(point) { _points.push(point); });
+			points = _points;
+		}
+		
+		if (Ext.isArray(points)) points = points.map(function(point) {
+			if (Ext.isArray(point)) point = Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, point);
+			return point;
+		});
+		
+		if (points instanceof Khusamov.svg.geometry.Polyline) points = points.toArray(true);
+		
+		return this.points.add(points);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-insertPoint'>	insertPoint: function(index, point) {
+</span>		
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-insertPoints'>	/**
+</span>	 * Вставить точку(и) перед точкой с индексом index.
+	 * @param {Number} index
+	 * @param {Array | Khusamov.svg.geometry.Point} point
+	 * @param {String | Array[x, y][] | Khusamov.svg.geometry.Point[], Khusamov.svg.geometry.point.Collection | Khusamov.svg.geometry.Polyline} points
+	 * @return Khusamov.svg.geometry.Point | Khusamov.svg.geometry.Point[]
+	 */
+	insertPoints: function(index, points) {
+		/*if (arguments.length == 3) points = [arguments[1], arguments[2]];
+		points = Khusamov.svg.geometry.Polyline.toPointArray(points);
+		return this.points.insert(index, points);*/
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-removePoint'>	removePoint: function(index) {
+</span>		this.points.removeAt(index);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-clear'>	clear: function() {
+</span>		this.points.removeAll();
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-movePoint'>	/**
+</span>	 * Изменить координаты одной точки.
+	 */
+	movePoint: function(index, point) {
+		var me = this;
+		if (arguments.length == 3) point = [arguments[1], arguments[2]];
+		me.getPoint(index).move(point);
+		return me;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-movePointBy'>	movePointBy: function() {
+</span>		
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-each'>	/**
+</span>	 * Цикл по всем точкам полилинии.
+	 */
+	each: function(fn, scope) {
+		this.points.each(fn, scope);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-eachPoint'>	eachPoint: function(fn, scope) {
+</span>		this.points.each(fn, scope);
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-eachLine'>	eachLine: function(fn, scope) {
+</span>		for (var index = 0; index &lt; this.points.getCount(); index++) {
+			fn.call(scope, this.getLine(index), index);
+		}
+		return this;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getCount'>	/**
+</span>	 * Количество точек в полилинии.
+	 * @return {Number}
+	 */
+	getCount: function() {
+		return this.points.getCount();
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getLength'>	/**
+</span>	 * Длина полилинии.
+	 * @return {Number}
+	 */
+	getLength: function() {
+		var me = this;
+		var result = 0;
+		me.each(function(point, index) {
+			var next = me.getNextPoint(index);
+			result += next ? point.distance(next) : 0;
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getPointById'>	getPointById: function(id) {
+</span>		return this.points.get(id);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getPoint'>	getPoint: function(index) {
+</span>		return this.points.getAt(index);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getLine'>	getLine: function(index) {
+</span>		return Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, this.getPoint(index), this.getNextPoint(index));
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getNextPoint'>	getNextPoint: function(index) {
+</span>		return this.getPoint(index + 1);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getPrevPoint'>	getPrevPoint: function(index) {
+</span>		return this.getPoint(index - 1);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getFirstPoint'>	getFirstPoint: function() {
+</span>		return this.getPoint(0);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getLastPoint'>	getLastPoint: function() {
+</span>		return this.getPoint(this.getCount() - 1);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getMiddlePoint'>	/**
+</span>	 * Координаты середины линии.
+	 * @param {undefined | Number} index Номер первой точки.
+	 * @return Khusamov.svg.geometry.Point
+	 */
+	getMiddlePoint: function(index) {
+		var me = this;
+		var from = me.getPoint(index || 0);
+		var to = me.getNextPoint(index || 0);
+		var middle = [(from.x() + to.x()) / 2, (from.y() + to.y()) / 2];
+		return Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, middle);
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getArea'>	/**
+</span>	 * Площадь многоугольника, образованного полилинией.
+	 */
+	getArea: function() {
+		return Math.abs(this.getRawArea());
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-getRawArea'>	/**
+</span>	 * Площадь многоугольника, образованного полилинией, со знаком обхода вершин.
+	 * Положительное число - Полилиния задана по часовой стрелки (при условии что ось Оу смотрит вверх).
+	 * Но обычно ось Оу смотрит вниз, поэтому положительное число указывает о направлении против часовой стрелки.
+	 */
+	getRawArea: function() {
+		var me = this;
+		var result = 0;
+		me.each(function(point, index) {
+			var next = me.getNextPoint(index);
+			next = next ? next : me.getFirstPoint();
+			result += ((next.y() + point.y()) / 2) * (next.x() - point.x());
+		});
+		return result;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-isClockwiseDirection'>	/**
+</span>	 * Ось Оу обращена вниз (ситуация по умолчанию):
+	 * Возвращает false при условии что полилиния задана по часовой стрелке.
+	 * Возвращает true при условии что полилиния задана против часовой стрелке.
+	 * Ось Оу обращена наверх:
+	 * Возвращает true при условии что полилиния задана по часовой стрелке.
+	 * Возвращает false при условии что полилиния задана против часовой стрелке.
+	 */
+	isClockwiseDirection: function() {
+		var me = this;
+		return me.getRawArea() &gt; 0;
+	},
+	
+<span id='Khusamov-svg-geometry-Polyline-method-turnOut'>	/**
+</span>	 * Вывернуть полилинию наизнанку.
+	 */
+	turnOut: function() {
+		var me = this;
+		me.points.sortItems(function(item, next) {
+			return next.getIndex() - item.getIndex();
+		});
+		return me;
+	}
+	
+});</pre>
+</body>
+</html>

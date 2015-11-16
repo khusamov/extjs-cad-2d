@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.path.segment.Line&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.path.segment.Segment&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Line&quot;],
+	
+	isLineSegment: true,
+	
+	getPrimitive: function() {
+		return this.getLine();
+	},
+	
+	getLine: function() {
+		return Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, this.getFirstPoint(), this.getLastPoint());
+	},
+	
+	getLength: function() {
+		return this.getLine().getLength();
+	},
+	
+	toString: function() {
+		var me = this, result = &quot;&quot;;
+		if (me.hasPath()) {
+			var point = me.getLastPoint();
+			if (point) {
+				result = [];
+				result.push(me.getLastPoint().isRelative() ? &quot;l&quot; : &quot;L&quot;);
+				result.push(me.getLastPoint().toString());
+				result = me.callParent([result.join(&quot; &quot;)]);
+			}
+		}
+		return result;
+	}
+	
+});</pre>
+</body>
+</html>

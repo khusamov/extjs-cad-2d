@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-Line'>/**
+</span> * Линия на плоскости.
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.Line&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Polyline&quot;,
+	
+	requires: [
+		&quot;Khusamov.svg.geometry.Point&quot;, 
+		&quot;Khusamov.svg.geometry.equation.Linear&quot;,
+		
+	],
+	
+	uses: [&quot;Khusamov.svg.geometry.equation.Circular&quot;],
+	
+<span id='Khusamov-svg-geometry-Line-property-isLine'>	isLine: true,
+</span>	
+<span id='Khusamov-svg-geometry-Line-property-type'>	type: &quot;line&quot;,
+</span>	
+<span id='Khusamov-svg-geometry-Line-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, x1, y1, x2, y2);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, [x1, y1], [x2, y2]);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point);
+	 * Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, Khusamov.svg.geometry.Point[]);
+	 */
+	constructor: function(config) {
+		var me = this, args = arguments;
+		if (args.length == 4) config = [[args[0], args[1]], [args[2], args[3]]];
+		if (args.length == 2) config = [args[0], args[1]];
+		me.callParent([config]);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getParallelByDestination'>	/**
+</span>	 * Получить линию, равную по длине, паралельную исходной, 
+	 * перпендикулярно отложенной, находящейся на определенной дистанции.
+	 * @return {Khusamov.svg.geometry.Line}
+	 */
+	getParallelByDestination: function(destination) {
+		var me = this;
+		var parallelLinear = me.getParallelLinearByDestination(destination);
+		var first = parallelLinear.intersection(me.getFirstNormalLinear());
+		var last = parallelLinear.intersection(me.getLastNormalLinear());
+		return Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, first, last);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getParallelLinearByDestination'>	/**
+</span>	 * Получить уравнение прямой, паралельную исходной линии, 
+	 * находящейся на определенной дистанции.
+	 * @return {Khusamov.svg.geometry.equation.Linear}
+	 */
+	getParallelLinearByDestination: function(destination) {
+		return this.toLinear().getParallelLinearByDestination(destination);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getFirstNormalLinear'>	/**
+</span>	 * Получить уравнение прямой, перпендикулярной исходной линии, 
+	 * проходящей через первую ее точку.
+	 * @return {Khusamov.svg.geometry.equation.Linear}
+	 */
+	getFirstNormalLinear: function() {
+		return this.toLinear().getNormalLinear(this.getFirstPoint());
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getLastNormalLinear'>	/**
+</span>	 * Получить уравнение прямой, перпендикулярной исходной линии, 
+	 * проходящей через последнюю ее точку.
+	 * @return {Khusamov.svg.geometry.equation.Linear}
+	 */
+	getLastNormalLinear: function() {
+		return this.toLinear().getNormalLinear(this.getLastPoint());
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getMiddleNormalLinear'>	getMiddleNormalLinear: function() {
+</span>		return this.toLinear().getNormalLinear(this.getMiddlePoint());
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-toLinear'>	/**
+</span>	 * Получить линию в виде уравнения прямой.
+	 * @return {Khusamov.svg.geometry.equation.Linear}
+	 */
+	toLinear: function() {
+		return Khusamov.svg.geometry.equation.Linear.createByLine(this);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getAngle'>	getAngle: function(unit) {
+</span>		return this.toLinear().getAngle(unit);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-intersection'>	intersection: function(primitive) {
+</span>		return this[&quot;intersectionWith&quot; + Ext.String.capitalize(primitive.type)].call(this, primitive);
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-intersectionWithLine'>	/**
+</span>	 * Пересечение двух отрезков.
+	 */
+	intersectionWithLine: function(line) {
+		var intersection = this.intersectionWithLinear(line.toLinear());
+		if (intersection) {
+			intersection = line.isInnerPoint(intersection) ? intersection : null;
+		}
+		return intersection;
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-intersectionWithLinear'>	/**
+</span>	 * Пересечение отрезка и прямой линии.
+	 */
+	intersectionWithLinear: function(linear) {
+		var intersection = this.toLinear().intersection(linear);
+		if (intersection) {
+			intersection = this.isInnerPoint(intersection) ? intersection : null;
+		}
+		return intersection;
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-isInnerPoint'>	/**
+</span>	 * Определение принадлежности точки отрезку.
+	 * При условии, что заранее известно, что точка находится на прямой, проходящей через отрезок.
+	 */
+	isInnerPoint: function(point) {
+		var first = this.getFirstPoint();
+		var last = this.getLastPoint();
+		return (Math.min(first.x(), last.x()) &lt;= point.x() &amp;&amp; 
+			point.x() &lt;= Math.max(first.x(), last.x()) &amp;&amp;
+			Math.min(first.y(), last.y()) &lt;= point.y() &amp;&amp; 
+			point.y() &lt;= Math.max(first.y(), last.y()));
+	},
+	
+<span id='Khusamov-svg-geometry-Line-method-getInnerPoint'>	/**
+</span>	 * Получить координаты точки, находящейся на отрезке 
+	 * на расстоянии от первой точки отрезка.
+	 */
+	getInnerPoint: function(x) {
+		var me = this;
+		var result = null;
+		var circle = Ext.create(&quot;Khusamov.svg.geometry.equation.Circular&quot;, me.getFirstPoint(), x);
+		var intersection = circle.intersection(me);
+		intersection.forEach(function(point) {
+			if (me.isInnerPoint(point)) result = point;
+		});
+		return result;
+	}
+	
+});
+
+
+</pre>
+</body>
+</html>

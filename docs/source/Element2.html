@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-override-dom-Element'>/**
+</span> * Хак
+ * Поддержка аттрибутов SVG-элементов
+ * Для версии Ext JS 5.1.0
+ * 
+ * http://javascript.ru/forum/extjs/55034-net-podderzhki-ehlementa-svgsvgelement-v-chastnosti-opcii-baseval.html
+ * 
+ * 
+ */
+
+Ext.define(&quot;Khusamov.svg.override.dom.Element&quot;, (function(){
+	
+    var WIN = window,
+        DOC = document,
+        windowId = &#39;ext-window&#39;,
+        documentId = &#39;ext-document&#39;,
+        WIDTH = &#39;width&#39;,
+        HEIGHT = &#39;height&#39;,
+        MIN_WIDTH = &#39;min-width&#39;,
+        MIN_HEIGHT = &#39;min-height&#39;,
+        MAX_WIDTH = &#39;max-width&#39;,
+        MAX_HEIGHT = &#39;max-height&#39;,
+        TOP = &#39;top&#39;,
+        RIGHT = &#39;right&#39;,
+        BOTTOM = &#39;bottom&#39;,
+        LEFT = &#39;left&#39;,
+        VISIBILITY = &#39;visibility&#39;,
+        HIDDEN = &#39;hidden&#39;,
+        DISPLAY = &quot;display&quot;,
+        NONE = &quot;none&quot;,
+        ZINDEX = &quot;z-index&quot;,
+        POSITION = &quot;position&quot;,
+        RELATIVE = &quot;relative&quot;,
+        STATIC = &quot;static&quot;,
+        SEPARATOR = &#39;-&#39;,
+        wordsRe = /\w/g,
+        spacesRe = /\s+/,
+        classNameSplitRegex = /[\s]+/,
+        transparentRe = /^(?:transparent|(?:rgba[(](?:\s*\d+\s*[,]){3}\s*0\s*[)]))$/i,
+        adjustDirect2DTableRe = /table-row|table-.*-group/,
+        borders = {
+            t: &#39;border-top-width&#39;,
+            r: &#39;border-right-width&#39;,
+            b: &#39;border-bottom-width&#39;,
+            l: &#39;border-left-width&#39;
+        },
+        paddings = {
+            t: &#39;padding-top&#39;,
+            r: &#39;padding-right&#39;,
+            b: &#39;padding-bottom&#39;,
+            l: &#39;padding-left&#39;
+        },
+        margins = {
+            t: &#39;margin-top&#39;,
+            r: &#39;margin-right&#39;,
+            b: &#39;margin-bottom&#39;,
+            l: &#39;margin-left&#39;
+        },
+        paddingsTLRB = [paddings.l, paddings.r, paddings.t, paddings.b],
+        bordersTLRB = [borders.l,  borders.r,  borders.t,  borders.b],
+        numberRe = /\d+$/,
+        unitRe = /\d+(px|em|%|en|ex|pt|in|cm|mm|pc)$/i,
+        defaultUnit = &#39;px&#39;,
+        camelRe = /(-[a-z])/gi,
+        cssRe = /([a-z0-9-]+)\s*:\s*([^;\s]+(?:\s*[^;\s]+)*);?/gi,
+        pxRe = /^\d+(?:\.\d*)?px$/i,
+        propertyCache = {},
+        camelReplaceFn = function(m, a) {
+            return a.charAt(1).toUpperCase();
+        },
+        visibilityCls = Ext.baseCSSPrefix + &#39;hidden-visibility&#39;,
+        displayCls = Ext.baseCSSPrefix + &#39;hidden-display&#39;,
+        offsetsCls = Ext.baseCSSPrefix + &#39;hidden-offsets&#39;,
+        noTouchScrollCls = Ext.baseCSSPrefix + &#39;no-touch-scroll&#39;,
+        CREATE_ATTRIBUTES = {
+            style: &#39;style&#39;,
+            className: &#39;className&#39;,
+            cls: &#39;cls&#39;,
+            classList: &#39;classList&#39;,
+            text: &#39;text&#39;,
+            hidden: &#39;hidden&#39;,
+            html: &#39;html&#39;,
+            children: &#39;children&#39;
+        }, visFly, scrollFly, caFly;
+	
+	return {
+		
+		override: &quot;Ext.dom.Element&quot;,
+		
+        _loadAttr: function(element, attributeName) {
+        	if (element instanceof SVGElement) {
+        		return element[attributeName].baseVal;
+        	} else {
+        		return element[attributeName];
+        	}
+        },
+        
+        _saveAttr: function(element, attributeName, attributeValue) {
+        	if (element instanceof SVGElement) {
+        		element[attributeName].baseVal = attributeValue;
+        		
+        	} else {
+        		element[attributeName] = attributeValue;
+        	}
+        },
+			
+        addCls: function(names, prefix, suffix) {
+            var me = this,
+                hasNewCls, dom, map, classList, i, ln, name,
+                elementData = me.getData();
+
+            if (!names) {
+                return me;
+            }
+
+            if (!elementData.isSynchronized) {
+                me.synchronize();
+            }
+
+            dom = me.dom;
+            map = elementData.classMap;
+            classList = elementData.classList;
+
+            prefix = prefix ? prefix + SEPARATOR : &#39;&#39;;
+            suffix = suffix ? SEPARATOR + suffix : &#39;&#39;;
+
+            if (typeof names === &#39;string&#39;) {
+                names = names.split(spacesRe);
+            }
+
+            for (i = 0, ln = names.length; i &lt; ln; i++) {
+                name = prefix + names[i] + suffix;
+
+                if (!map[name]) {
+                    map[name] = true;
+                    classList.push(name);
+                    hasNewCls = true;
+                }
+            }
+            
+            if (hasNewCls) {
+                //dom.className = classList.join(&#39; &#39;);
+                me._saveAttr(dom, &quot;className&quot;, classList.join(&#39; &#39;));
+            }
+
+            return me;
+        },
+        
+        setCls: function(className) {
+            var me = this,
+                elementData = me.getData(),
+                map = elementData.classMap,
+                i, ln, name;
+
+            if (typeof className === &#39;string&#39;) {
+                className = className.split(spacesRe);
+            }
+
+            for (i = 0, ln = className.length; i &lt; ln; i++) {
+                name = className[i];
+                if (!map[name]) {
+                    map[name] = true;
+                }
+            }
+
+            elementData.classList = className.slice();
+            //me.dom.className = className.join(&#39; &#39;);
+            me._saveAttr(me.dom, &quot;className&quot;, className.join(&#39; &#39;));
+        },
+
+        removeCls: function(names, prefix, suffix) {
+            var me = this,
+                hasNewCls, dom, map, classList, i, ln, name,
+                elementData = me.getData();
+
+            if (!names) {
+                return me;
+            }
+
+            if (!elementData.isSynchronized) {
+                me.synchronize();
+            }
+
+            if (!suffix) {
+                suffix = &#39;&#39;;
+            }
+
+            dom = me.dom;
+            map = elementData.classMap;
+            classList = elementData.classList;
+
+            prefix = prefix ? prefix + SEPARATOR : &#39;&#39;;
+            suffix = suffix ? SEPARATOR + suffix : &#39;&#39;;
+
+            if (typeof names === &#39;string&#39;) {
+                names = names.split(spacesRe);
+            }
+
+            for (i = 0, ln = names.length; i &lt; ln; i++) {
+                name = prefix + names[i] + suffix;
+
+                if (map[name]) {
+                    delete map[name];
+                    Ext.Array.remove(classList, name);
+                    hasNewCls = true;
+                }
+            }
+
+            if (hasNewCls) {
+                //dom.className = classList.join(&#39; &#39;);
+                me._saveAttr(dom, &quot;className&quot;, classList.join(&#39; &#39;));
+            }
+
+            return me;
+        },
+        
+        
+        synchronize: function() {
+            var me = this,
+                dom = me.dom,
+                hasClassMap = {},
+                //className = dom.className,
+                className = me._loadAttr(dom, &quot;className&quot;),
+                classList, i, ln, name,
+                elementData = me.getData();
+
+            if (className &amp;&amp; className.length &gt; 0) {
+                //classList = dom.className.split(classNameSplitRegex);
+                classList = me._loadAttr(dom, &quot;className&quot;).split(classNameSplitRegex);
+                
+                for (i = 0, ln = classList.length; i &lt; ln; i++) {
+                    name = classList[i];
+                    hasClassMap[name] = true;
+                }
+            }
+            else {
+                classList = [];
+            }
+
+            elementData.classList = classList;
+            elementData.classMap = hasClassMap;
+            elementData.isSynchronized = true;
+
+            return me;
+        },
+        
+        set: function(attributes, useSet) {
+            var me = this,
+                dom = me.dom,
+                attribute, value;
+
+            for (attribute in attributes) {
+                if (attributes.hasOwnProperty(attribute)) {
+                    value = attributes[attribute];
+
+                    if (attribute === &#39;style&#39;) {
+                        me.applyStyles(value);
+                    }
+                    else if (attribute === &#39;cls&#39;) {
+                        //dom.className = value;
+                        me._saveAttr(dom, &quot;className&quot;, value);
+                    }
+                    else if (useSet !== false) {
+                        if (value === undefined) {
+                            dom.removeAttribute(attribute);
+                        } else {
+                            dom.setAttribute(attribute, value);
+                        }
+                    }
+                    else {
+                        dom[attribute] = value;
+                    }
+                }
+            }
+
+            return me;
+        }
+		
+	};
+	
+})());
+
+
+</pre>
+</body>
+</html>

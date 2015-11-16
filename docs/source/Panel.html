@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-desktop-Panel'>/**
+</span> * Панель рабочего стола.
+ * Основной компонент для создания рабочего стола с холстом SVG.
+ * Содержит в себе сам рабочий стол.
+ */
+
+Ext.define(&quot;Khusamov.svg.desktop.Panel&quot;, {
+	extend: &quot;Ext.panel.Panel&quot;,
+	xtype: &quot;khusamov-svg-desktop-panel&quot;,
+	
+	requires: [&quot;Khusamov.svg.desktop.Desktop&quot;],
+	
+<span id='Khusamov-svg-desktop-Panel-property-layout'>	layout: &quot;fit&quot;,
+</span>	
+<span id='Khusamov-svg-desktop-Panel-method-desktop'>	/**
+</span>	 * @param Khusamov.svg.desktop.Board
+	 */
+	desktop: null,
+	
+<span id='Khusamov-svg-desktop-Panel-method-initComponent'>	initComponent: function() {
+</span>		var me = this;
+		me.callParent(arguments);
+		
+		// Создаем рабочий стол
+		me.desktop = me.add(Ext.create(&quot;Khusamov.svg.Desktop&quot;));
+		
+		me.desktop.board.surface.on(&quot;scale&quot;, function(scale) {
+			me.down(&quot;#scale&quot;).setValue(scale * 10 / 0.1353352832366127);
+		});
+	},
+	
+<span id='Khusamov-svg-desktop-Panel-property-bbar'>	/*items: [{
+</span>		itemId: &quot;desktop&quot;,
+		xtype: &quot;khusamov-svg-desktop&quot;
+	}],*/
+	
+	bbar: [&quot;-&gt;&quot;, {
+		itemId: &quot;scale&quot;,
+		xtype: &quot;slider&quot;,
+		width: 300,
+		value: 50,
+		increment: ((7.3890560989306495 * 10 / 0.1353352832366127) - 10) / 20,
+		minValue: 10,
+		maxValue: 7.3890560989306495 * 10 / 0.1353352832366127,
+		readOnly: true
+	}],
+	
+<span id='Khusamov-svg-desktop-Panel-method-getDesktop'>	getDesktop: function() {
+</span>		return this.desktop;
+	},
+	
+	/*getSurface: function() {
+		var me = this;
+		return me.getDesktop().getSurface();
+	}*/
+	
+});
+
+
+
+</pre>
+</body>
+</html>

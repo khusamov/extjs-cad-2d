@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.element.Circle&quot;, {
+	
+	extend: &quot;Khusamov.svg.element.Element&quot;,
+	
+	requires: [&quot;Khusamov.svg.geometry.Point&quot;],
+	
+	xtype: &quot;khusamov-svg-element-circle&quot;,
+    
+    isSvgCircle: true,
+    
+	type: &quot;circle&quot;,
+    
+    baseCls: Ext.baseCSSPrefix + &quot;khusamov-svg-circle&quot;,
+    
+	autoEl: {
+		tag: &quot;circle&quot;
+	},
+	
+	privates: {
+		
+		onUpdateCenterPoint: function() {
+			var me = this;
+			me.getEl().set({
+				cx: me.center.x(),
+				cy: me.center.y()
+			});
+		}
+		
+	},
+	
+<span id='global-method-center'>	/**
+</span>	 * Точка центра окружности.
+	 * @readonly
+	 * @param Khusamov.svg.geometry.Point
+	 */
+	center: null,
+	
+<span id='global-method-radius'>	/**
+</span>	 * Радиус окружности.
+	 * @readonly
+	 * @param Number
+	 */
+	radius: 0,
+	
+	config: {
+		
+		center: [0, 0],
+		
+		radius: 0
+		
+	},
+	
+<span id='global-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.element.Circle&quot;, cx, cy, radius);
+	 * Ext.create(&quot;Khusamov.svg.element.Circle&quot;, Number[cx, cy], radius);
+	 * Ext.create(&quot;Khusamov.svg.element.Circle&quot;, Khusamov.svg.geometry.Point, radius);
+	 */
+	constructor: function(config) {
+		var me = this;
+		
+		if (arguments.length &gt; 1) {
+			config = (arguments.length == 3) ? {
+				center: [arguments[0], arguments[1]],
+				radius: arguments[2]
+			} : {
+				center: arguments[0],
+				radius: arguments[1]
+			};
+		}
+		
+		me.callParent([config]);
+	},
+	
+<span id='global-method-applyCenter'>	/**
+</span>	 * Circle.setCenter(Number[cx, cy]);
+	 * Circle.setCenter(Khusamov.svg.geometry.Point);
+	 */
+	applyCenter: function(center) {
+		var me = this;
+		
+		if (!(center instanceof Khusamov.svg.geometry.Point)) {
+			center = Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, center);
+		}
+		
+		if (me.getCenter()) me.getCenter().un(&quot;update&quot;, &quot;onUpdateCenterPoint&quot;, me);
+		center.on(&quot;update&quot;, &quot;onUpdateCenterPoint&quot;, me);
+		
+		return center;
+	},
+	
+	updateCenter: function(center, old) {
+		var me = this;
+		me.center = center;
+		if (me.rendered) me.getEl().set({
+			cx: center.x(),
+			cy: center.y()
+		});
+	},
+	
+	updateRadius: function(radius, old) {
+		var me = this;
+		me.radius = radius;
+		if (me.rendered) me.getEl().set({
+			r: radius
+		});
+	},
+	
+	afterRender: function() {
+		var me = this;
+		me.callParent(arguments);
+		me.getEl().set({
+			cx: me.center.x(),
+			cy: me.center.y(),
+			r: me.radius
+		});
+	},
+	
+	setX: function(x) {
+		var me = this;
+		var scale = me.getMatrix(true).getScaleX();
+		var offset = me.getMatrix(true).getDX();
+		x = x - me.getSvg().getX();
+		x -= offset;
+		x /= scale;
+		x += me.radius;
+		me.center.setX(x);
+		return me;
+    },
+    
+	setY: function(y) {
+		var me = this;
+		var scale = me.getMatrix(true).getScaleY();
+		var offset = me.getMatrix(true).getDY();
+		y = y - me.getSvg().getY();
+		y -= offset;
+		y /= scale;
+		y += me.radius;
+		me.center.setY(y);
+		return me;
+	}
+	
+}, function(Circle) {
+	
+	Khusamov.svg.Element.override({
+		
+		statics: {
+			
+<span id='global-method-createCircle'>			/**
+</span>			 * Создать элемент Окружность.
+			 * @return {Khusamov.svg.element.Circle}
+			 */
+			createCircle: function() {
+				return Circle.create.apply(Circle, arguments);
+			}
+			
+		}
+		
+	});
+	
+});
+
+</pre>
+</body>
+</html>

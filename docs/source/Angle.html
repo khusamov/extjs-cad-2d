@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.svg.geometry.Angle&quot;, {
+	
+	statics: {
+		
+		DEGREE: &quot;degree&quot;,
+		
+		RADIAN: &quot;radian&quot;,
+		
+		degree: function(value) {
+			return Ext.create(&quot;Khusamov.svg.geometry.Angle&quot;, value * Math.PI / 180);
+		},
+		
+		radian: function(value) {
+			return Ext.create(&quot;Khusamov.svg.geometry.Angle&quot;, value);
+		}
+			
+	},
+	
+	config: {
+		
+<span id='global-property-value'>		/**
+</span>		 * Значение в радианах.
+		 */
+		value: 0
+		
+	},
+	
+	constructor: function(config, unit) {
+		var me = this;
+		if (Ext.isNumber(config) || Ext.isString(config)) {
+			unit = unit || Khusamov.svg.geometry.Angle.RADIAN;
+			config = { value: config * (unit == Khusamov.svg.geometry.Angle.RADIAN ? 1 : Math.PI / 180) };
+		}
+		me.initConfig(config);
+	},
+	
+	applyValue: function(value) {
+		return Number(value);
+	},
+	
+	get: function(unit, fixed) {
+		unit = (unit ? unit : Khusamov.svg.geometry.Angle.RADIAN).toLowerCase();
+		var result = this[&quot;get&quot; + unit[0].toUpperCase() + unit.substr(1)].call(this);
+		return fixed === undefined ? result : result.toFixed(fixed);
+	},
+	
+<span id='global-method-getDegree'>	/**
+</span>	 * Получить значение в градусах.
+	 */
+	getDegree: function() {
+		return this.getValue() * 180 / Math.PI;
+	},
+	
+<span id='global-method-getRadian'>	/**
+</span>	 * Получить значение в радианах.
+	 */
+	getRadian: function() {
+		return this.getValue();
+	},
+	
+	toNumber: function(unit) {
+		return this.get(unit);
+	}
+	
+});</pre>
+</body>
+</html>

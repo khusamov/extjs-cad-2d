@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-svg-geometry-equation-Circular'>/**
+</span> * Уравнение окружности.
+ * (x - xc)^2 + (y - yc)^2 = r^2
+ */
+
+Ext.define(&quot;Khusamov.svg.geometry.equation.Circular&quot;, {
+	
+	extend: &quot;Khusamov.svg.geometry.Primitive&quot;,
+	
+	requires: [
+		&quot;Ext.draw.Matrix&quot;, 
+		&quot;Khusamov.svg.geometry.Point&quot;,  
+		&quot;Khusamov.svg.geometry.Triangle&quot;
+	],
+	
+	uses: [&quot;Khusamov.svg.geometry.Line&quot;],
+	
+	statics: {
+		
+<span id='Khusamov-svg-geometry-equation-Circular-static-method-findCenter'>		/**
+</span>		 * Поиск центра окружности, если известны радиус и две точки, через которые она проходит.
+		 * Функция вернет два центра: первый центр слева, второй справа, 
+		 * если смотреть от первой точки на вторую.
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(x1, y1, x2, y2, radius);
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(Number[x1, y1], Number[x2, y2], radius);
+		 * Khusamov.svg.geometry.equation.Circular.findCenter(Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point, radius);
+		 * @return {Khusamov.svg.geometry.Point[]}
+		 */
+		findCenter: function() {
+			var point1, point2, radius;
+			if (arguments.length == 5) {
+				point1 = [arguments[0], arguments[1]];
+				point2 = [arguments[2], arguments[3]];
+				radius = arguments[4];
+			}
+			if (arguments.length == 3) {
+				point1 = arguments[0];
+				point2 = arguments[1];
+				radius = arguments[2];
+			}
+			point1 = Ext.isArray(point1) ? point1 : point1.toArray();
+			point2 = Ext.isArray(point2) ? point2 : point2.toArray();
+			
+			var chordLine = Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, point1, point2);
+			var chord = chordLine.getLength();
+			var chordLinear = chordLine.toLinear();
+			
+			var matrix = Ext.create(&quot;Ext.draw.Matrix&quot;);
+			matrix.translate(-point1[0], -point1[1]);
+			matrix.rotate(-chordLinear.getAngle(), point1[0], point1[1]);
+			
+			var x = chord / 2;
+			
+			var Triangle = Khusamov.svg.geometry.Triangle;
+			var triangle = Triangle.createByPerimeter(radius, chord, radius);
+			
+			var y = triangle.height();
+			
+			var result = [[x, y], [x, -y]];
+			return result.map(function(point) {
+				point = matrix.inverse().transformPoint(point);
+				return Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, point);
+			});
+		}
+		
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Circular-property-isCircular'>	isCircular: true,
+</span>	
+<span id='Khusamov-svg-geometry-equation-Circular-property-type'>	type: &quot;circular&quot;,
+</span>	
+	config: {
+		
+<span id='Khusamov-svg-geometry-equation-Circular-cfg-center'>		center: [0, 0],
+</span>		
+<span id='Khusamov-svg-geometry-equation-Circular-cfg-radius'>		radius: 0
+</span>		
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-constructor'>	/**
+</span>	 * Ext.create(&quot;Khusamov.svg.geometry.equation.Circular&quot;, cx, cy, radius);
+	 * Ext.create(&quot;Khusamov.svg.geometry.equation.Circular&quot;, Number[cx, cy], radius);
+	 * Ext.create(&quot;Khusamov.svg.geometry.equation.Circular&quot;, Khusamov.svg.geometry.Point, radius);
+	 */
+	constructor: function(config) {
+		var me = this;
+		
+		if (arguments.length &gt; 1) {
+			config = (arguments.length == 3) ? {
+				center: [arguments[0], arguments[1]],
+				radius: arguments[2]
+			} : {
+				center: arguments[0],
+				radius: arguments[1]
+			};
+		}
+		
+		me.callParent([config]);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-applyCenter'>	applyCenter: function(center) {
+</span>		if (!(center instanceof Khusamov.svg.geometry.Point)) {
+			center = Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, center);
+		}
+		return center;
+	},
+	
+	/*a: function() {
+		return this.getA();
+	},
+	
+	b: function() {
+		return this.getB();
+	},
+	
+	c: function() {
+		return this.getC();
+	},
+	
+	x: function(y) {
+		return -(this.b() * y + this.c()) / this.a();
+	},
+	
+	y: function(x) {
+		return -(this.a() * x + this.c()) / this.b();
+	},*/
+	
+	
+	
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-intersection'>	/**
+</span>	 * Найти точки пересечения окружности с прямой или с другой окружностью.
+	 * @param {Khusamov.svg.geometry.equation.Linear | Khusamov.svg.geometry.equation.Circular} primitive 
+	 * @return {Khusamov.svg.geometry.Point[] || null}
+	 */
+	intersection: function(primitive) {
+		var result = [];
+		var x, y;
+		
+		var radius = this.getRadius();
+		var cx = this.getCenter().x();
+		var cy = this.getCenter().y();
+		
+		var matrix = Ext.create(&quot;Ext.draw.Matrix&quot;);
+		matrix.translate(-cx, -cy);
+		
+		var Triangle = Khusamov.svg.geometry.Triangle;
+		
+		// Точки пересечения окружности с другой окружностью
+		if (primitive.isCircular) {
+			var circular = primitive;
+			
+			var r1 = radius;
+			var r2 = circular.getRadius();
+			
+			var bridgeLine = Ext.create(&quot;Khusamov.svg.geometry.Line&quot;, this.getCenter(), circular.getCenter());
+			var bridge = bridgeLine.getLength();
+			
+			var bridgeLinear = bridgeLine.toLinear();
+			matrix.rotate(-bridgeLinear.getAngle(), cx, cy);
+			
+			if (r1 + r2 &lt; bridge) return null; // Окружности не соприкосаются.
+			if (Math.abs(r1 - r2) &gt; bridge) return null; // Окружность внутри другой.
+			
+			y = Triangle.createByPerimeter(r2, bridge, r1).height();
+			x = Triangle.createByPerimeter(r1, 2 * y, r1).height();
+			x *= r2 &gt; r1 &amp;&amp; Triangle.createByPerimeter(r2, 2 * y, r2).height() &gt; bridge ? -1 : 1;
+			
+			result.push([x, y]);
+			if (r1 + r2 &gt; bridge) result.push([x, -y]);
+		}
+		
+		// Точки пересечения окружности с прямой линией
+		if (primitive.isLinear) {
+			var linear = primitive;
+			matrix.rotate(Math.PI / 2 - linear.getAngle(), cx, cy);
+			linear = linear.getTransformLinear(matrix);
+			x = -linear.c() / linear.a();
+			if (radius &lt; Math.abs(x)) return null; // Пересечения нет.
+			y = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
+			result.push([x, y]);
+			if (radius &gt; Math.abs(x)) result.push([x, -y]);
+		}
+		
+		return result.map(function(point) {
+			point = matrix.inverse().transformPoint(point);
+			return Ext.create(&quot;Khusamov.svg.geometry.Point&quot;, point);
+		});
+
+	},
+	
+	
+	
+	
+	
+	
+	
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-toString'>	toString: function(fixed) {
+</span>		var f = function(v) { return fixed !== undefined ? v.toFixed(fixed) : v; };
+		return Ext.String.format(
+			&quot;Circular { (x - {0})^2 + (y - {1})^2 = {2}^2 }&quot;,
+			f(this.getCenter().x()),
+			f(this.getCenter().y()),
+			f(this.getRadius())
+		);
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-toArray'>	toArray: function() {
+</span>		//return [this.a(), this.b(), this.c()];
+	},
+	
+<span id='Khusamov-svg-geometry-equation-Circular-method-toObject'>	/**
+</span>	 * Получить уравнение.
+	 * @return Object
+	 */
+	toObject: function() {
+		/*return Ext.Object.merge(this.callParent(), { 
+			a: this.a(), 
+			b: this.b(), 
+			c: this.c() 
+		});*/
+	}
+	
+});
+
+
+</pre>
+</body>
+</html>
