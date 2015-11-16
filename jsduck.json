@@ -1,0 +1,10 @@
+{
+	"--title": "Справка по библиотеке Khusamov ExtJS",
+	"--output": "docs",
+	"--": [
+		"packages/local/khusamov-svg/dom",
+		"packages/local/khusamov-svg/browser",
+		"packages/local/khusamov-svg/text",
+		"packages/local/khusamov-svg/src"
+	]
+}
