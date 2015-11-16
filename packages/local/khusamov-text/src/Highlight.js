@@ -14,6 +14,11 @@
 
 */
 
+/**
+ * Класс подсветки кода.
+ * @class Khusamov.text.Highlight
+ */
+
 Ext.define("Khusamov.text.Highlight", {
 	
 	extend: "Ext.Component",
