@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+/*
+
+	Обязательно подключить сам Ace Editor в следующей комплектации:
+	
+	&lt;!-- ace --&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js&quot;&gt;&lt;/script&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-static_highlight.js&quot;&gt;&lt;/script&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-javascript.js&quot;&gt;&lt;/script&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/worker-javascript.js&quot;&gt;&lt;/script&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-clouds.js&quot;&gt;&lt;/script&gt;
+		&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/theme-eclipse.js&quot;&gt;&lt;/script&gt;
+	&lt;!-- / ace --&gt;
+
+*/
+
+<span id='Khusamov-text-Highlight'>/**
+</span> * Класс подсветки кода.
+ * @class Khusamov.text.Highlight
+ */
+
+Ext.define(&quot;Khusamov.text.Highlight&quot;, {
+	
+	extend: &quot;Ext.Component&quot;,
+	
+	alias: &quot;widget.highlight&quot;,
+	
+<span id='Khusamov-text-Highlight-property-scrollable'>	scrollable: true,
+</span>	
+<span id='Khusamov-text-Highlight-property-renderTpl'>	renderTpl: [
+</span>		&quot;&lt;tpl if=&#39;renderScroller&#39;&gt;&quot;,
+			&quot;&lt;div class=&#39;{scrollerCls}&#39; style=&#39;{%this.renderPadding(out, values)%}&#39;&gt;&quot;,
+		&quot;&lt;/tpl&gt;&quot;,
+			&quot;&lt;pre id=&#39;{id}-preEl&#39; data-ref=&#39;preEl&#39; style=&#39;margin: 0;&#39;&gt;&quot;,
+				&quot;&lt;code id=&#39;{id}-codeEl&#39; data-ref=&#39;codeEl&#39;&gt;&quot;,
+					&quot;{%this.renderContent(out,values)%}&quot;,
+				&quot;&lt;/pre&gt;&quot;,
+			&quot;&lt;/code&gt;&quot;,
+		&quot;&lt;tpl if=&#39;renderScroller&#39;&gt;&lt;/div&gt;&lt;/tpl&gt;&quot;
+	],
+	
+<span id='Khusamov-text-Highlight-property-childEls'>	childEls: [&quot;preEl&quot;, &quot;codeEl&quot;],
+</span>	
+	config: {
+<span id='Khusamov-text-Highlight-cfg-type'>		type: &quot;ace&quot;,
+</span><span id='Khusamov-text-Highlight-cfg-text'>		text: null,
+</span><span id='Khusamov-text-Highlight-cfg-gutter'>		gutter: true,
+</span><span id='Khusamov-text-Highlight-cfg-trim'>		trim: true,
+</span><span id='Khusamov-text-Highlight-cfg-wrap'>		wrap: false,
+</span><span id='Khusamov-text-Highlight-cfg-fontSize'>		fontSize: &quot;15px&quot;
+</span>	},
+	
+<span id='Khusamov-text-Highlight-method-constructor'>	constructor: function() {
+</span>		this.highlighter = {};
+		this.callParent(arguments);
+	},
+	
+<span id='Khusamov-text-Highlight-method-updateText'>	updateText: function(text) {
+</span>		if (text) {
+			if (this.rendered) {
+				this.codeEl.setHtml(text);
+				this.highlight();
+			} else {
+				this.on(&quot;render&quot;, &quot;highlight&quot;, this, { args: [text] });
+			}
+		}
+	},
+	
+<span id='Khusamov-text-Highlight-method-getHighlighter'>	getHighlighter: function(type) {
+</span>		var me = this;
+		if (!me.highlighter[type]) me.highlighter[type] = me.createHighlighter(type);
+		return me.highlighter[type];
+	},
+	
+<span id='Khusamov-text-Highlight-method-createHighlighter'>	createHighlighter: function(type) {
+</span>		return ace.require(&quot;ace/ext/static_highlight&quot;);
+	},
+	
+<span id='Khusamov-text-Highlight-method-highlight'>	highlight: function(text) {
+</span>		var me = this;
+		text &amp;&amp; me.codeEl.setHtml(text);
+		me.getHighlighter(&quot;ace&quot;).highlight(this.codeEl.dom, {
+			mode: &quot;ace/mode/javascript&quot;, 
+			theme: &quot;ace/theme/eclipse&quot;,
+			trim: me.getTrim(),
+			showGutter: me.getGutter(),
+			useWrapMode: me.getWrap()
+		});
+		if (!me.correctedStyles) {
+			me.correctedStyles = true;
+			var css = Ext.util.CSS.createStyleSheet(&quot;.ace_line { line-height: normal; }&quot;);
+			if (!me.getWrap()) Ext.util.CSS.createRule(css, &quot;.ace_static_highlight&quot;, &quot;white-space: pre;&quot;);
+			Ext.util.CSS.createRule(css, &quot;.ace_static_highlight&quot;, &quot;font-size: &quot; + me.getFontSize() + &quot;;&quot;);
+			if (me.getGutter()) {
+				Ext.util.CSS.createRule(css, &quot;.ace_gutter&quot;, &quot;z-index: initial;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace-clouds .ace_gutter&quot;, &quot;background: white;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace-clouds .ace_gutter&quot;, &quot;color: silver;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace-eclipse .ace_gutter&quot;, &quot;background: #F5F5F5;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace-eclipse .ace_gutter&quot;, &quot;color: rgb(125, 125, 125);&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace_static_highlight .ace_gutter&quot;, &quot;padding: 0 8px 0 0;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace_static_highlight .ace_gutter&quot;, &quot;width: 2.7em;&quot;);
+				Ext.util.CSS.createRule(css, &quot;.ace_static_highlight.ace_show_gutter .ace_line&quot;, &quot;padding-left: 3.6em;&quot;);
+			}
+		}
+	},
+	
+});</pre>
+</body>
+</html>

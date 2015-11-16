@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.define(&quot;Khusamov.browser.Console&quot;, {
+	
+	alternateClassName: &quot;Khusamov.Console&quot;,
+	
+	singleton: true,
+	
+	constructor: function() {
+		var me = this;
+		
+<span id='global-property-namespace'>		/**
+</span>		 * Префикс для сообщений в консоли.
+		 * @readonly
+		 * @property {String}
+		 */
+		me.namespace = null;
+		
+		me.init();
+	},
+	
+	setNamespace: function(namespace) {
+		this.namespace = namespace;
+	},
+	
+	init: function() {
+		var me = this;
+		
+		var path = window.location.pathname.split(&quot;/&quot;);
+		path.pop();
+		var folderApp = path.join(&quot;/&quot;) + &quot;/&quot;;
+		
+		function caller(line) {
+			try { throw Error(); } catch(e) {
+				var part = e.stack.split(&quot;\n&quot;)[line || 4].split(&quot;(&quot;);
+				// если part[1] не определен, то в строке part нет имени функции, только путь к файлу
+				var file = (part[1] ? part[1] : part[0]).split(&quot;)&quot;)[0].split(&quot;:&quot;);
+				var lineno = file[2];
+				var fnname = part[1] ? part[0].split(&quot;at &quot;)[1].trim() : &quot;Не определено&quot;;
+				file = file[1].split(window.location.hostname)[1].split(&quot;?&quot;)[0];
+				//file = file.split(folderApp)[1];
+				file = file.replace(folderApp, &quot;&quot;);
+				return file + &quot;:&quot; + lineno;
+				/*return { &quot;Вызов&quot;: {
+					&quot;Функция&quot;: fnname,
+					&quot;Файл&quot;: file,
+					&quot;Строка&quot;: line
+				}};*/
+			}
+		}
+		
+		console.$log = console.log;
+		console.log = function() {
+			var args = Ext.Array.slice(arguments);
+			if (me.namespace) args.unshift(me.namespace, &quot;|&quot;);
+			//args.push(&quot;|&quot;, caller());
+			return console.$log.apply(console, args);
+		};
+		
+		console.$info = console.info;
+		console.info = function() {
+			var args = Ext.Array.slice(arguments);
+			if (me.namespace) args.unshift(me.namespace, &quot;|&quot;);
+			args.push(&quot;|&quot;, caller());
+			return this.$info.apply(console, args);
+		};
+	}
+	
+});</pre>
+</body>
+</html>

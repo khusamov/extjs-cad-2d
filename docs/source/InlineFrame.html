@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='Khusamov-dom-InlineFrame'>/**
+</span> * Реализация iframe-элемента.
+ * 
+ * Исправленный вариант Ext.ux.IFrame.
+ * Подробности на странице http://javascript.ru/forum/extjs/57443-ext-ux-iframe.html
+ * 
+ */
+
+Ext.define(&quot;Khusamov.dom.InlineFrame&quot;, {
+	
+	extend: &quot;Ext.ux.IFrame&quot;,
+	
+	alias: &quot;widget.inlineframe&quot;,
+	
+<span id='Khusamov-dom-InlineFrame-property-loadMask'>	loadMask: &quot;&lt;div style=&#39;text-align: center&#39;&gt;Подождите,&lt;br/&gt;загружается страница...&lt;/div&gt;&quot;,
+</span>	
+<span id='Khusamov-dom-InlineFrame-method-reload'>	reload: function() {
+</span>		this.load(this.getFrame().src);
+	},
+	
+<span id='Khusamov-dom-InlineFrame-method-getHead'>	getHead: function() {
+</span>		var doc = this.getDoc();
+		return doc.head || doc.getElementsByTagName(&quot;head&quot;)[0];
+	},
+	
+<span id='Khusamov-dom-InlineFrame-method-getRandomSuffixId'>    getRandomSuffixId: function() {
+</span>    	return &quot;-iframe-&quot; + Math.round(Math.random() * 100000);
+    },
+    
+<span id='Khusamov-dom-InlineFrame-method-getRandomId'>    getRandomId: function(prefix) {
+</span>    	return prefix + this.getRandomSuffixId();
+    },
+    
+<span id='Khusamov-dom-InlineFrame-method-setWinDocRandomId'>    setWinDocRandomId: function() {
+</span>    	this._prevdocid = this.getDoc().id;
+		this._prevwinid = this.getWin().id;
+		this.getDoc().id = this.getRandomId(&quot;ext-document&quot;);
+		this.getWin().id = this.getRandomId(&quot;ext-window&quot;);
+    },
+    
+<span id='Khusamov-dom-InlineFrame-method-unsetWinDocRandomId'>    unsetWinDocRandomId: function() {
+</span>    	this.getDoc().id = this._prevdocid;
+		this.getWin().id = this._prevwinid;
+    },
+	
+<span id='Khusamov-dom-InlineFrame-method-onLoad'>	onLoad: function() {
+</span>		// http://javascript.ru/forum/extjs/57443-ext-ux-iframe.html
+		this.setWinDocRandomId();
+		this.callParent();
+		this.unsetWinDocRandomId();
+	},
+	
+<span id='Khusamov-dom-InlineFrame-method-cleanupListeners'>	cleanupListeners: function() {
+</span>		this.setWinDocRandomId();
+		this.callParent();
+		this.unsetWinDocRandomId();
+	}
+	
+});</pre>
+</body>
+</html>
