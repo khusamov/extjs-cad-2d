@@ -1,6 +1,8 @@
 {
-	"--title": "Справка по библиотеке Khusamov ExtJS",
+	"--title": "Библиотека Khusamov ExtJS",
 	"--output": "docs",
+	"--no-source": true,
+	"--external": "Ext.*",
 	"--": [
 		"packages/local/khusamov-dom/src",
 		"packages/local/khusamov-browser/src",
