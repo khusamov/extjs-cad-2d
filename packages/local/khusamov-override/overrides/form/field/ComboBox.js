@@ -16,6 +16,6 @@ Ext.define("Khusamov.override.form.field.ComboBox", {
 		//http://javascript.ru/forum/extjs/56522-vyvod-znacheniya-combobox-kotoroe-nakhoditsya-na-vtorojj-stranice-store.html
 		this.store.combobox = this;
 		
-	},
+	}
 	
 });

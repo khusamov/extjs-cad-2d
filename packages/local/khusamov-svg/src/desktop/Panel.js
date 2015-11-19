@@ -48,7 +48,7 @@ Ext.define("Khusamov.svg.desktop.Panel", {
 	
 	getDesktop: function() {
 		return this.desktop;
-	},
+	}
 	
 	/*getSurface: function() {
 		var me = this;

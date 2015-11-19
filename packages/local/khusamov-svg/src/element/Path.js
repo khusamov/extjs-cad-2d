@@ -36,7 +36,7 @@ Ext.define("Khusamov.svg.element.Path", {
 		}
 		
 		me.callParent([config]);
-	},
+	}
 	
 	/*delegates: {
 		geometry: {

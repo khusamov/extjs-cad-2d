@@ -18,7 +18,7 @@ Ext.define("Khusamov.svg.desktop.surface.Surface", {
 			enable: true,
 			value: 100,
 			min: 10,
-			max: 500,
+			max: 500
 		}
 		
 	},
@@ -60,7 +60,7 @@ Ext.define("Khusamov.svg.desktop.surface.Surface", {
 	    onDesktopMouseWheel: function() {
 			var me = this;
 	    	
-	    },
+	    }
 	    
     },
     

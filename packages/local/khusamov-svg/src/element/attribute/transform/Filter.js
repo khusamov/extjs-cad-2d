@@ -71,7 +71,7 @@ Ext.define("Khusamov.svg.element.attribute.transform.Filter", {
 		 * Параметры фильтра. Массив чисел.
 		 * @param Number[]
 		 */
-		params: [],
+		params: []
 	},
 	
 	/**

@@ -40,7 +40,7 @@ Ext.define("Khusamov.svg.layout.Svg", {
     	} else {
     		return element[attributeName];
     	}
-    },
+    }
 	
 });
 

@@ -56,7 +56,7 @@ Ext.define("Khusamov.svg.Svg", {
 			var me = this;
 			if (!me.svg) me.svg = me.up("khusamov-svg");
 			return me.svg;
-		},
+		}
 		
 	});
 	

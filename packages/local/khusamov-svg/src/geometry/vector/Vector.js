@@ -192,7 +192,7 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 		if (codirectional === undefined) return isCollinear;
 		if (codirectional === true) return isCollinear && mul > 0;
 		if (codirectional === false) return isCollinear && mul < 0;
-	},
+	}
 	
 }, function(Vector) {
 	

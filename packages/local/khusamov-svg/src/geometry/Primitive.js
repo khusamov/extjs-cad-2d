@@ -62,7 +62,7 @@ Ext.define("Khusamov.svg.geometry.Primitive", {
 		 * Текстовое описание примитива.
 		 * @property {String}
 		 */
-		description: null,
+		description: null
 		
 	},
 	

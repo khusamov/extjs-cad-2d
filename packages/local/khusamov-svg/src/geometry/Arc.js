@@ -64,7 +64,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 				radius *= sign;
 			}
 			return radius;
-		},
+		}
 		
 	},
 	

@@ -104,7 +104,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 				b: -1 / parallel.y(),
 				c: point.y() / parallel.y() - point.x() / parallel.x()
 			});
-		},
+		}
 		
 	},
 	
@@ -397,7 +397,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		
 		var angle = vector2.sub(vector1).getAngleTo(parallel);*/
 		
-	},
+	}
 	
 });
 

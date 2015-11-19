@@ -544,7 +544,7 @@ Ext.define("Khusamov.svg.element.Element", {
 	});
 	}
 	return me;
-	},
+	}
 	
 	
 

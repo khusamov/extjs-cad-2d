@@ -23,6 +23,6 @@ Ext.define("Khusamov.override.data.TreeModel", {
             parent = parent.parentNode;
         }
         return (withoutFirstSeparator ? "" : separator) + path.join(separator);
-    },
+    }
 	
 });

@@ -102,6 +102,6 @@ Ext.define("Khusamov.text.Highlight", {
 				Ext.util.CSS.createRule(css, ".ace_static_highlight.ace_show_gutter .ace_line", "padding-left: 3.6em;");
 			}
 		}
-	},
+	}
 	
 });
