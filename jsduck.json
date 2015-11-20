@@ -7,6 +7,11 @@
 		"packages/local/khusamov-dom/src",
 		"packages/local/khusamov-browser/src",
 		"packages/local/khusamov-text/src",
-		"packages/local/khusamov-svg/src"
+		"packages/local/khusamov-svg/src",
+		
+		"packages/local/khusamov-dom/overrides",
+		"packages/local/khusamov-browser/overrides",
+		"packages/local/khusamov-text/overrides",
+		"packages/local/khusamov-svg/overrides"
 	]
 }

@@ -1,18 +1,24 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Делегируемые методы
 
-/*
-	Пример:
-	delegates: {
-		points: {
-			addPoint: {
-				chainable: true,
-				name: "addPoint"
-			},
-			setPointXY: true
-		}
-	}
-*/
+/* global Ext */
+
+/**
+ * Пост-процессор классовой системы "Делегируемые методы".
+ * 
+ * Пример использования:
+ * 
+ * @example
+ * 
+ * 	delegates: {
+ * 		points: {
+ * 			addPoint: {
+ * 				chainable: true,
+ * 				name: "addPoint"
+ * 			},
+ * 			setPointXY: true
+ * 		}
+ * 	}
+ * 
+ */
 
 Ext.ClassManager.registerPostprocessor("delegates", function(name, cls, data) {
 	if ("delegates" in data) {
