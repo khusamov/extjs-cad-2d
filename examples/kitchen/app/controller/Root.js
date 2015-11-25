@@ -1,4 +1,6 @@
 
+/* global Ext */
+
 Ext.define("Kitchen.controller.Root", {
 	
 	extend: "Ext.app.Controller",
@@ -25,11 +27,19 @@ Ext.define("Kitchen.controller.Root", {
 	
 	onMainMenuItemClick: function(mainMenu, menuItem) {
 		// Переключить hash в новое значение.
+		
+		console.log(menuItem.getFilePath());
+		
 		this.redirectTo(menuItem.getFilePath());
 	},
 	
 	init: function(application) {
 		var me = this;
+		
+		/**
+		 * Текущий путь.
+		 * @property
+		 */
 		this.currentPath = null;
 		
 		var keymap = Ext.create("Ext.util.KeyMap", {

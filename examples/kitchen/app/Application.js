@@ -12,7 +12,7 @@ Ext.define("Kitchen.Application", {
 	extend: "Ext.app.Application",
 	
 	requires: [
-		"Khusamov.override.Override"
+		
 	],
 	
 	name: "Kitchen",
@@ -22,7 +22,7 @@ Ext.define("Kitchen.Application", {
 	},
 	
 	// http://javascript.ru/forum/extjs/56202-paths-processed-true.html
-	"paths processed": true,
+	//"paths processed": true,
 	
 	autoCreateViewport: "Kitchen.view.main.Main", 
 	
@@ -38,6 +38,12 @@ Ext.define("Kitchen.Application", {
 		console.log("Кеширование на стороне клиента " + (Ext.Loader.getConfig().disableCaching ? "запрещено" : "разрешено") + ".");
 		console.log("Кеширование AJAX-запросов на стороне клиента " + (Ext.Ajax.getDisableCaching() ? "запрещено" : "разрешено") + ".");
 		console.log(window.Pace ? "Обнаружена Pace." : "Внимание, Pace недоступна.");
+		
+		// https://www.sencha.com/forum/showthread.php?303936-Button-issue-with-WAI-ARIA&amp;goto=newpost
+		// http://docs.sencha.com/extjs/6.0/upgrades_migrations/extjs_upgrade_guide.html#Button
+		// http://docs.sencha.com/extjs/6.0/6.0.0-classic/#!/api/Ext-property-enableAriaButtons
+		Ext.enableAriaButtons = false;
+		Ext.enableAriaPanels = false;
 		
 		this.initPageTitle();
 		
