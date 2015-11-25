@@ -9,9 +9,10 @@
  * 3) Следующий щелчок все стирает.
  * 
  */
-	 
+
+/* global Ext */
+
 Ext.require([
-	"Khusamov.override.Override",
 	"Khusamov.svg.Svg",
 	"Khusamov.svg.geometry.Path",
 	"Khusamov.svg.element.Path",
