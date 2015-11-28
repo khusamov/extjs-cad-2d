@@ -1,4 +1,6 @@
 
+/* global Ext */
+
 /**
  * Класс для хранения графа при помощи списков смежности.
  * 
@@ -137,7 +139,7 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 	 * Используется алгоритм Дейкстры (только для ребер с положительным весом).
 	 * Если to не определен, то на выходе объект с путями до всех узлов.
 	 * @param {Number | String} from Откуда строить путь.
-	 * @param {Number | String} [to] До куда строить путь.
+	 * @param {Number | String} [to] До куда строить путь. Если не указан, то возвращаются пути до всех узлов.
 	 * @return {Array | Object}
 	 */
 	findPath: function(from, to) {
@@ -161,8 +163,8 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 		
 		var min;
 		
-		console.groupCollapsed(from);
-		console.log(this.graph);
+		/*console.groupCollapsed(from);
+		console.log(this.graph);*/
 		
 		
 		do {
@@ -201,11 +203,11 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 				
 				
 				// debug
-				var _distance = {};
+				/*var _distance = {};
 				Ext.Object.each(this.graph, function(index) {
 					_distance[index] = distance[index].toFixed(0);
 				});
-				console.info("distance", _distance);
+				console.info("distance", _distance);*/
 				// / debug
 				
 				
@@ -221,9 +223,9 @@ Ext.define("Khusamov.svg.discrete.graph.AdjacencyList", {
 		});
 		
 		
-		console.info("visited", visited);
+		/*console.info("visited", visited);
 		console.info("path", paths);
-		console.groupEnd();
+		console.groupEnd();*/
 		
 		
 		

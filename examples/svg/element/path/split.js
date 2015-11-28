@@ -10,7 +10,7 @@
  * 
  */
 
-/* global Ext */
+/* global Ext, Khusamov */
 
 Ext.require([
 	"Khusamov.svg.Svg",
@@ -48,6 +48,20 @@ Ext.onReady(function() {
 		tbar: [{
 			itemId: "path",
 			text: "Многоугольник"
+		}, {
+			itemId: "segmentType",
+			xtype: "segmentedbutton",
+			getPressedItemId: function() {
+				return this.down("[pressed=true]").itemId;
+			},
+			items: [{
+				itemId: "line",
+				pressed: true,
+				text: "Прямая"
+			}, {
+				itemId: "arc",
+				text: "Дуга"
+			}]
 		}, tbPaths
 		/*}, "-", {
 			itemId: "vert",
@@ -60,6 +74,10 @@ Ext.onReady(function() {
 			text: "Делитель"*/
 		]
 	});
+	
+	var segmentTypeButton = viewport.down("#segmentType");
+	
+
 	
 	
 	function createPath(geometry, color, fill) {
@@ -121,7 +139,18 @@ Ext.onReady(function() {
 		switch (mode) {
 			case "path":
 				if (pathGeometry.lastPoint) {
-					pathGeometry.line();
+					
+					switch (segmentTypeButton.getPressedItemId()) {
+						case "line": 
+							pathGeometry.line(); 
+							break;
+						case "arc": 
+							var radius = Math.max(50, pathGeometry.lastPoint.getDistanceTo(x, y) / 2);
+							pathGeometry.arc(radius, { sweep: true }); 
+							segmentTypeButton.down("#line").setPressed(); 
+							break;
+					}
+					
 					if (pathGeometry.getFirstPoint().equal(x, y, 10)) {
 						path.setStyle("stroke", "black");
 						path.setStyle("stroke-dasharray", "none");

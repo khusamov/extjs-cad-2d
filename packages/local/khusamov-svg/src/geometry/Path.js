@@ -431,57 +431,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		var type = "Path" + Ext.String.capitalize(primitive.type);
 		var intersection = Khusamov.svg.geometry.intersection[type];
 		return intersection.intersection(this, primitive, segmented);
-		
-		//return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive, segmented);
 	},
-	
-	/*intersectionWithLinear: function(linear, segmented) {
-		var result = [], length = 0;
-		this.eachSegment(function(segment, index) {
-			var intersection = segment.getPrimitive().intersection(linear);
-			if (intersection) {
-				result = result.concat(intersection);
-				
-				if (segmented) {
-					intersection = Ext.isArray(intersection) ? intersection: [intersection];
-					intersection.forEach(function(point) {
-						var distance = segment.getFirstPoint().getDistanceTo(point);
-						point.segment = {
-							index: index,
-							distance: distance,
-							distanceByPath: length + distance
-						};
-					});
-					length += segment.getLength();
-				}
-			}
-		});
-		
-		
-		
-		// DEBUG
-			var res = [];
-			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
-			console.info(res);
-		// / DEBUG
-		
-		
-		// Отсортировать точки, чтобы в массиве начинались они с края многоугольника.
-		result = linear.sort(result);
-		
-		
-		
-		// DEBUG
-			res = [];
-			result.forEach(function(point) { res.push(point.getRadius().toFixed(0)); });
-			console.info(res);
-		// / DEBUG
-		
-
-		
-		
-		return result.length ? result : null;
-	},*/
 	
 	/**
 	 * Разделить путь.
