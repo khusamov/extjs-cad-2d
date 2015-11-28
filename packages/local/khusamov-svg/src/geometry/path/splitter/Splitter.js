@@ -24,22 +24,6 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Splitter", {
 			var type = Ext.String.capitalize(primitive.type);
 			var splitter = Khusamov.svg.geometry.path.splitter[type];
 			return splitter.split(path, primitive);
-			
-			
-			
-			
-			
-			
-			/*var prefix = "Khusamov.svg.geometry.path.splitter.";
-			
-			var classname = prefix + type;
-			
-			var splitter = Ext.create(classname);
-			
-			return splitter.split(path, primitive);*/
-			
-			//var method = "splitWith" + Ext.String.capitalize(primitive.type);
-			//return this[method].call(this, path, primitive);
 		}
 	}
 	

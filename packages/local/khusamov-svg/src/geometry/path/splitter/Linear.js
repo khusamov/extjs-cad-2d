@@ -8,6 +8,11 @@
 
 Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 	
+	requires: [
+		"Khusamov.svg.geometry.Line", 
+		"Khusamov.svg.discrete.graph.AdjacencyList"
+	],
+	
 	uses: ["Khusamov.svg.geometry.Path"],
 	
 	statics: {
@@ -22,7 +27,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			
 			var result = [];
 			
-			var intersection = path.intersectionWithLinear(linear, true);
+			var intersection = path.intersection(linear, true);
 			
 			if (intersection) {
 	
@@ -110,8 +115,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				// Конвертация циклов в Khusamov.svg.geometry.Path.
 				
 				cycles.forEach(function(cycle) {
-					//var path = new path.self();
-					var path = Ext.create("Khusamov.svg.geometry.Path");
+					var subpath = Ext.create("Khusamov.svg.geometry.Path");
 					
 					cycle.forEach(function(node, index) {
 						
@@ -129,7 +133,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						}
 						point = point.clone();
 						
-						path.point(point);
+						subpath.point(point);
 						
 						// Определяем сегмент пути.
 						
@@ -144,7 +148,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						
 						
 						if (cycleSegmentType == "ii") {
-							path.line();
+							subpath.line();
 							
 							console.log("line");
 							
@@ -156,10 +160,10 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 							}
 							
 							if (path.getSegment(segmentIndex).isArcSegment) {
-								path.arc(path.getSegment(segmentIndex).getArc().clone());
+								subpath.arc(path.getSegment(segmentIndex).getArc().clone());
 								console.log("arc");
 							} else {
-								path.line();
+								subpath.line();
 								console.log("line");
 							}
 						}
@@ -168,7 +172,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						
 						
 					});
-					result.push(path);
+					result.push(subpath);
 				});
 			}
 			
