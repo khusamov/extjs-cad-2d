@@ -256,18 +256,16 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	 */
 	intersectionWithLine: function(line) {
 		var me = this;
-		var result = null;
+		var result = [];
 		var intersection = me.toCircular().intersection(line.toLinear());
 		if (intersection) {
-			result = [];
 			intersection.forEach(function(point) {
 				if (me.isInnerPoint(point) && line.isInnerPoint(point)) {
 					result.push(point);
 				}
 			});
-			result = result.length ? result : null;
 		}
-		return result;
+		return result.length ? result : null;
 	},
 	
 	/**
@@ -275,18 +273,16 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	 */
 	intersectionWithLinear: function(linear) {
 		var me = this;
-		var result = null;
+		var result = [];
 		var intersection = me.toCircular().intersection(linear);
 		if (intersection) {
-			result = [];
 			intersection.forEach(function(point) {
 				if (me.isInnerPoint(point)) {
 					result.push(point);
 				}
 			});
-			result = result.length ? result : null;
 		}
-		return result;
+		return result.length ? result : null;
 	},
 	
 	/**
