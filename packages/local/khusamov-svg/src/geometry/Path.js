@@ -19,13 +19,11 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	requires: [
 		"Ext.util.Collection",
+		"Khusamov.svg.geometry.intersection.PathLinear",
 		"Khusamov.svg.geometry.path.segment.Line",
 		"Khusamov.svg.geometry.path.segment.Arc",
-		"Khusamov.svg.geometry.Arc",
-		"Khusamov.svg.geometry.equation.Linear",
-		"Khusamov.svg.discrete.graph.AdjacencyList",
-		"Khusamov.svg.geometry.Line",
-		"Khusamov.svg.geometry.path.splitter.Splitter"
+		"Khusamov.svg.geometry.path.splitter.Splitter",
+		"Khusamov.svg.geometry.path.Point"
 	],
 	
 	isPath: true,
@@ -430,10 +428,14 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * (Эта информация добавляется прямо в объект точки в свойство segment{index, distance, distanceByPath}).
 	 */
 	intersection: function(primitive, segmented) {
-		return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive, segmented);
+		var type = "Path" + Ext.String.capitalize(primitive.type);
+		var intersection = Khusamov.svg.geometry.intersection[type];
+		return intersection.intersection(this, primitive, segmented);
+		
+		//return this["intersectionWith" + Ext.String.capitalize(primitive.type)].call(this, primitive, segmented);
 	},
 	
-	intersectionWithLinear: function(linear, segmented) {
+	/*intersectionWithLinear: function(linear, segmented) {
 		var result = [], length = 0;
 		this.eachSegment(function(segment, index) {
 			var intersection = segment.getPrimitive().intersection(linear);
@@ -479,7 +481,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		
 		
 		return result.length ? result : null;
-	},
+	},*/
 	
 	/**
 	 * Разделить путь.
@@ -487,7 +489,6 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {null | Khusamov.svg.geometry.Path[]}
 	 */
 	split: function(primitive) {
-		//var splitter = Ext.create("Khusamov.svg.geometry.path.splitter.Splitter");
 		var splitter = Khusamov.svg.geometry.path.Splitter;
 		return splitter.split(this, primitive);
 	}
