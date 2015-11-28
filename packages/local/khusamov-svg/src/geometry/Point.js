@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Точка на плоскости.
  */
@@ -162,6 +164,7 @@ Ext.define("Khusamov.svg.geometry.Point", {
 	distance: function(point) {
 		var me = this;
 		var result = 0;
+		if (arguments.length == 2) point = Ext.Array.slice(arguments);
 		if (Ext.isArray(point)) point = Ext.create("Khusamov.svg.geometry.Point", point);
 		var x1 = me.x();
 		var y1 = me.y();
