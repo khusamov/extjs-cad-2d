@@ -33,8 +33,6 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 					}
 				}
 			});
-			// Отсортировать точки, чтобы в массиве начинались они с края многоугольника.
-			result = linear.sort(result);
 			return result.length ? result : null;
 		},
 		
