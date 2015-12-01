@@ -378,8 +378,8 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	slice: function(start, end) {
 		return this.clone({
 			large: false,
-			firstPoint: start == "first" ? this.getFirstPoint() : start,
-			lastPoint: (end == undefined || end == "last") ? this.getLastPoint() : end
+			firstPoint: (start == "first" ? this.getFirstPoint() : start).clone(),
+			lastPoint: ((end == undefined || end == "last") ? this.getLastPoint() : end).clone()
 		});
 	},
 	
