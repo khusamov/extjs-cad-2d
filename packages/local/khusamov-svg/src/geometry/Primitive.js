@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Базовый, абстрактный класс геометрических элементов.
  */
@@ -122,10 +124,12 @@ Ext.define("Khusamov.svg.geometry.Primitive", {
 	
 	/**
 	 * Клонировать (сделать копию) примитив.
+	 * @param {Object} config Замещающие параметры клона.
 	 * @return {Khusamov.svg.geometry.Primitive}
 	 */
-	clone: function() {
-		return new this.self(this.toObject());
+	clone: function(config) {
+		config = config || {};
+		return new this.self(Ext.Object.merge(this.toObject(), config));
 	},
 	
 	/**
