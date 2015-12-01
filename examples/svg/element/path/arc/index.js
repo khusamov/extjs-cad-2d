@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Демонстрация работы сегмента типа Арка.
  */
@@ -199,6 +201,7 @@ Ext.onReady(function() {
 				fill: "black"
 			}
 		});
+		intersectionCircle[index].add(Khusamov.svg.Element.createTitle("Пересечение № " + (index + 1)));
 	});
 	
 	function displayIntersection() {

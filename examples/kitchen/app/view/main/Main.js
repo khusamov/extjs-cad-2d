@@ -24,10 +24,10 @@ Ext.define("Kitchen.view.main.Main", {
 	layout: "border",
 	
 	bind: {
-		title: "{siteTitle}"
+		//title: "{siteTitle}"
 	},
 	
-	title: "Kitchen",
+	//title: "Kitchen",
 	
 	items: [{
 		region: "west",
