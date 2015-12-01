@@ -27,13 +27,27 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			var me = this, result = [];
 			var intersection = path.intersection(linear, true);
 			if (intersection) {
+				
+				
+				
+				//console.log("linear1.getAngle",linear.getAngle("degree", 0));
+				
+				
+				
 				linear = me.prepareSplitLinear(intersection);
+				
+				
+				
+				//var _int = []; intersection.forEach(function(i) {_int.push(i.toString(0));});
+				//console.log("linear2.getAngle",linear.getAngle("degree", 0), _int);
+				
+				
+				
+				// 1) Создание графа из пути и линии-делителя.
 				var graph = me.createGraph(path, linear, intersection);
-				
-				// Ищем кратчайшие циклы (путь из вершины в себя) в графе.
+				// 2) Ищем кратчайшие циклы (путь из вершины в себя) в графе.
 				var cycles = me.findCycles(path, intersection, graph);
-				
-				// Конвертация циклов в Khusamov.svg.geometry.Path.
+				// 3) Конвертация циклов в .svg.geometry.Path.
 				cycles.forEach(function(cycle) {
 					result.push(me.convertCycleToPath(cycle, path, intersection));
 				});
@@ -42,9 +56,10 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
-		 * Создать копию прямой линии делителя (по сути клон линии-делителя) 
-		 * на основе первой и последней точек пересечения,
+		 * Создать клон прямой линии делителя на основе первой и последней точек пересечения,
 		 * чтобы точно знать, что она направлена от первой точки пересечения.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @return {Khusamov.svg.geometry.equation.Linear}
 		 */
 		prepareSplitLinear: function(intersection) {
 			return Ext.create(
@@ -55,67 +70,154 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
+		 * Проверка точки пересечения лежит ли парная ей точка на том же сегменте или нет.
+		 * Иными словами проверка случая, когда один сегмент пересечен дважды.
+		 */
+		himself: function(intersection, index) {
+			var segment1 = intersection[index].segment;
+			var segment2 = intersection[index + (index % 2 == 0 ? +1 : -1)].segment;
+			return segment1.index == segment2.index;
+		},
+		
+		/**
 		 * Создание графа.
 		 */
 		createGraph: function(path, linear, intersection) {
+			var me = this;
+			
 			var graph = Ext.create("Khusamov.svg.discrete.graph.AdjacencyList", {
 				directed: true
 			});
 			
-			// Добавляем в граф точки на пересеченных гранях.
-			var visited = [];
+			// Добавляем в граф точки пересечений и соседние с ними точки.
+			
+			var visited = []; // Массив индексов сегментов, которые будут добавлены в граф на этом этапе.
+			
 			intersection.forEach(function(point, index) {
+				
 				var segment = point.segment;
-				var distance = segment.distance;
 				visited.push(segment.index);
 				
 				var length = path.getSegment(segment.index).getLength();
+				var distance = segment.distance;
+				
+				/*var segmentIndex = segment.index,
+					nextSegmentIndex = last ? 0 : (segment.index + 1)*/
+				
 				var last = path.getSegment(segment.index).isLast();
 				
+				var p = "p" + segment.index,
+					np = "p" + (last ? 0 : (segment.index + 1)),
+					i = "i" + index,
+					ni = "i" + (index + 1);
+				
+				
+				// Две точки пересечения на одном сегменте (himself=true).
+				//var himself = (segment.index == intersection[index + (index % 2 == 0 ? +1 : -1)].segment.index); 
+				var himself = me.himself(intersection, index);
+				
+				
+				
+				
 				if (index % 2 == 0) {
+					graph.add(i, ni, intersection[index + 1].distance(point));
+					graph.add(p, i, distance);
+					if (himself) {
+						//console.log("ОТРИЦАТЕЛЬНЫЙ ВЕС?", intersection[index + 1].segment.distance - distance);
+						//graph.add(ni, i, intersection[index + 1].segment.distance - distance);
+					} else {
+						graph.add(np, i, length - distance);
+					}
+				} else {
+					if (himself) {
+						graph.add(i, np, length - distance);
+					} else {
+						graph.add(i, p, distance);
+						graph.add(i, np, length - distance);
+					}
+				}
+				
+				
+				
+				
+				/*if (index % 2 == 0) {
 					graph.add("p" + segment.index, "i" + index, distance);
 					graph.add("p" + (last ? 0 : (segment.index + 1)), "i" + index, length - distance);
 					graph.add("i" + index, "i" + (index + 1), intersection[index + 1].distance(point));
 				} else {
 					graph.add("i" + index, "p" + segment.index, distance);
 					graph.add("i" + index, "p" + (last ? 0 : (segment.index + 1)), length - distance);
-				}
+				}*/
 			});
+				
+				
 			
-			// Далее добавляем точки граней, где пересечений не было.
+			// Добавляем в граф остальные точки, пропуская сегменты из массива visited.
+			
+			
+			
+			console.groupCollapsed("Добавляем в граф остальные точки");
+			console.log("==============", visited);
+				
+				
+					
+			var clockwize = path.isClockwiseDirection();
 			path.eachSegment(function(segment, index) {
 				var last = segment.isLast();
 				if (!Ext.Array.contains(visited, index)) {
-					var from = "p" + index, to = "p" + (last ? 0 : (index + 1)), length = segment.getLength();
-					// Направление добавляемого в граф ребра зависит от местоположения точки относительно 
-					// прямой и как был задан путь (по часовой стрелке или нет).
-					var clockwize = path.isClockwiseDirection();
-					if (linear.distance(segment.getFirstPoint(), true) > 0 ? !clockwize : clockwize) {
-						graph.add(from, to, length);
+					var from = "p" + index, 
+						to = "p" + (last ? 0 : (index + 1));
+					// Направление добавляемого в граф ребра зависит от:
+					// местоположения точки относительно прямой
+					// и как был задан путь (по часовой стрелке или нет).
+					
+					var location = linear.distance(segment.getFirstPoint(), true);
+					
+					
+					console.log("location", location);
+					
+					
+					
+					//if (linear.distance(segment.getFirstPoint(), true) > 0 ? !clockwize : clockwize) {
+					if (me.xor(location > 0, clockwize)) {
+						graph.add(from, to, segment.getLength());
+						console.log("from, to", from, to);
 					} else {
-						graph.add(to, from, length);
+						graph.add(to, from, segment.getLength());
+						console.log("to, from", to, from);
 					}
 				}
 			});
 			
+			
+			
+			console.log("ГРАФЬЯ =============", graph.graph);
+			console.groupEnd();
+			
+			
+			
 			return graph;
 		},
 		
+		//
 		// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
 		// искать все циклы, полученного графа... 
 		// итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
 		// Если я правильно понял, что искомые многоугольники и есть циклы
 		// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
-			
+		//
+		
 		/**
 		 * Найти кратчайшие циклы (путь из вершины в себя) в графе.
 		 */
 		findCycles: function(path, intersection, graph) {
 			var me = this, cycles = [];
-			intersection.forEach(function(point) {
+			intersection.forEach(function(point, index) {
 				var last = path.getSegment(point.segment.index).isLast();
 				cycles = me.findCycle(graph, cycles, "p" + point.segment.index);
-				cycles = me.findCycle(graph, cycles, "p" + (last ? 0 : (point.segment.index + 1)), true);
+				if (!me.himself(intersection, index)) {
+					cycles = me.findCycle(graph, cycles, "p" + (last ? 0 : (point.segment.index + 1)), true);
+				}
 			});
 			return cycles;
 		},
@@ -185,6 +287,14 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				}	
 			});
 			return subpath;
+		},
+		
+		/**
+		 * @private
+		 * Вспомогательная функция XOR.
+		 */
+		xor: function(a, b) {
+			return Boolean(a ? !b : b);
 		}
 		
 	}
