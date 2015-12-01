@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Линейное уравнение прямой.
  * ax + by + c = 0
@@ -14,6 +16,8 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		"Khusamov.svg.geometry.vector.Vector",
 		"Khusamov.svg.geometry.Angle"
 	],
+	
+	uses: ["Khusamov.svg.geometry.Line"],
 	
 	statics: {
 		
@@ -176,7 +180,14 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	 * Угол между прямыми.
 	 */
 	getAngleTo: function(linear, unit, fixed) {
-		return this.getParallel().getAngleTo(linear.getParallel(), unit, fixed);
+		return this.getNormal().getAngleTo(linear.getNormal(), unit, fixed);
+		/*http://stu.sernam.ru/book_ehm.php?id=26
+		// Этот метод не катит, так как при result=0 неизвестно, то ли 180 то ли 0 градусов, потому-что ноль не отрицателен.
+		var me = this;
+		var result = Math.atan(Math.abs(me.a() * linear.b() - linear.a() * me.b()) / (me.a() * linear.a() + me.b() * linear.b()));
+		if (result < 0) result += Math.PI;
+		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
+		*/
 	},
 	
 	getAngleBy: function(linear, unit, fixed) {
@@ -286,7 +297,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 			case "circular":
 				var circular = primitive;
 				result = circular.intersection(me);
-				result = result ? result.reverse() : result;
+				result = result ? result.reverse() : null;
 				break;
 			case "linear":
 				var linear = primitive;
@@ -296,10 +307,11 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 				var a2 = linear.a();
 				var b2 = linear.b();
 				var c2 = linear.c();
-				result = (a1 * b2 - a2 * b1 == 0) ? null : Ext.create("Khusamov.svg.geometry.Point", {
-					x: -(c1 * b2 - c2 * b1) / (a1 * b2 - a2 * b1),
-					y: -(a1 * c2 - a2 * c1) / (a1 * b2 - a2 * b1)
-				});
+				var d = a1 * b2 - a2 * b1;
+				result = d ? Ext.create("Khusamov.svg.geometry.Point", {
+					x: -(c1 * b2 - c2 * b1) / d,
+					y: -(a1 * c2 - a2 * c1) / d
+				}) : null;
 				break;
 		}
 		return result;
@@ -386,17 +398,8 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		return Ext.Array.sort(points, function(point1, point2) {
 			if (point1.equal(point2)) return 0;
 			var angle = Line.create(point1, point2).toLinear().getAngleTo(me);
-			return (angle < Math.PI / 2) ? 1 : -1;
+			return (angle < Math.PI / 2) ? -1 : 1;
 		});
-		
-		
-		//var parallel = linear.getParallel();
-		
-		/*var vector1 = point1.toVector();
-		var vector2 = point2.toVector();
-		
-		var angle = vector2.sub(vector1).getAngleTo(parallel);*/
-		
 	}
 	
 });
