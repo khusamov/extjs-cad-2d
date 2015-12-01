@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Вектор на плоскости.
  * Потомок точки, конструктор аналогичный.
@@ -81,12 +83,21 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	/**
 	 * Получить угол между двумя векторами.
 	 * http://hystory-for-vki.narod.ru/index/0-36
-	 * @chainable
+	 * http://ru.onlinemschool.com/math/library/vector/angl/
 	 * @param value Khusamov.svg.geometry.vector.Vector
 	 * @return Number
 	 */
 	getAngleTo: function(vector, unit, fixed) {
-		var result = Math.acos(this.multiply(vector) / this.getLength() * vector.getLength());
+		// В итоге обсуждений:
+		// https://goo.gl/cMH2dC (проблема с погрешностью )
+		// https://toster.ru/q/270808
+		// http://goo.gl/rWIIX4
+		// ...найдены два способа вычисления угла:
+		// По стандартной формуле:
+		var cos = this.multiply(vector) / (this.getLength() * vector.getLength());
+		var result = Math.acos(cos < 0 ? Math.max(cos, -1.0) : Math.min(cos, 1.0));
+		// И вариант с использование функции Math.atan2(y, x):
+		// var result = Math.abs(this.getAngle() - vector.getAngle())
 		return Ext.create("Khusamov.svg.geometry.Angle", result).get(unit, fixed);
 	},
 	
@@ -180,18 +191,30 @@ Ext.define("Khusamov.svg.geometry.vector.Vector", {
 	},
 	
 	/**
-	 * Возвращает true, если вектора коллинеарные (по сути паралелльные).
+	 * Возвращает истину, если вектора коллинеарные (по сути паралелльные).
+	 * @param {Khusamov.svg.geometry.vector.Vector} vector Вектор, с которым происходит сравнение.
+	 * @param {Boolean} [codirectional]
 	 * Для определения сонаправленности используйте опцию codirectional:
 	 * Если codirectional === true, то возвращает true, если вектора коллинеарные и сонаправленные.
 	 * Если codirectional === false, то возвращает true, если вектора коллинеарные и разнонаправленные.
+	 * @return {Boolean}
 	 */
 	isCollinear: function(vector, codirectional) {
-		var len = this.getLength() * vector.getLength();
-		var mul = this.multiply(vector);
-		var isCollinear = Math.abs(mul) == len;
+		var length = this.getLength() * vector.getLength();
+		var multiply = this.multiply(vector);
+		var isCollinear = Math.abs(multiply) == length;
 		if (codirectional === undefined) return isCollinear;
-		if (codirectional === true) return isCollinear && mul > 0;
-		if (codirectional === false) return isCollinear && mul < 0;
+		if (codirectional === true) return isCollinear && multiply > 0;
+		if (codirectional === false) return isCollinear && multiply < 0;
+	},
+	
+	/**
+	 * Возвращает истину, если вектора сонаправлены.
+	 * @param {Khusamov.svg.geometry.vector.Vector} vector Вектор, с которым происходит сравнение.
+	 * @return {Boolean}
+	 */
+	isCodirectional: function(vector) {
+		return this.isCollinear(vector, true);
 	}
 	
 }, function(Vector) {
