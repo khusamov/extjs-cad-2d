@@ -4,6 +4,10 @@
 /**
  * Специальный класс для деления многоугольников 
  * (построенных при помощи объекта Путь) прямой линией.
+ * 
+ * Ограничения:
+ * 1) Многоугольник не должен иметь пересещающиеся между собой грани.
+ * 
  */
 
 Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
@@ -67,16 +71,6 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				intersection[0], 
 				intersection[intersection.length - 1]
 			).toLinear();
-		},
-		
-		/**
-		 * Проверка точки пересечения лежит ли парная ей точка на том же сегменте или нет.
-		 * Иными словами проверка случая, когда один сегмент пересечен дважды.
-		 */
-		himself: function(intersection, index) {
-			var segment1 = intersection[index].segment;
-			var segment2 = intersection[index + (index % 2 == 0 ? +1 : -1)].segment;
-			return segment1.index == segment2.index;
 		},
 		
 		/**
@@ -215,7 +209,9 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			intersection.forEach(function(point, index) {
 				var last = path.getSegment(point.segment.index).isLast();
 				cycles = me.findCycle(graph, cycles, "p" + point.segment.index);
-				if (!me.himself(intersection, index)) {
+				if (me.himself(intersection, index)) {
+					if (index % 2 == 0) cycles.push(["i" + index, "i" + (index + 1)]);
+				} else {
 					cycles = me.findCycle(graph, cycles, "p" + (last ? 0 : (point.segment.index + 1)), true);
 				}
 			});
@@ -246,47 +242,131 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 * Конвертация цикла в Khusamov.svg.geometry.Path.
 		 */
 		convertCycleToPath: function(cycle, path, intersection) {
+			//var me = this;
 			var subpath = Ext.create("Khusamov.svg.geometry.Path");
-			cycle.forEach(function(node, index) {
-				var nodeType = node[0], // p | i
-					nodeIndex = node.substring(1), 
-					isLastNode = (index == cycle.length - 1);
+			
+			//console.log("CYCLE", cycle);
+			
+			
+			// Определяем тип цикла: обычный и петля (кусок дуги).
+			
+			if (cycle.length == 2 && cycle[0][0] == "i" && cycle[1][0] == "i") {
+				// Петля.
 				
-				var nextNode = cycle[isLastNode ? 0 : index + 1],
-					nextNodeType = nextNode[0]; // p | i
+				//console.log("ПЕТЛЯ");
 				
-				// Определяем точку пути.
+				var nodeIndex0 = Number(cycle[0].substring(1));
+				subpath.point(intersection[nodeIndex0]);
 				
-				var point;
-				switch (nodeType) {
-					case "p": point = path.getPoint(nodeIndex); break;
-					case "i": point = intersection[nodeIndex]; break;
-					default: throw new Error("Узел неизвестного типа", node[0], node);	
-				}
-				point = point.clone();
+				var segmentIndex = intersection[nodeIndex0].segment.index;
+				subpath.arc(path.getSegment(segmentIndex).getArc().clone());
 				
-				subpath.point(point);
+				var nodeIndex1 = Number(cycle[1].substring(1));
+				subpath.point(intersection[nodeIndex1]);
 				
-				// Определяем сегмент пути.
+				subpath.line();
 				
-				var cycleSegmentType = nodeType + nextNodeType; // pi | ii | ip | pp
-				if (cycleSegmentType == "ii") {
-					subpath.line();
-				} else {
-					var segmentIndex;
+			} else {
+				// Обычный цикл.
+				
+				cycle.forEach(function(node, index) {
+					var nodeType = node[0], // p | i
+						nodeIndex = Number(node.substring(1)), 
+						isLastNode = (index == cycle.length - 1);
+					
+					var nextNode = cycle[isLastNode ? 0 : index + 1],
+						nextNodeType = nextNode[0]; // p | i
+					
+					// Определяем точку пути.
+					
+					
+					//console.log(nodeType, nodeIndex);
+					
+					var point;
 					switch (nodeType) {
-						case "p": segmentIndex = nodeIndex; break;
-						case "i": segmentIndex = intersection[nodeIndex].segment.index; break;
+						case "p": point = path.getPoint(nodeIndex); break;
+						case "i": point = intersection[nodeIndex]; break;
+						default: throw new Error("Узел неизвестного типа", nodeType, node);	
+					}
+					point = point.clone();
+					
+					subpath.point(point);
+					
+					// Определяем сегмент пути.
+					
+					var segmentIndex;
+					
+					
+					switch (nodeType + nextNodeType) { // Тип сегмента = pi | ii | ip | pp
+						case "ii":
+							subpath.line();
+							//console.log(intersection, nodeIndex);
+							
+							/*if (me.himself(intersection, nodeIndex)) {
+								segmentIndex = intersection[nodeIndex].segment.index;
+								subpath.arc(path.getSegment(segmentIndex).getArc().clone());
+							} else {
+								subpath.line();
+							}*/
+							break;
+						default:
+							switch (nodeType) {
+								case "p": segmentIndex = nodeIndex; break;
+								case "i": segmentIndex = intersection[nodeIndex].segment.index; break;
+							}
+							if (path.getSegment(segmentIndex).isArcSegment) {
+								subpath.arc(path.getSegment(segmentIndex).getArc().clone());
+							} else {
+								subpath.line();
+							}
+							break;
 					}
 					
-					if (path.getSegment(segmentIndex).isArcSegment) {
-						subpath.arc(path.getSegment(segmentIndex).getArc().clone());
+					
+					
+					/*var cycleSegmentType = nodeType + nextNodeType; // pi | ii | ip | pp
+					if (cycleSegmentType == "ii") {
+						if (me.himself(intersection, nodeIndex)) {
+							segmentIndex = intersection[nodeIndex].segment.index;
+							subpath.arc(path.getSegment(segmentIndex).getArc().clone());
+						} else {
+							subpath.line();
+						}
 					} else {
-						subpath.line();
-					}
-				}	
-			});
+						switch (nodeType) {
+							case "p": segmentIndex = nodeIndex; break;
+							case "i": segmentIndex = intersection[nodeIndex].segment.index; break;
+						}
+						if (path.getSegment(segmentIndex).isArcSegment) {
+							subpath.arc(path.getSegment(segmentIndex).getArc().clone());
+						} else {
+							subpath.line();
+						}
+					}*/
+				});
+			}
+			
+			
+			
 			return subpath;
+		},
+		
+		/**
+		 * Проверить точку пересечения с порядковым номером index, 
+		 * где лежит ее парная точка (с порядковым номером index + 1): 
+		 * на том же сегменте или нет.
+		 * Иными словами проверка случая, когда сегмент-дуга пересечен дважды.
+		 * Пояснение: Если в многоугольнике есть дуги, то линия пересечения 
+		 * может дугу пересечь в двух местах. И этот случай обсчитывается отдельно.
+		 */
+		himself: function(intersection, index) {
+			index = Number(index);
+			var segment1 = intersection[index].segment;
+			
+			//console.log(index + (index % 2 == 0 ? +1 : -1))
+			
+			var segment2 = intersection[index + (index % 2 == 0 ? +1 : -1)].segment;
+			return segment1.index == segment2.index;
 		},
 		
 		/**
