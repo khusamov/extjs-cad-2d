@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Дуга на плоскости.
  * Внимание, дуга может работать пока только в режиме окружности (оба радиуса равны)!
@@ -177,10 +179,6 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		return !this.isCircular();
 	},
 	
-	xor: function(a, b) {
-		return a ? !b : b;
-	},
-	
 	getCenterIndex: function() {
 		return this.xor(this.isSweep(), this.isLarge()) ? 0 : 1;
 	},
@@ -236,6 +234,9 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		if (this.isCircular()) {
 			length = this.getRadius() * this.getAngle();
 		}
+		if (this.isElliptical()) {
+			// TODO 
+		}
 		return length;
 	},
 	
@@ -265,7 +266,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 				}
 			});
 		}
-		return result.length ? result : null;
+		return result.length ? me.sort(result) : null;
 	},
 	
 	/**
@@ -282,7 +283,7 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 				}
 			});
 		}
-		return result.length ? result : null;
+		return result.length ? me.sort(result) : null;
 	},
 	
 	/**
@@ -303,6 +304,10 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 			controlled = controlledLinear.getAngleBy(lastLinear);
 		}
 		return controlled >= 0 && controlled <= last;
+	},
+	
+	contains: function(point) {
+		return this.isInnerPoint(point);
 	},
 	
 	toCircular: function() {
@@ -349,8 +354,11 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 	/**
 	 * Получить координаты точки, находящейся на дуге 
 	 * на расстоянии от первой точки дуги.
+	 * 
+	 * TODO НЕ ЯСНАЯ ФУНКЦИЯ САМА ПО СЕБЕ И НЕ ЯСНО ДЛЯ ЧЕГО ОНА БЫЛА НУЖНА
+	 * 
 	 */
-	getInnerPoint: function(x) {
+	/*getInnerPoint: function(x) {
 		var me = this;
 		var result = null;
 		var circle = Ext.create("Khusamov.svg.geometry.equation.Circular", me.getFirstPoint(), x);
@@ -359,6 +367,51 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 			if (me.isInnerPoint(point)) result = point;
 		});
 		return result;
+	},*/
+	
+	/**
+	 * Получить часть дуги.
+	 * @param {String | Khusamov.svg.geometry.Point} start Строка "first" или точка на дуге.
+	 * @param {String | Khusamov.svg.geometry.Point} [end] Строка "last" или точка на дуге. 
+	 * @return {Khusamov.svg.geometry.Arc}
+	 */
+	slice: function(start, end) {
+		return this.clone({
+			large: false,
+			firstPoint: start == "first" ? this.getFirstPoint() : start,
+			lastPoint: (end == undefined || end == "last") ? this.getLastPoint() : end
+		});
+	},
+	
+	/**
+	 * Получить координату точки на дуге (длину части дуги от первой точки до запрашиваемой).
+	 * @param {Khusamov.svg.geometry.Point} point Запрашиваемая точка. 
+	 * @return {Number}
+	 */
+	coord: function(point) {
+		return this.slice("first", point).getLength();
+	},
+	
+	/**
+	 * Сортировка точек.
+	 * Точки должны принадлежать дуге.
+	 * @param {Khusamov.svg.geometry.Point[]} points
+	 * @return {Khusamov.svg.geometry.Point[]}
+	 */
+	sort: function(points) {
+		var me = this;
+		return Ext.Array.sort(points, function(point1, point2) {
+			if (point1.equal(point2)) return 0;
+			return me.coord(point1) < me.coord(point2) ? -1 : 1;
+		});
+	},
+	
+	/**
+	 * Вспомогательная функция, реализующая Исключающее ИЛИ.
+	 * @private
+	 */
+	xor: function(a, b) {
+		return a ? !b : b;
 	}
 	
 });
