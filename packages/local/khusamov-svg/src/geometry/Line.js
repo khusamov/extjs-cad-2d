@@ -119,6 +119,7 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	/**
 	 * Определение принадлежности точки отрезку.
 	 * При условии, что заранее известно, что точка находится на прямой, проходящей через отрезок.
+	 * Это условие означает, что производится проверка нахождения точки в пределах отрезка на прямой.
 	 */
 	isInnerPoint: function(point) {
 		var first = this.getFirstPoint();
@@ -127,6 +128,10 @@ Ext.define("Khusamov.svg.geometry.Line", {
 			point.x() <= Math.max(first.x(), last.x()) &&
 			Math.min(first.y(), last.y()) <= point.y() && 
 			point.y() <= Math.max(first.y(), last.y()));
+	},
+	
+	contains: function(point) {
+		return this.isInnerPoint(point);
 	},
 	
 	/**

@@ -46,9 +46,6 @@ Ext.onReady(function() {
 		border: false,
 		items: svg,
 		tbar: [{
-			itemId: "path",
-			text: "Многоугольник"
-		}, {
 			itemId: "segmentType",
 			xtype: "segmentedbutton",
 			getPressedItemId: function() {
@@ -57,29 +54,36 @@ Ext.onReady(function() {
 			items: [{
 				itemId: "line",
 				pressed: true,
-				text: "Прямая"
+				text: "Прямой сегмент"
 			}, {
 				itemId: "arc",
 				text: "Дуга"
 			}]
+		}, {
+			itemId: "dividerType",
+			xtype: "segmentedbutton",
+			getPressedItemId: function() {
+				return this.down("[pressed=true]").itemId;
+			},
+			items: [{
+				itemId: "arbitrary",
+				pressed: true,
+				text: "Произвольный делитель"
+			}, {
+				itemId: "vertical",
+				text: "Вертикальный"
+			}, {
+				itemId: "hotizontal",
+				text: "Горизонтальный"
+			}]
 		}, tbPaths
-		/*}, "-", {
-			itemId: "vert",
-			text: "Вертикаль"
-		}, {
-			itemId: "hori",
-			text: "Горизонталь"
-		}, {
-			itemId: "divider",
-			text: "Делитель"*/
 		]
 	});
 	
 	var segmentTypeButton = viewport.down("#segmentType");
+	var dividerTypeButton = viewport.down("#dividerType");
 	
 
-	
-	
 	function createPath(geometry, color, fill) {
 		return Ext.create("Khusamov.svg.element.Path", {
 			geometry: geometry,
@@ -171,59 +175,71 @@ Ext.onReady(function() {
 				break;
 				
 			case "divider":
-				if (divider) {
-					divider.push([x, y]);
-					elements.push(svg.add({
-						type: "circle",
-						fill: "black",
-						radius: 3,
-						center: [x, y]
-					}));
-					linear = Khusamov.svg.geometry.Line.create(divider).toLinear();
-					divider = null;
-					
-					pathGeometry.split(linear).forEach(function(pathGeometry, index) {
-						elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
-						
-						tbPaths.add({
-							text: index + 1
+				switch (dividerTypeButton.getPressedItemId()) {
+					case "arbitrary":
+						if (divider) {
+							divider.push([x, y]);
+							elements.push(svg.add({
+								type: "circle",
+								fill: "black",
+								radius: 3,
+								center: [x, y]
+							}));
+							linear = Khusamov.svg.geometry.Line.create(divider).toLinear();
+							
+							pathGeometry.split(linear).forEach(function(pathGeometry, index) {
+								elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+								tbPaths.add({ text: index + 1 });
+							});
+							//Ext.destroy(path);
+							divider = null;
+							mode = "clear";
+						} else {
+							divider = [[x, y]];
+							elements.push(svg.add({
+								type: "circle",
+								fill: "black",
+								radius: 3,
+								center: [x, y]
+							}));
+						}
+						break;
+					case "vertical":
+						elements.push(svg.add({
+							type: "circle",
+							fill: "black",
+							radius: 3,
+							center: [x, y]
+						}));
+						linear = Khusamov.svg.geometry.equation.Linear.createVertical(x);
+						pathGeometry.split(linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(pathGeometry, index) {
+							elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+							tbPaths.add({ text: index + 1 });
 						});
-						
-					});
-					//Ext.destroy(path);
-					mode = "clear";
-				} else {
-					divider = [[x, y]];
-					elements.push(svg.add({
-						type: "circle",
-						fill: "black",
-						radius: 3,
-						center: [x, y]
-					}));
+						mode = "clear";
+						break;
+					case "hotizontal":
+						elements.push(svg.add({
+							type: "circle",
+							fill: "black",
+							radius: 3,
+							center: [x, y]
+						}));
+						linear = Khusamov.svg.geometry.equation.Linear.createHorizontal(y);
+						pathGeometry.split(linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(pathGeometry, index) {
+							elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+							tbPaths.add({ text: index + 1 });
+						});
+						mode = "clear";
+						break;
 				}
 				break;
 			
 			case "clear":
 				clear();
 				break;
-				
-		/*	case "vert":
-				linear = Khusamov.svg.geometry.equation.Linear.createVertical(x);
-				pathGeometry.split(linear).forEach(function(pathGeometry) {
-					elements.push(svg.add(createPath(pathGeometry, "red")));
-				});
-				break;
-			case "hori":
-				linear = Khusamov.svg.geometry.equation.Linear.createHorizontal(y);
-				pathGeometry.split(linear).forEach(function(pathGeometry) {
-					elements.push(svg.add(createPath(pathGeometry, "red")));
-				});
-				break;*/
 		}
-		/*switch (postAction) {
-			case "":
-				break;
-		}*/
+		
 	});
 	
 });
