@@ -18,12 +18,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Splitter", {
 		 * Разделить путь.
 		 * @param {Khusamov.svg.geometry.Path} path
 		 * @param {Khusamov.svg.geometry.Primitive} primitive
+		 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
 		 * @return {null | Khusamov.svg.geometry.Path[]}
 		 */
-		split: function(path, primitive) {
+		split: function(path, primitive, selPoint) {
 			var type = Ext.String.capitalize(primitive.type);
 			var splitter = Khusamov.svg.geometry.path.splitter[type];
-			return splitter.split(path, primitive);
+			return splitter.split(path, primitive, selPoint);
 		}
 	}
 	

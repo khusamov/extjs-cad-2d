@@ -25,13 +25,22 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 * Разделить путь прямой линией.
 		 * @param {Khusamov.svg.geometry.Path} path
 		 * @param {Khusamov.svg.geometry.equation.Linear} linear
+		 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
 		 * @return {null | Khusamov.svg.geometry.Path[]}
 		 */
-		split: function(path, linear) {
+		split: function(path, linear, selPoint) {
 			var me = this, result = [];
+			
+			//console.log(selPoint);
+			
+			
 			var intersection = path.intersection(linear, true);
+			
 			if (intersection) {
 				
+				// Если определена точка, указывающая на выбранный делитель, 
+				// то остальные делители из массива intersection удаляем.
+				if (selPoint) intersection = me.selectDivider(intersection, selPoint);
 				
 				
 				//console.log("linear1.getAngle",linear.getAngle("degree", 0));
@@ -57,6 +66,31 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				});
 			}
 			return result.length ? result : null;
+		},
+		
+		/**
+		 * Удалить все делители кроме выбранного.
+		 * Выбранный определяется точкой selPoint, 
+		 * которая находится на отрезке выбранного делителя.
+		 */
+		selectDivider: function(intersection, selPoint) {
+			if (selPoint) {
+				var divider, start;
+				intersection.forEach(function(point, index) {
+					if (index % 2 == 0) {
+						start = point;
+					} else {
+						if (Ext.create("Khusamov.svg.geometry.Line", start, point).contains(selPoint)) {
+							divider = [start, point];
+						}
+					}
+				});
+				intersection = divider;
+			}
+			
+			//console.log(intersection);
+			
+			return intersection;
 		},
 		
 		/**
@@ -155,25 +189,36 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				
 				
 					
-			var clockwize = path.isClockwiseDirection();
+			//var clockwize = path.isClockwiseDirection();
+			
+			//console.log("clockwize", clockwize);
+			
 			path.eachSegment(function(segment, index) {
 				var last = segment.isLast();
 				if (!Ext.Array.contains(visited, index)) {
 					var from = "p" + index, 
 						to = "p" + (last ? 0 : (index + 1));
+					
+					
 					// Направление добавляемого в граф ребра зависит от:
 					// местоположения точки относительно прямой
-					// и как был задан путь (по часовой стрелке или нет).
-					
-					var location = linear.distance(segment.getFirstPoint(), true);
+					// ----------- и как был задан путь (по часовой стрелке или нет).
 					
 					
-					console.log("location", location);
+					
+					
+					
+					//var location = linear.distance(segment.getFirstPoint(), true);
+					var location = me.getSegmentLocation(intersection, index);
+					
+					//console.log("location", index, location);
 					
 					
 					
 					//if (linear.distance(segment.getFirstPoint(), true) > 0 ? !clockwize : clockwize) {
-					if (me.xor(location > 0, clockwize)) {
+					//if (me.xor(location > 0, clockwize)) {
+					// Похоже от часовой уже не зависит!!!
+					if (location > 0) {
 						graph.add(from, to, segment.getLength());
 						console.log("from, to", from, to);
 					} else {
@@ -192,6 +237,36 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			
 			return graph;
 		},
+		
+		/**
+		 * Определить местоположение сегмента относительно делителей.
+		 * Учитывается ситуация, если один из делителей удален из intersection.
+		 */
+		getSegmentLocation: function(intersection, segmentIndex) {
+			var result = 1;
+			if (segmentIndex > intersection[0].segment.index) {
+				intersection.forEach(function(point, index) {
+					var isLast = index == intersection.length - 1;
+					var start = point.segment.index;
+					var end = isLast ? 0 : intersection[index + 1].segment.index;
+					if (segmentIndex > start && (isLast || segmentIndex < end)) {
+						result = index % 2 == 0 ? -1 : 1;
+					}
+				});
+			}
+			return result;
+		},
+		
+		/**
+		 * Проверить, пересечен ли данный сегмент или нет.
+		 */
+		/*isSegmentIntersect: function(intersection, segmentIndex) {
+			var result = false;
+			intersection.forEach(function(point) {
+				if (point.segment.index == segmentIndex) result = true;
+			});
+			return result;
+		},*/
 		
 		//
 		// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
