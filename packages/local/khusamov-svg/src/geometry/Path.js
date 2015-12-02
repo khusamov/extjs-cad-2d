@@ -381,6 +381,10 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return this.getPolygonRawArea() > 0;
 	},
 	
+	isClockwise: function() {
+		return this.getPolygonRawArea() > 0;
+	},
+	
 	/**
 	 * Вывернуть путь наизнанку.
 	 * Последовательность сегментов меняется на обратную.
@@ -436,11 +440,12 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	/**
 	 * Разделить путь.
 	 * @param {Khusamov.svg.geometry.Primitive} primitive
+	 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
 	 * @return {null | Khusamov.svg.geometry.Path[]}
 	 */
-	split: function(primitive) {
+	split: function(primitive, selPoint) {
 		var splitter = Khusamov.svg.geometry.path.Splitter;
-		return splitter.split(this, primitive);
+		return splitter.split(this, primitive, selPoint);
 	}
 	
 });
