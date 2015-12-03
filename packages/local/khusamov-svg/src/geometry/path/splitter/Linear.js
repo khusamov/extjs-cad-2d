@@ -2,19 +2,35 @@
 /* global Ext */
 
 /**
- * Специальный класс для деления многоугольников 
- * (построенных при помощи объекта Путь) прямой линией.
+ * Специальный класс для деления многоугольников, 
+ * построенных при помощи объекта Путь, прямой линией.
+ * 
+ * Фичи:
+ * 1) Многоугольник может иметь как прямые сегменты, так и дуги-сегменты.
  * 
  * Ограничения:
  * 1) Многоугольник не должен иметь пересещающиеся между собой грани.
  * 
  */
 
+//
+// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
+// искать все циклы, полученного графа... 
+// итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
+// Если я правильно понял, что искомые многоугольники и есть циклы
+// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
+//
+
 Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 	
 	requires: [
 		"Khusamov.svg.geometry.Line", 
-		"Khusamov.svg.discrete.graph.AdjacencyList"
+		"Khusamov.svg.discrete.graph.AdjacencyList",
+		
+		"Khusamov.svg.geometry.path.splitter.linear.DividerSet",
+		"Khusamov.svg.geometry.path.splitter.linear.Graph",
+		"Khusamov.svg.geometry.path.splitter.linear.CycleSet",
+		"Khusamov.svg.geometry.path.splitter.linear.Cycle"
 	],
 	
 	uses: ["Khusamov.svg.geometry.Path"],
@@ -22,42 +38,21 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 	statics: {
 		
 		/**
-		 * Разделить путь прямой линией.
-		 * @param {Khusamov.svg.geometry.Path} path
-		 * @param {Khusamov.svg.geometry.equation.Linear} linear
+		 * Разделить путь-многоугольник прямой линией.
+		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
+		 * @param {Khusamov.svg.geometry.equation.Linear} linear Прямая линия делитель многоугольника.
 		 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
-		 * @return {null | Khusamov.svg.geometry.Path[]}
+		 * @return {null | Khusamov.svg.geometry.Path[]} Массив многоугольников или null, если нет пересечений.
 		 */
 		split: function(path, linear, selPoint) {
 			var me = this, result = [];
-			
-			//console.log(selPoint);
-			
-			
 			var intersection = path.intersection(linear, true);
-			
 			if (intersection) {
-				
 				// Если определена точка, указывающая на выбранный делитель, 
 				// то остальные делители из массива intersection удаляем.
 				if (selPoint) intersection = me.selectDivider(intersection, selPoint);
-				
-				
-				//console.log("linear1.getAngle",linear.getAngle("degree", 0));
-				
-				
-				
-				linear = me.prepareSplitLinear(intersection);
-				
-				
-				
-				//var _int = []; intersection.forEach(function(i) {_int.push(i.toString(0));});
-				//console.log("linear2.getAngle",linear.getAngle("degree", 0), _int);
-				
-				
-				
 				// 1) Создание графа из пути и линии-делителя.
-				var graph = me.createGraph(path, linear, intersection);
+				var graph = me.createGraph(path, intersection);
 				// 2) Ищем кратчайшие циклы (путь из вершины в себя) в графе.
 				var cycles = me.findCycles(path, intersection, graph);
 				// 3) Конвертация циклов в .svg.geometry.Path.
@@ -69,50 +64,14 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
-		 * Удалить все делители кроме выбранного.
-		 * Выбранный определяется точкой selPoint, 
-		 * которая находится на отрезке выбранного делителя.
-		 */
-		selectDivider: function(intersection, selPoint) {
-			if (selPoint) {
-				var divider, start;
-				intersection.forEach(function(point, index) {
-					if (index % 2 == 0) {
-						start = point;
-					} else {
-						if (Ext.create("Khusamov.svg.geometry.Line", start, point).contains(selPoint)) {
-							divider = [start, point];
-						}
-					}
-				});
-				intersection = divider;
-			}
-			
-			//console.log(intersection);
-			
-			return intersection;
-		},
-		
-		/**
-		 * Создать клон прямой линии делителя на основе первой и последней точек пересечения,
-		 * чтобы точно знать, что она направлена от первой точки пересечения.
-		 * @param {Khusamov.svg.geometry.Point[]} intersection
-		 * @return {Khusamov.svg.geometry.equation.Linear}
-		 */
-		prepareSplitLinear: function(intersection) {
-			return Ext.create(
-				"Khusamov.svg.geometry.Line", 
-				intersection[0], 
-				intersection[intersection.length - 1]
-			).toLinear();
-		},
-		
-		/**
+		 * @private
 		 * Создание графа.
+		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @return {Khusamov.svg.discrete.graph.AdjacencyList}
 		 */
-		createGraph: function(path, linear, intersection) {
+		createGraph: function(path, intersection) {
 			var me = this;
-			
 			var graph = Ext.create("Khusamov.svg.discrete.graph.AdjacencyList", {
 				directed: true
 			});
@@ -122,30 +81,19 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			var visited = []; // Массив индексов сегментов, которые будут добавлены в граф на этом этапе.
 			
 			intersection.forEach(function(point, index) {
-				
 				var segment = point.segment;
 				visited.push(segment.index);
 				
 				var length = path.getSegment(segment.index).getLength();
 				var distance = segment.distance;
 				
-				/*var segmentIndex = segment.index,
-					nextSegmentIndex = last ? 0 : (segment.index + 1)*/
-				
 				var last = path.getSegment(segment.index).isLast();
 				
-				var p = "p" + segment.index,
-					np = "p" + (last ? 0 : (segment.index + 1)),
-					i = "i" + index,
-					ni = "i" + (index + 1);
-				
+				var p = "p" + segment.index, np = "p" + (last ? 0 : (segment.index + 1)),
+					i = "i" + index, ni = "i" + (index + 1);
 				
 				// Две точки пересечения на одном сегменте (himself=true).
-				//var himself = (segment.index == intersection[index + (index % 2 == 0 ? +1 : -1)].segment.index); 
 				var himself = me.himself(intersection, index);
-				
-				
-				
 				
 				if (index % 2 == 0) {
 					graph.add(i, ni, intersection[index + 1].distance(point));
@@ -164,83 +112,35 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						graph.add(i, np, length - distance);
 					}
 				}
-				
-				
-				
-				
-				/*if (index % 2 == 0) {
-					graph.add("p" + segment.index, "i" + index, distance);
-					graph.add("p" + (last ? 0 : (segment.index + 1)), "i" + index, length - distance);
-					graph.add("i" + index, "i" + (index + 1), intersection[index + 1].distance(point));
-				} else {
-					graph.add("i" + index, "p" + segment.index, distance);
-					graph.add("i" + index, "p" + (last ? 0 : (segment.index + 1)), length - distance);
-				}*/
 			});
-				
-				
 			
 			// Добавляем в граф остальные точки, пропуская сегменты из массива visited.
-			
-			
-			
-			console.groupCollapsed("Добавляем в граф остальные точки");
-			console.log("==============", visited);
-				
-				
-					
-			//var clockwize = path.isClockwiseDirection();
-			
-			//console.log("clockwize", clockwize);
 			
 			path.eachSegment(function(segment, index) {
 				var last = segment.isLast();
 				if (!Ext.Array.contains(visited, index)) {
 					var from = "p" + index, 
 						to = "p" + (last ? 0 : (index + 1));
-					
-					
-					// Направление добавляемого в граф ребра зависит от:
-					// местоположения точки относительно прямой
-					// ----------- и как был задан путь (по часовой стрелке или нет).
-					
-					
-					
-					
-					
-					//var location = linear.distance(segment.getFirstPoint(), true);
-					var location = me.getSegmentLocation(intersection, index);
-					
-					//console.log("location", index, location);
-					
-					
-					
-					//if (linear.distance(segment.getFirstPoint(), true) > 0 ? !clockwize : clockwize) {
-					//if (me.xor(location > 0, clockwize)) {
-					// Похоже от часовой уже не зависит!!!
-					if (location > 0) {
+					// Направление добавляемого в граф ребра зависит от
+					// местоположения точки относительно прямой.
+					if (me.getSegmentLocation(intersection, index) > 0) {
 						graph.add(from, to, segment.getLength());
-						console.log("from, to", from, to);
 					} else {
 						graph.add(to, from, segment.getLength());
-						console.log("to, from", to, from);
 					}
 				}
 			});
-			
-			
-			
-			console.log("ГРАФЬЯ =============", graph.graph);
-			console.groupEnd();
-			
-			
 			
 			return graph;
 		},
 		
 		/**
+		 * @private
 		 * Определить местоположение сегмента относительно делителей.
 		 * Учитывается ситуация, если один из делителей удален из intersection.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @param {Number} segmentIndex
+		 * @return {Number} 1 | -1
 		 */
 		getSegmentLocation: function(intersection, segmentIndex) {
 			var result = 1;
@@ -258,26 +158,12 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
-		 * Проверить, пересечен ли данный сегмент или нет.
-		 */
-		/*isSegmentIntersect: function(intersection, segmentIndex) {
-			var result = false;
-			intersection.forEach(function(point) {
-				if (point.segment.index == segmentIndex) result = true;
-			});
-			return result;
-		},*/
-		
-		//
-		// Появилась идея, что алгоритм можно сильно упростить, если вместо поиска кратчайших путей 
-		// искать все циклы, полученного графа... 
-		// итого задача = а) построить граф (причем неориентированный), б) найти все циклы... 
-		// Если я правильно понял, что искомые многоугольники и есть циклы
-		// http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
-		//
-		
-		/**
+		 * @private
 		 * Найти кратчайшие циклы (путь из вершины в себя) в графе.
+		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @param {Khusamov.svg.discrete.graph.AdjacencyList} graph
+		 * @return {String[][]}
 		 */
 		findCycles: function(path, intersection, graph) {
 			var me = this, cycles = [];
@@ -294,6 +180,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
+		 * @private
 		 * Найти цикл для конкретного узла графа.
 		 */
 		findCycle: function(graph, cycles, node, reverse) {
@@ -314,22 +201,18 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		},
 		
 		/**
+		 * @private
 		 * Конвертация цикла в Khusamov.svg.geometry.Path.
+		 * @param {String[]} cycle
+		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @return {Khusamov.svg.geometry.Path}
 		 */
 		convertCycleToPath: function(cycle, path, intersection) {
-			//var me = this;
 			var subpath = Ext.create("Khusamov.svg.geometry.Path");
-			
-			//console.log("CYCLE", cycle);
-			
-			
 			// Определяем тип цикла: обычный и петля (кусок дуги).
-			
 			if (cycle.length == 2 && cycle[0][0] == "i" && cycle[1][0] == "i") {
 				// Петля.
-				
-				//console.log("ПЕТЛЯ");
-				
 				var nodeIndex0 = Number(cycle[0].substring(1));
 				subpath.point(intersection[nodeIndex0]);
 				
@@ -340,10 +223,8 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				subpath.point(intersection[nodeIndex1]);
 				
 				subpath.line();
-				
 			} else {
 				// Обычный цикл.
-				
 				cycle.forEach(function(node, index) {
 					var nodeType = node[0], // p | i
 						nodeIndex = Number(node.substring(1)), 
@@ -354,9 +235,6 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 					
 					// Определяем точку пути.
 					
-					
-					//console.log(nodeType, nodeIndex);
-					
 					var point;
 					switch (nodeType) {
 						case "p": point = path.getPoint(nodeIndex); break;
@@ -364,25 +242,14 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						default: throw new Error("Узел неизвестного типа", nodeType, node);	
 					}
 					point = point.clone();
-					
 					subpath.point(point);
 					
 					// Определяем сегмент пути.
 					
 					var segmentIndex;
-					
-					
 					switch (nodeType + nextNodeType) { // Тип сегмента = pi | ii | ip | pp
 						case "ii":
 							subpath.line();
-							//console.log(intersection, nodeIndex);
-							
-							/*if (me.himself(intersection, nodeIndex)) {
-								segmentIndex = intersection[nodeIndex].segment.index;
-								subpath.arc(path.getSegment(segmentIndex).getArc().clone());
-							} else {
-								subpath.line();
-							}*/
 							break;
 						default:
 							switch (nodeType) {
@@ -396,50 +263,64 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 							}
 							break;
 					}
-					
-					
-					
-					/*var cycleSegmentType = nodeType + nextNodeType; // pi | ii | ip | pp
-					if (cycleSegmentType == "ii") {
-						if (me.himself(intersection, nodeIndex)) {
-							segmentIndex = intersection[nodeIndex].segment.index;
-							subpath.arc(path.getSegment(segmentIndex).getArc().clone());
-						} else {
-							subpath.line();
-						}
-					} else {
-						switch (nodeType) {
-							case "p": segmentIndex = nodeIndex; break;
-							case "i": segmentIndex = intersection[nodeIndex].segment.index; break;
-						}
-						if (path.getSegment(segmentIndex).isArcSegment) {
-							subpath.arc(path.getSegment(segmentIndex).getArc().clone());
-						} else {
-							subpath.line();
-						}
-					}*/
 				});
 			}
-			
-			
-			
 			return subpath;
 		},
 		
 		/**
+		 * @private
+		 * Удалить все делители кроме выбранного.
+		 * Выбранный определяется точкой selPoint, которая находится на отрезке выбранного делителя.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @param {Khusamov.svg.geometry.Point} selPoint
+		 * @return {Khusamov.svg.geometry.Point[]} intersection
+		 */
+		selectDivider: function(intersection, selPoint) {
+			var result = intersection, start;
+			intersection.forEach(function(point, index) {
+				if (index % 2 == 0) {
+					start = point;
+				} else {
+					var divider = Ext.create("Khusamov.svg.geometry.Line", start, point);
+					if (divider.contains(selPoint)) {
+						result = [start, point];
+					}
+				}
+			});
+			return result;
+		},
+		
+		/**
+		 * @private
+		 * Создать клон прямой линии делителя на основе первой и последней точек пересечения,
+		 * чтобы точно знать, что она направлена от первой точки пересечения.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @return {Khusamov.svg.geometry.equation.Linear}
+		 */
+		/*prepareSplitLinear: function(intersection) {
+			return Ext.create(
+				"Khusamov.svg.geometry.Line", 
+				intersection[0], 
+				intersection[intersection.length - 1]
+			).toLinear();
+		},*/
+		
+		/**
+		 * @private
 		 * Проверить точку пересечения с порядковым номером index, 
 		 * где лежит ее парная точка (с порядковым номером index + 1): 
 		 * на том же сегменте или нет.
 		 * Иными словами проверка случая, когда сегмент-дуга пересечен дважды.
 		 * Пояснение: Если в многоугольнике есть дуги, то линия пересечения 
 		 * может дугу пересечь в двух местах. И этот случай обсчитывается отдельно.
+		 * @param {Khusamov.svg.geometry.Point[]} intersection
+		 * @param {Number} index
+		 * @return {Boolean}
 		 */
 		himself: function(intersection, index) {
 			index = Number(index);
 			var segment1 = intersection[index].segment;
-			
-			//console.log(index + (index % 2 == 0 ? +1 : -1))
-			
 			var segment2 = intersection[index + (index % 2 == 0 ? +1 : -1)].segment;
 			return segment1.index == segment2.index;
 		},
@@ -447,10 +328,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		/**
 		 * @private
 		 * Вспомогательная функция XOR.
+		 * @param {Boolean} a
+		 * @param {Boolean} b
+		 * @return {Boolean}
 		 */
-		xor: function(a, b) {
+		/*xor: function(a, b) {
 			return Boolean(a ? !b : b);
-		}
+		}*/
 		
 	}
 	
