@@ -96,17 +96,6 @@ Ext.onReady(function() {
 	
 	var path, pathGeometry, elements = [], mode;
 	
-	/*viewport.down("#path").on("click", function() {
-		mode = "path";
-		Ext.destroy(elements);
-		elements = [];
-		pathGeometry = Ext.create("Khusamov.svg.geometry.Path");
-		path = svg.add(createPath(pathGeometry));
-		path.setStyle("stroke", "gray");
-		path.setStyle("stroke-dasharray", "20, 5");
-		elements.push(path);
-	});*/
-	
 	function clear() {
 		mode = "path";
 		tbPaths.removeAll();
@@ -119,31 +108,18 @@ Ext.onReady(function() {
 		elements.push(path);
 	}
 	
-	/*viewport.down("#vert").on("click", function() {
-		mode = "vert";
-	});
-	
-	viewport.down("#hori").on("click", function() {
-		mode = "hori";
-	});*/
-	
 	var divider = null;
 	
 	clear();
 	
 	svg.getEl().on("click", function(event) {
-		//var postAction = null;
-		
-		
 		var linear;
-		
-		
 		var x = event.pageX - svg.getX();
 		var y = event.pageY - svg.getY();
 		switch (mode) {
+			
 			case "path":
 				if (pathGeometry.lastPoint) {
-					
 					switch (segmentTypeButton.getPressedItemId()) {
 						case "line": 
 							pathGeometry.line(); 
@@ -154,12 +130,10 @@ Ext.onReady(function() {
 							segmentTypeButton.down("#line").setPressed(); 
 							break;
 					}
-					
 					if (pathGeometry.getFirstPoint().equal(x, y, 10)) {
 						path.setStyle("stroke", "black");
 						path.setStyle("stroke-dasharray", "none");
 						mode = "divider";
-						//postAction = "";
 					} else {
 						pathGeometry.point(x, y);
 					}
@@ -191,7 +165,6 @@ Ext.onReady(function() {
 								elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
 								tbPaths.add({ text: index + 1 });
 							});
-							//Ext.destroy(path);
 							divider = null;
 							mode = "clear";
 						} else {
@@ -243,5 +216,3 @@ Ext.onReady(function() {
 	});
 	
 });
-
-
