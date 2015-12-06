@@ -328,6 +328,15 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	},
 	
 	/**
+	 * Возвращает истину, если вектора-нормали сонаправлены.
+	 * @param {Khusamov.svg.geometry.equation.Linear} linear Прямая, с которой происходит сравнение.
+	 * @return {Boolean}
+	 */
+	isCodirectional: function(linear) {
+		return this.isCollinear(linear, true);
+	},
+	
+	/**
 	 * Проверка паралельности двух прямых.
 	 */
 	isParallel: function(linear) {

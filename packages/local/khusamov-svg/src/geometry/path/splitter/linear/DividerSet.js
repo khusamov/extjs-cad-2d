@@ -18,32 +18,31 @@ Ext.define("Khusamov.svg.geometry.path.splitter.linear.DividerSet", {
 		 * @private
 		 * @property {Khusamov.svg.geometry.Point[]}
 		 */
-		me.intersection = path.intersection(linear, true) || [];
+		me.intersection = path.intersection(linear, { segmented: true, selPoint: selPoint }) || [];
 		
 		/**
 		 * Массив делителей.
 		 * @private
 		 * @property {Khusamov.svg.geometry.path.splitter.linear.Divider[]}
 		 */
-		me.dividers = [];
-		
-		if (me.intersection) {
-			
-			// Если определена точка, указывающая на выбранный делитель, 
-			// то остальные делители из массива intersection удаляем.
-			if (selPoint) me.intersection = me.selectDivider(me.intersection, selPoint);
-			
-			// Собрать массив делителей.
-			var start;
-			me.intersectionEach(function(point, index) {
-				if (index % 2 == 0) {
-					start = point;
-				} else {
-					me.dividers.push(Ext.create("Khusamov.svg.geometry.path.splitter.linear.Divider", start, point));
-				}
-			});
-			
-		}
+		me.dividers = me.createDividers(me.intersection);
+	},
+	
+	/**
+	 * Создать линии-делители на основе массива точек пересечения.
+	 * @param {Khusamov.svg.geometry.Point[]}
+	 * @return {Khusamov.svg.geometry.path.splitter.linear.Divider[]}
+	 */
+	createDividers: function(intersection) {
+		var result = [], start;
+		if (intersection) intersection.forEach(function(point, index) {
+			if (index % 2 == 0) {
+				start = point;
+			} else {
+				result.push(Ext.create("Khusamov.svg.geometry.path.splitter.linear.Divider", start, point));
+			}
+		});
+		return result;
 	},
 	
 	/**

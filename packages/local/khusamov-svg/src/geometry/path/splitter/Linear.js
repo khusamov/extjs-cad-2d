@@ -42,7 +42,10 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
 		 * @param {Khusamov.svg.geometry.equation.Linear} linear Прямая линия делитель многоугольника.
 		 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
-		 * @return {null | Khusamov.svg.geometry.Path[]} Массив многоугольников или null, если нет пересечений.
+		 * @return {null | Object} splited Результат деления или null, если нет пересечений.
+		 * @return {Khusamov.svg.geometry.Path[]} splited.paths Массив многоугольников.
+		 * @return {Khusamov.svg.geometry.Line[]} splited.dividers Массив делителей.
+		 * @return {Khusamov.svg.geometry.Point[]} splited.intersection Массив точек пересечений.
 		 */
 		split: function(path, linear, selPoint) {
 			var me = this, result = [];
@@ -60,7 +63,23 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 					result.push(me.convertCycleToPath(cycle, path, intersection));
 				});
 			}
-			return result.length ? result : null;
+			return result.length ? {
+				paths: result,
+				dividers: me.createDividers(intersection),
+				intersection: intersection
+			} : null;
+		},
+		
+		createDividers: function(intersection) {
+			var result = [], start;
+			if (intersection) intersection.forEach(function(point, index) {
+				if (index % 2 == 0) {
+					start = point;
+				} else {
+					result.push(Ext.create("Khusamov.svg.geometry.Line", start, point));
+				}
+			});
+			return result;
 		},
 		
 		/**
@@ -323,7 +342,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 			var segment1 = intersection[index].segment;
 			var segment2 = intersection[index + (index % 2 == 0 ? +1 : -1)].segment;
 			return segment1.index == segment2.index;
-		},
+		}
 		
 		/**
 		 * @private
