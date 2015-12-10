@@ -1,4 +1,7 @@
 
+// при рефакторинге сегмент надо переименовать в ребро, так как сегмент это площадь, а не линия
+// а тут мы описываем именно линию как часть пути-многоугольника
+
 Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 	
 	requires: ["Khusamov.svg.geometry.path.Point"],
