@@ -101,7 +101,11 @@ Ext.define("Khusamov.svg.geometry.path.splitter.linear.Cycle", {
 					case "i": point = intersection[nodeIndex]; break;
 					default: throw new Error("Узел неизвестного типа", nodeType, node);	
 				}
-				point = point.clone();
+				
+				// TODO нужно сделать опцию clonedPoints чтобы управлять клонированием точек.
+				// Ибо иногда клон нужен, а иногда не нужен.
+				//point = point.clone();
+					
 				subpath.point(point);
 				
 				// Определяем сегмент пути.

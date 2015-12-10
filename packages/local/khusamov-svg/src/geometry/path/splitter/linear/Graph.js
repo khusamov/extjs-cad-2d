@@ -156,7 +156,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.linear.Graph", {
 		
 		
 		return cycleSet;
-	},
+	}
 	
 	/**
 	 * @private

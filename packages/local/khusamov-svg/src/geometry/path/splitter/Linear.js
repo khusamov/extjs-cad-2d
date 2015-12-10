@@ -46,9 +46,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 * @return {Khusamov.svg.geometry.Path[]} splited.paths Массив многоугольников.
 		 * @return {Khusamov.svg.geometry.Line[]} splited.dividers Массив делителей.
 		 * @return {Khusamov.svg.geometry.Point[]} splited.intersection Массив точек пересечений.
+		 * @return {Object} splited.links Информация о связях.
+		 * @return {String[][]} splited.links.paths Соответствие ребер искомых многоугольников с ребрами исходного многоугольника.
+		 * @return {String[][]} splited.links.dividers Соответствие точек пересечений с ребрами исходного многоугольника.
 		 */
 		split: function(path, linear, selPoint) {
 			var me = this, result = [];
+			var links = { paths:  [], dividers:  [] };
 			var intersection = path.intersection(linear, true);
 			if (intersection) {
 				// Если определена точка, указывающая на выбранный делитель, 
@@ -60,13 +64,27 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				var cycles = me.findCycles(path, intersection, graph);
 				// 3) Конвертация циклов в .svg.geometry.Path.
 				cycles.forEach(function(cycle) {
-					result.push(me.convertCycleToPath(cycle, path, intersection));
+					var path = me.convertCycleToPath(cycle, path, intersection);
+					result.push(path);
+					// Соответствие ребер искомых многоугольников с ребрами исходного многоугольника.
+					links.paths.push(path._links);
 				});
 			}
+			
+			// Соответствие точек пересечений с ребрами исходного многоугольника.
+			var dividers = me.createDividers(intersection);
+			dividers.forEach(function(divider) {
+				var segments = [];
+				segments.push(divider.getFirstPoint().segment.index);
+				segments.push(divider.getLastPoint().segment.index);
+				links.dividers.push(segments);
+			});
+			
 			return result.length ? {
 				paths: result,
-				dividers: me.createDividers(intersection),
-				intersection: intersection
+				dividers: dividers,
+				intersection: intersection,
+				links: links
 			} : null;
 		},
 		
@@ -80,6 +98,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				}
 			});
 			return result;
+		},
+		
+		/**
+		 * Получить индекс делителя по одной из его точек.
+		 */
+		getDividerIndex: function(pointIndex) {
+			return (pointIndex - (pointIndex % 2)) / 2;
 		},
 		
 		/**
@@ -228,7 +253,9 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 * @return {Khusamov.svg.geometry.Path}
 		 */
 		convertCycleToPath: function(cycle, path, intersection) {
+			var me = this;
 			var subpath = Ext.create("Khusamov.svg.geometry.Path");
+			var links = [];
 			// Определяем тип цикла: обычный и петля (кусок дуги).
 			if (cycle.length == 2 && cycle[0][0] == "i" && cycle[1][0] == "i") {
 				// Петля.
@@ -242,6 +269,9 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				subpath.point(intersection[nodeIndex1]);
 				
 				subpath.line();
+				
+				links.push("p" + segmentIndex);
+				links.push("i" + me.getDividerIndex(nodeIndex0));
 			} else {
 				// Обычный цикл.
 				cycle.forEach(function(node, index) {
@@ -260,7 +290,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						case "i": point = intersection[nodeIndex]; break;
 						default: throw new Error("Узел неизвестного типа", nodeType, node);	
 					}
-					point = point.clone();
+					
+					
+					// TODO нужно сделать опцию clonedPoints чтобы управлять клонированием точек.
+					// Ибо иногда клон нужен, а иногда не нужен.
+					//point = point.clone();
+					
+					
 					subpath.point(point);
 					
 					// Определяем сегмент пути.
@@ -269,6 +305,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 					switch (nodeType + nextNodeType) { // Тип сегмента = pi | ii | ip | pp
 						case "ii":
 							subpath.line();
+							links.push("i" + me.getDividerIndex(nodeIndex));
 							break;
 						default:
 							switch (nodeType) {
@@ -280,10 +317,13 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 							} else {
 								subpath.line();
 							}
+							links.push("p" + segmentIndex);
 							break;
 					}
 				});
 			}
+			
+			subpath._links = links;
 			return subpath;
 		},
 		

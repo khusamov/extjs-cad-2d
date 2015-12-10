@@ -20,6 +20,7 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 		
 		/**
 		 * Найти точки пересечения пути с прямой линией.
+		 * 
 		 * @param {Khusamov.svg.geometry.Path} path Путь, с которым ищется пересечения.
 		 * @param {Khusamov.svg.geometry.equation.Linear} linear Фигура, с которой ищется пересечения.
 		 * @param {Object | Khusamov.svg.geometry.Point} [config] Дополнительные опции поиска пересечений или selPoint.
@@ -29,6 +30,7 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 		 * 2) координатой точки внутри сегмента (расстояние до точки от начала сегмента),
 		 * 3) координатой точки внутри пути (расстояние до точки от начала пути).
 		 * (Эта информация добавляется прямо в объект точки в свойство segment{index, distance, distanceByPath}).
+		 * 
 		 * @return {Khusamov.svg.geometry.Point[] | null}
 		 */
 		intersection: function(path, linear, config) {
