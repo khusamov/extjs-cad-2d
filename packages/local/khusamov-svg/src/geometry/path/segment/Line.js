@@ -7,6 +7,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Line", {
 	
 	isLineSegment: true,
 	
+	isLineEdge: true,
+	
 	getPrimitive: function() {
 		return this.getLine();
 	},

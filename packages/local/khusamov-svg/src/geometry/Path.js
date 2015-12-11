@@ -19,14 +19,16 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	requires: [
 		"Ext.util.Collection",
-		"Khusamov.svg.geometry.intersection.PathLinear",
 		"Khusamov.svg.geometry.path.segment.Line",
 		"Khusamov.svg.geometry.path.segment.Arc",
-		"Khusamov.svg.geometry.path.splitter.Splitter",
 		"Khusamov.svg.geometry.path.Point"
 	],
 	
-	uses: ["Khusamov.svg.geometry.equation.Ray"],
+	uses: [
+		"Khusamov.svg.geometry.path.splitter.Splitter",
+		"Khusamov.svg.geometry.intersection.PathLinear",
+		"Khusamov.svg.geometry.equation.Ray"
+	],
 	
 	isPath: true,
 	
@@ -79,18 +81,24 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	},
 	
 	/**
-	 * Замещение сегмента.
+	 * Замещение ребра.
+	 * @param {Number} index Индекс ребра, с которого начинать удаление.
+	 * @param {Number} deleteCount Количество ребер, которое требуется удалить, начиная с index.
+	 * @param {Khusamov.svg.geometry.path.segment.Segment} edge Добавляемое ребро. Добавление начинается с index.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
-	splice: function(index, deleteCount, segment) {
-		this.segments.splice(index, deleteCount, segment);
+	splice: function(index, deleteCount, edge) {
+		this.suspendEvent("update");
+		edge.setPath(this);
+		this.resumeEvent("update");
+		this.segments.splice(index, deleteCount, edge);
 		this.fireEvent("splice");
 		this.fireEvent("update");
-		return segment;
+		return edge;
 	},
 	
 	/**
-	 * Заменить выбранный сегмент.
+	 * Заменить выбранное ребро.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	replace: function(index, segment, savePoint) {
@@ -143,6 +151,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	/**
 	 * Получить сегмент по его индексу.
+	 * @deprecated Используйте {@link Khusamov.svg.geometry.Path#getEdge} метод.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	getSegment: function(index) {
@@ -187,11 +196,28 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	/**
 	 * Цикл по сегментам пути.
+	 * @deprecated Используйте {@link Khusamov.svg.geometry.Path#eachEdge} метод.
 	 * @return {Khusamov.svg.geometry.Path}
 	 */
 	eachSegment: function(fn, scope) {
 		this.segments.forEach(fn, scope);
 		return this;
+	},
+	
+	/**
+	 * Получить сегмент по его индексу.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getEdge: function() {
+		return this.getSegment.apply(this, arguments);
+	},
+	
+	/**
+	 * Цикл по сегментам пути.
+	 * @return {Khusamov.svg.geometry.Path}
+	 */
+	eachEdge: function() {
+		return this.eachSegment.apply(this, arguments);
 	},
 	
 	/**
@@ -303,16 +329,16 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * Заменить выбранный сегмент на прямую.
 	 * @return {Khusamov.svg.geometry.path.segment.Line}
 	 */
-	replaceOfLine: function(index) {
-		return this.replace(Ext.create("Khusamov.svg.geometry.path.segment.Line"), true);
+	replaceWithLine: function(index) {
+		return this.replace(index, Ext.create("Khusamov.svg.geometry.path.segment.Line"), true);
 	},
 	
 	/**
 	 * Заменить выбранный сегмент на арку.
 	 * @return {Khusamov.svg.geometry.path.segment.Arc}
 	 */
-	replaceOfArc: function(index, radius, config) {
-		return this.replace(Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config), true);
+	replaceWithArc: function(index, radius, config) {
+		return this.replace(index, Ext.create("Khusamov.svg.geometry.path.segment.Arc", null, radius, config), true);
 	},
 	
 	/**

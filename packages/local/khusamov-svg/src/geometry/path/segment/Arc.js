@@ -7,6 +7,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	isArcSegment: true,
 	
+	isArcEdge: true,
+	
 	config: {
 		
 		/**
@@ -57,6 +59,7 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	initArcPoints: function() {
 		var me = this, arc = me.getArc();
+		// зачем сделан этот метод не ясно, но он приводит к двум события Path#update при вызову Arc.setPath()
 		if (arc) {
 			arc.setFirstPoint(me.getFirstPoint());
 			if (me.getLastPoint()) arc.setLastPoint(me.getLastPoint());
