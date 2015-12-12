@@ -108,6 +108,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		};
 	},
 	
+	destroy: function() {
+		this.getPoint().un("update", "onParamUpdate", this);
+	},
+	
 	/**
 	 * Клонировать (сделать копию) сегмент.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}

@@ -70,15 +70,19 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	add: function(segment) {
-		segment.setPath(this);
-		this.segments.push(segment);
-		this.closed = true;
+		var me = this;
+		me.suspendEvent("update");
+		segment.setPath(me);
+		me.resumeEvent("update");
 		
-		this.lastPoint.un("update", "onLastPointUpdate", this);
-		this.lastPoint = null;
+		me.segments.push(segment);
+		me.closed = true;
 		
-		this.fireEvent("add");
-		this.fireEvent("update");
+		me.lastPoint.un("update", "onLastPointUpdate", me);
+		me.lastPoint = null;
+		
+		me.fireEvent("add");
+		me.fireEvent("update");
 		return segment;
 	},
 	
@@ -90,12 +94,18 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	splice: function(index, deleteCount, edge) {
-		this.suspendEvent("update");
-		edge.setPath(this);
-		this.resumeEvent("update");
-		this.segments.splice(index, deleteCount, edge);
-		this.fireEvent("splice");
-		this.fireEvent("update");
+		var me = this;
+		if (deleteCount) {
+			for (var i = index; i < index + deleteCount; i++) {
+				me.getEdge(i).destroy();
+			}
+			me.suspendEvent("update");
+			edge.setPath(me);
+			me.resumeEvent("update");
+			me.segments.splice(index, deleteCount, edge);
+			me.fireEvent("splice");
+			me.fireEvent("update");
+		}
 		return edge;
 	},
 	

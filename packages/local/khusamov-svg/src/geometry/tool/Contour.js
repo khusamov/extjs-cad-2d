@@ -16,9 +16,9 @@ Ext.define("Khusamov.svg.geometry.tool.Contour", {
 		
 		/**
 		 * Получить контур для примитива.
-		 * @param {Khusamov.svg.geometry.Path}
+		 * @param {Khusamov.svg.geometry.Path} path Исходный многоугольник.
 		 * @param {String} type Тип контура inside | outside.
-		 * @param {Number | Number[]} Смещение или массив смещений для каждого ребра.
+		 * @param {Number | Number[]} offset Смещение или массив смещений для каждого ребра.
 		 * @return {Khusamov.svg.geometry.Path}
 		 */
 		contour: function(path, type, offset) {

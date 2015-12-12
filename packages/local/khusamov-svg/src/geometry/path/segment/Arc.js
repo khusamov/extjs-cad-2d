@@ -13,6 +13,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	type: "arc",
 	
+	initArcPointEvents: ["add", "splice", "clear", "changelastpoint", "turnout"],
+	
 	config: {
 		
 		/**
@@ -77,17 +79,13 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	updatePath: function(path) {
 		var me = this;
-		
-		["add", "splice", "clear", "changelastpoint", "turnout"]
-			.forEach(function(eventName) {
-				
-				//http://javascript.ru/forum/extjs/57614-metod-tostring-v-polzovatelskom-komponente-i-problemy-s-nim.html
-				/*path.on(eventName, function() {
-					me.initArcPoints();
-				});*/
-				path.on(eventName, "initArcPoints", me);
-			});
-			
+		me.initArcPointEvents.forEach(function(eventName) {
+			//http://javascript.ru/forum/extjs/57614-metod-tostring-v-polzovatelskom-komponente-i-problemy-s-nim.html
+			/*path.on(eventName, function() {
+				me.initArcPoints();
+			});*/
+			path.on(eventName, "initArcPoints", me);
+		});
 		me.initArcPoints();
 	},
 	
@@ -123,6 +121,15 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 			}
 		}
 		return result;
+	},
+	
+	destroy: function() {
+		var me = this;
+		me.callParent();
+		me.getArc().un("update", "onParamUpdate", me);
+		me.initArcPointEvents.forEach(function(eventName) {
+			me.getPath().un(eventName, "initArcPoints", me);
+		});
 	}
 	
 });
