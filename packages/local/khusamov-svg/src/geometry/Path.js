@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Путь (сложная линия) на плоскости.
  * 
@@ -11,7 +13,7 @@
  * 
  */
 
-/* global Ext, Khusamov */
+// TODO думаю что после рефакторинга Path надо убрать. Оставить Polygon. И возможно Polyline.
 
 Ext.define("Khusamov.svg.geometry.Path", {
 	
@@ -187,11 +189,21 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	/**
 	 * Получить предыдущий сегмент пути.
 	 * При этом считается что путь замкнут.
+	 * @deprecated Используйте {@link Khusamov.svg.geometry.Path#getPrevEdge} метод.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	getPrevSegment: function(index) {
 		var segment = this.getSegment(index - 1);
 		return segment ? segment : this.getLastSegment();
+	},
+	
+	/**
+	 * Получить предыдущий сегмент пути.
+	 * При этом считается что путь замкнут.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getPrevEdge: function() {
+		return this.getPrevEdge.apply(this, arguments);
 	},
 	
 	/**
@@ -449,6 +461,17 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		this.eachSegment(function(segment) {
 			result += segment.getLength();
 		});
+		return result;
+	},
+	
+	/**
+	 * Расстояние от начала пути до выбранной точки.
+	 */
+	getPointDistance: function(index) {
+		var me = this, result = 0;
+		if (index) for (var i = 0; i < index; i++) {
+			result += me.getEdge().getLength();
+		}
 		return result;
 	},
 	

@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	
 	extend: "Khusamov.svg.geometry.path.segment.Segment",
@@ -8,6 +10,8 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 	isArcSegment: true,
 	
 	isArcEdge: true,
+	
+	type: "arc",
 	
 	config: {
 		
@@ -85,6 +89,10 @@ Ext.define("Khusamov.svg.geometry.path.segment.Arc", {
 			});
 			
 		me.initArcPoints();
+	},
+	
+	getLength: function() {
+		return this.getArc().getLength();
 	},
 	
 	toObject: function() {

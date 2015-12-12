@@ -261,7 +261,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	/**
 	 * Создать линейное уравнение паралельной прямой, проходящей через точку.
 	 * Важно: новая прямая коллинеарна и сонаправлена с исходной (направляющие).
-	 * @return Khusamov.svg.geometry.equation.Linear
+	 * @return {Khusamov.svg.geometry.equation.Linear}
 	 */
 	getParallelLinear: function(point) {
 		return Khusamov.svg.geometry.equation.Linear.createByParallel(this.getParallel(), point);
@@ -270,7 +270,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	/**
 	 * Создать линейное уравнение паралельной прямой, проходящей расстоянии.
-	 * @return Khusamov.svg.geometry.equation.Linear
+	 * @return {Khusamov.svg.geometry.equation.Linear}
 	 */
 	getParallelLinearByDestination: function(destination) {
 		// Практикум по высш математике 3 издание Соболь Мишняков стр 110 Пример 32 
@@ -279,6 +279,15 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 			b: this.b(),
 			c: destination * this.getNormalVectorLength() + this.c()
 		});
+	},
+	
+	/**
+	 * Получить обратную линию. 
+	 * Иными словами копия линии, но направляющая направлена в противоположную сторону.
+	 * @return {Khusamov.svg.geometry.equation.Linear}
+	 */
+	getInverse: function() {
+		return new this.self({ a: -this.a(), b: -this.b(), c: -this.c() });
 	},
 	
 	/**
