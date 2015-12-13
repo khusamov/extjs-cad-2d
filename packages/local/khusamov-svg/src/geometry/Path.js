@@ -14,6 +14,8 @@
  */
 
 // TODO думаю что после рефакторинга Path надо убрать. Оставить Polygon. И возможно Polyline.
+// Возможно будет класс Curve, а остальные это частные случаи (Circle, Arc, Line и пр.)
+// Итого два основных класса от Primitive: Point и Curve
 
 Ext.define("Khusamov.svg.geometry.Path", {
 	
@@ -189,11 +191,21 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	/**
 	 * Получить следущий сегмент пути.
 	 * При этом считается что путь замкнут.
+	 * @deprecated Используйте {@link Khusamov.svg.geometry.Path#getNextEdge} метод.
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	getNextSegment: function(index) {
 		var segment = this.getSegment(index + 1);
 		return segment ? segment : this.getFirstSegment();
+	},
+	
+	/**
+	 * Получить следущий сегмент пути.
+	 * При этом считается что путь замкнут.
+	 * @return {Khusamov.svg.geometry.path.segment.Segment}
+	 */
+	getNextEdge: function() {
+		return this.getNextSegment.apply(this, arguments);
 	},
 	
 	/**
@@ -213,7 +225,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	 * @return {Khusamov.svg.geometry.path.segment.Segment}
 	 */
 	getPrevEdge: function() {
-		return this.getPrevEdge.apply(this, arguments);
+		return this.getPrevSegment.apply(this, arguments);
 	},
 	
 	/**

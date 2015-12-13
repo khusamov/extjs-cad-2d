@@ -1,7 +1,10 @@
 
+/* global Ext, Khusamov */
+
 /**
  * Уравнение окружности.
  * (x - xc)^2 + (y - yc)^2 = r^2
+ * где [xc, yc] — координаты центра окружности.
  */
 
 Ext.define("Khusamov.svg.geometry.equation.Circular", {
@@ -216,11 +219,10 @@ Ext.define("Khusamov.svg.geometry.equation.Circular", {
 	 * @return Object
 	 */
 	toObject: function() {
-		/*return Ext.Object.merge(this.callParent(), { 
-			a: this.a(), 
-			b: this.b(), 
-			c: this.c() 
-		});*/
+		return Ext.Object.merge(this.callParent(), { 
+			center: this.getCenter().toArray(), 
+			radius: this.getRadius() 
+		});
 	}
 	
 });

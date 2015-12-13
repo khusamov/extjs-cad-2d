@@ -31,6 +31,24 @@ Ext.define("Khusamov.svg.geometry.tool.Position", {
 		isPointBetween: function(point, linear1, linear2) {
 			linear1 = linear1.isCodirectional(linear2) ? linear1 : linear1.getInverse();
 			return linear1.distance(point) != linear2.distance(point);
+		},
+		
+		/**
+		 * Поиск ближайшей точки.
+		 * @param {Khusamov.svg.geometry.Point} point Опорная точка.
+		 * @param {Khusamov.svg.geometry.Point[]} points Массив точек, среди которых ищется ближайшая к опорной.
+		 */
+		findClosestPoint: function(point, points) {
+			var result = points[0];
+			var minDistance = point.distance(result);
+			for (var i = 1; i < points.length; i++) {
+				var distance = point.distance(points[i]);
+				if (distance < minDistance) {
+					result = points[i];
+					minDistance = distance;
+				}
+			}
+			return result;
 		}
 		
 	}

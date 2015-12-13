@@ -270,6 +270,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	
 	/**
 	 * Создать линейное уравнение паралельной прямой, проходящей расстоянии.
+	 * @param {Number} destination Расстояние может быть как положительным, так и отрицательным числом.
 	 * @return {Khusamov.svg.geometry.equation.Linear}
 	 */
 	getParallelLinearByDestination: function(destination) {
