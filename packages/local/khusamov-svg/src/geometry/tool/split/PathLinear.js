@@ -21,16 +21,17 @@
 // http://neerc.ifmo.ru/wiki/ Использование обхода в глубину для поиска цикла в ориентированном графе
 //
 
-Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
+Ext.define("Khusamov.svg.geometry.tool.split.PathLinear", {
 	
 	requires: [
 		"Khusamov.svg.geometry.Line", 
 		"Khusamov.svg.discrete.graph.AdjacencyList",
+		"Khusamov.svg.geometry.path.Point"
 		
-		"Khusamov.svg.geometry.path.splitter.linear.DividerSet",
+		/*"Khusamov.svg.geometry.path.splitter.linear.DividerSet",
 		"Khusamov.svg.geometry.path.splitter.linear.Graph",
 		"Khusamov.svg.geometry.path.splitter.linear.CycleSet",
-		"Khusamov.svg.geometry.path.splitter.linear.Cycle"
+		"Khusamov.svg.geometry.path.splitter.linear.Cycle"*/
 	],
 	
 	uses: ["Khusamov.svg.geometry.Path"],
@@ -53,7 +54,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		split: function(path, linear, selPoint) {
 			var me = this, result = [];
 			var links = { paths:  [], dividers:  [] };
-			var intersection = path.intersection(linear, true);
+			var intersection = path.intersection(linear, { segmented: true });
 			if (intersection) {
 				// Если определена точка, указывающая на выбранный делитель, 
 				// то остальные делители из массива intersection удаляем.
@@ -64,10 +65,10 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 				var cycles = me.findCycles(path, intersection, graph);
 				// 3) Конвертация циклов в .svg.geometry.Path.
 				cycles.forEach(function(cycle) {
-					var path = me.convertCycleToPath(cycle, path, intersection);
-					result.push(path);
+					var subpath = me.convertCycleToPath(cycle, path, intersection);
+					result.push(subpath);
 					// Соответствие ребер искомых многоугольников с ребрами исходного многоугольника.
-					links.paths.push(path._links);
+					links.paths.push(subpath._links);
 				});
 			}
 			
@@ -254,6 +255,7 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 		 */
 		convertCycleToPath: function(cycle, path, intersection) {
 			var me = this;
+			
 			var subpath = Ext.create("Khusamov.svg.geometry.Path");
 			var links = [];
 			// Определяем тип цикла: обычный и петля (кусок дуги).
@@ -291,11 +293,14 @@ Ext.define("Khusamov.svg.geometry.path.splitter.Linear", {
 						default: throw new Error("Узел неизвестного типа", nodeType, node);	
 					}
 					
-					
 					// TODO нужно сделать опцию clonedPoints чтобы управлять клонированием точек.
 					// Ибо иногда клон нужен, а иногда не нужен.
+					// Поправки: клонировать все же придется, ибо в точке есть ссылки на путь и ребро пути
+					// Так что нужна опция управлением синхронизацией
 					//point = point.clone();
-					
+					var cloned = Ext.create("Khusamov.svg.geometry.path.Point", point);
+					cloned.syncWith(point);
+					point = cloned;
 					
 					subpath.point(point);
 					

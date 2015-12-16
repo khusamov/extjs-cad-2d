@@ -43,6 +43,10 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		 * @return Khusamov.svg.geometry.equation.Linear
 		 */
 		createByLine: function(line) {
+			if (!line.isLine) {
+				var Line = Khusamov.svg.geometry.Line;
+				line = Line.create.apply(Line, arguments);
+			}
 			var x1 = line.getFirstPoint().x();
 			var y1 = line.getFirstPoint().y();
 			var x2 = line.getLastPoint().x();
@@ -59,11 +63,11 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		createByPoint: function(point) {},
 		
 		createVertical: function(x) {
-			return new Khusamov.svg.geometry.equation.Linear(1, 0, -x);
+			return new Khusamov.svg.geometry.equation.Linear(1, 0, -(x.isPoint ? x.x() : x));
 		},
 		
 		createHorizontal: function(y) {
-			return new Khusamov.svg.geometry.equation.Linear(0, 1, -y);
+			return new Khusamov.svg.geometry.equation.Linear(0, 1, -(y.isPoint ? y.y() : y));
 		},
 		
 		/**

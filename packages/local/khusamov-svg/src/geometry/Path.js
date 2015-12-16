@@ -29,7 +29,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	],
 	
 	uses: [
-		"Khusamov.svg.geometry.path.splitter.Splitter",
+		"Khusamov.svg.geometry.tool.split.Split",
 		"Khusamov.svg.geometry.intersection.PathLinear",
 		"Khusamov.svg.geometry.equation.Ray"
 	],
@@ -513,17 +513,6 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		var type = "Path" + Ext.String.capitalize(primitive.type);
 		var intersection = Khusamov.svg.geometry.intersection[type];
 		return intersection.intersection(this, primitive, config);
-	},
-	
-	/**
-	 * Разделить путь.
-	 * @param {Khusamov.svg.geometry.Primitive} primitive
-	 * @param {Khusamov.svg.geometry.Point} [selPoint] Точка, определяющая какой делитель оставить.
-	 * @return {null | Khusamov.svg.geometry.Path[]}
-	 */
-	split: function(primitive, selPoint) {
-		var splitter = Khusamov.svg.geometry.path.Splitter;
-		return splitter.split(this, primitive, selPoint);
 	},
 	
 	/**

@@ -6,11 +6,14 @@
  * Класс для деления примитивов.
  */
 
-Ext.define("Khusamov.svg.geometry.tool.Split", {
+Ext.define("Khusamov.svg.geometry.tool.split.Split", {
+	
+	alternateClassName: "Khusamov.svg.geometry.tool.Split",
 	
 	requires: [
 		"Khusamov.svg.geometry.Path",
-		"Khusamov.svg.geometry.tool.Position"
+		"Khusamov.svg.geometry.tool.Position"/*,
+		"Khusamov.svg.geometry.tool.split.PathLinear"*/
 	],
 	
 	statics: {

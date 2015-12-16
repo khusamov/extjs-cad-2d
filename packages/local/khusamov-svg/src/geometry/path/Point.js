@@ -1,4 +1,6 @@
 
+/* global Ext, Khusamov */
+
 Ext.define("Khusamov.svg.geometry.path.Point", {
 	
 	extend: "Khusamov.svg.geometry.Point",

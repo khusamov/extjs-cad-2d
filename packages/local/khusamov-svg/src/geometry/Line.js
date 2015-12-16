@@ -22,6 +22,7 @@ Ext.define("Khusamov.svg.geometry.Line", {
 	/**
 	 * Ext.create("Khusamov.svg.geometry.Line", x1, y1, x2, y2);
 	 * Ext.create("Khusamov.svg.geometry.Line", [x1, y1], [x2, y2]);
+	 * Ext.create("Khusamov.svg.geometry.Line", [[x1, y1], [x2, y2]]);
 	 * Ext.create("Khusamov.svg.geometry.Line", Khusamov.svg.geometry.Point, Khusamov.svg.geometry.Point);
 	 * Ext.create("Khusamov.svg.geometry.Line", Khusamov.svg.geometry.Point[]);
 	 * Ext.create("Khusamov.svg.geometry.Line", Khusamov.svg.geometry.vector.Vector, Khusamov.svg.geometry.vector.Vector);

@@ -23,10 +23,13 @@ Ext.require([
 	"Khusamov.svg.geometry.equation.Linear",
 	"Khusamov.svg.geometry.equation.Circular",
 	"Khusamov.svg.element.Title",
-	"Khusamov.svg.geometry.Angle"
+	"Khusamov.svg.geometry.Angle",
+	"Khusamov.svg.geometry.tool.Tool"
 ]);
 
 Ext.onReady(function() {
+	
+	var Tool = Khusamov.svg.geometry.tool.Tool;
 	
 	var colors = ["Pink", "PowderBlue", "Violet", "YellowGreen", "NavajoWhite", "LightGray", "LightYellow"];
 	
@@ -73,7 +76,7 @@ Ext.onReady(function() {
 				itemId: "vertical",
 				text: "Вертикальный"
 			}, {
-				itemId: "hotizontal",
+				itemId: "horizontal",
 				text: "Горизонтальный"
 			}]
 		}, tbPaths
@@ -106,6 +109,10 @@ Ext.onReady(function() {
 		path.setStyle("stroke", "gray");
 		path.setStyle("stroke-dasharray", "20, 5");
 		elements.push(path);
+	}
+	
+	function split(path, linear, selPoint) {
+		return Tool.SplitPathLinear.split(path, linear, selPoint).paths;
 	}
 	
 	var divider = null;
@@ -150,7 +157,7 @@ Ext.onReady(function() {
 				
 			case "divider":
 				switch (dividerTypeButton.getPressedItemId()) {
-					case "arbitrary":
+					case "arbitrary": // Произвольный делитель
 						if (divider) {
 							divider.push([x, y]);
 							elements.push(svg.add({
@@ -159,12 +166,13 @@ Ext.onReady(function() {
 								radius: 3,
 								center: [x, y]
 							}));
-							linear = Khusamov.svg.geometry.Line.create(divider).toLinear();
+							linear = Khusamov.svg.geometry.equation.Linear.createByLine(divider);
 							
-							pathGeometry.split(linear).forEach(function(pathGeometry, index) {
-								elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+							split(pathGeometry, linear).forEach(function(subPathGeometry, index) {
+								elements.push(svg.insert(0, createPath(subPathGeometry, colors[index % colors.length], "transparent")));
 								tbPaths.add({ text: index + 1 });
 							});
+							
 							divider = null;
 							mode = "clear";
 						} else {
@@ -185,13 +193,13 @@ Ext.onReady(function() {
 							center: [x, y]
 						}));
 						linear = Khusamov.svg.geometry.equation.Linear.createVertical(x);
-						pathGeometry.split(linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(pathGeometry, index) {
-							elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+						split(pathGeometry, linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(subPathGeometry, index) {
+							elements.push(svg.insert(0, createPath(subPathGeometry, colors[index % colors.length], "transparent")));
 							tbPaths.add({ text: index + 1 });
 						});
 						mode = "clear";
 						break;
-					case "hotizontal":
+					case "horizontal":
 						elements.push(svg.add({
 							type: "circle",
 							fill: "black",
@@ -199,8 +207,8 @@ Ext.onReady(function() {
 							center: [x, y]
 						}));
 						linear = Khusamov.svg.geometry.equation.Linear.createHorizontal(y);
-						pathGeometry.split(linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(pathGeometry, index) {
-							elements.push(svg.insert(0, createPath(pathGeometry, colors[index % colors.length], "transparent")));
+						split(pathGeometry, linear, Ext.create("Khusamov.svg.geometry.Point", x, y)).forEach(function(subPathGeometry, index) {
+							elements.push(svg.insert(0, createPath(subPathGeometry, colors[index % colors.length], "transparent")));
 							tbPaths.add({ text: index + 1 });
 						});
 						mode = "clear";
