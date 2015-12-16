@@ -412,6 +412,12 @@ Ext.define("Khusamov.svg.geometry.Path", {
 		return this;
 	},
 	
+	syncDestroy: function() {
+		this.eachPoint(function(point) {
+			point.syncDestroy();
+		});
+	},
+	
 	/**
 	 * Площадь многоугольника, образованного путем (как если сегменты были бы прямыми), со знаком обхода вершин.
 	 * Положительное число - Путь задан по часовой стрелке (при условии что ось Оу смотрит вверх).

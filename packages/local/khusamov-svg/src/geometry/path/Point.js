@@ -40,6 +40,13 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		if (arguments.length == 3) {
 			config = { x: arguments[0], y: arguments[1], relative: arguments[2] };
 		}
+		
+		/**
+		 * @private
+		 * @property {Object}
+		 */
+		me.syncListener = null;
+		
 		me.callParent([config]);
 	},
 	
@@ -49,9 +56,14 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	 */
 	syncWith: function(point) {
 		var me = this;
+		if (me.syncListener) me.syncListener.destroy();
 		point.on("update", function() {
 			me.moveTo(point);
 		});
+	},
+	
+	syncDestroy: function() {
+		if (this.syncListener) this.syncListener.destroy();
 	},
 	
 	unlinkSegment: function() {
