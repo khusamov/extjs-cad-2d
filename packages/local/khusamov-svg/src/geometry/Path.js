@@ -494,11 +494,13 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	
 	/**
 	 * Расстояние от начала пути до выбранной точки.
+	 * @param {Number} index Порядковый номер выбранной точки.
+	 * @return {Number}
 	 */
 	getPointDistance: function(index) {
 		var me = this, result = 0;
 		if (index) for (var i = 0; i < index; i++) {
-			result += me.getEdge().getLength();
+			result += me.getEdge(index).getLength();
 		}
 		return result;
 	},

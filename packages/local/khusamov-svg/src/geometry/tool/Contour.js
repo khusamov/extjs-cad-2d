@@ -113,7 +113,7 @@ Ext.define("Khusamov.svg.geometry.tool.Contour", {
 		 * @return {Khusamov.svg.geometry.equation.Linear | Khusamov.svg.geometry.equation.Circular}
 		 */
 		getOffsetEqCurve: function(edge, offset) {
-			var result, curve = edge.getPrimitive()[{ arc: "toCircular", line: "toLinear" }[edge.type]].call();
+			var result, curve = edge.getPrimitive()[{ arc: "toCircular", line: "toLinear" }[edge.type]].call(edge.getPrimitive());
 			switch (curve.type) {
 				case "linear": result = curve.getParallelLinearByDestination(offset); break;
 				case "circular": result = curve.clone({ radius: curve.getRadius() + offset }); break;
