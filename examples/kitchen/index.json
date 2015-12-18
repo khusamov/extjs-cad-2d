@@ -41,6 +41,14 @@
 					"text": "Деление пути",
 					"file": "split.js",
 					"leaf": true,
+				}, {
+					"text": "Контур многоугольника",
+					"file": "contour.js",
+					"leaf": true,
+				}, {
+					"text": "Деление пути двумя линиями",
+					"file": "split2lines.js",
+					"leaf": true,
 				}]
 			}, {
 				"text": "Элемент «Line»", "path": "line", "file": "index.js",

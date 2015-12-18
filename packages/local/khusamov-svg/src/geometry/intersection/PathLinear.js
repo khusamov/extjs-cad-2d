@@ -35,7 +35,7 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 		 */
 		intersection: function(path, linear, config) {
 			var me = this;
-			var result = [], length = 0;
+			var result = [];
 			
 			var Point = Khusamov.svg.geometry.Point;
 			config = config instanceof Point ? { selPoint: config } : (config || {});
@@ -45,8 +45,8 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 				if (intersection) {
 					result = result.concat(intersection);
 					if (config.segmented) {
-						me.addSegmentInfo(intersection, segment, index, length);
-						length += segment.getLength();
+						me.addSegmentInfo(intersection, path, segment, index);
+						
 					}
 				}
 			});
@@ -56,6 +56,17 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 			}
 			
 			return result.length ? result : null;
+		},
+		
+		/**
+		 * Получить расстояние от начала пути до первой точки выбранного сегмента.
+		 */
+		getSegmentDistance: function(path, index) {
+			var result = 0;
+			if (index) path.eachSegment(function(segment, curIndex) {
+				if (curIndex < index) result += segment.getLength();
+			});
+			return result;
 		},
 		
 		/**
@@ -84,18 +95,19 @@ Ext.define("Khusamov.svg.geometry.intersection.PathLinear", {
 		/**
 		 * Добавление в точки пересечений информации о сегменте.
 		 */
-		addSegmentInfo: function(intersection, segment, index, length) {
+		addSegmentInfo: function(intersection, path, segment, index) {
+			var me = this;
 			intersection = Ext.isArray(intersection) ? intersection: [intersection];
 			intersection.forEach(function(point) {
-				
 				var distance = segment.getFirstPoint().getDistanceTo(point);
+				
 				// TODO Нет рассчета distance для сегментов типа Арка
 				// https://github.com/khusamov/extjs/issues/6
 				
 				point.segment = {
 					index: index, // индексом сегмента
 					distance: distance, // координатой точки внутри сегмента (расстояние до точки от начала сегмента)
-					distanceByPath: length + distance // координатой точки внутри пути (расстояние до точки от начала пути)
+					distanceByPath: me.getSegmentDistance(path, index) + distance // координатой точки внутри пути (расстояние до точки от начала пути)
 				};
 			});
 		}

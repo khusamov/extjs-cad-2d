@@ -179,6 +179,10 @@ Ext.define("Khusamov.svg.geometry.Arc", {
 		return !this.isCircular();
 	},
 	
+	toggleLarge: function() {
+		this.setLarge(!this.getLarge());
+	},
+	
 	getCenterIndex: function() {
 		return this.xor(this.isSweep(), this.isLarge()) ? 0 : 1;
 	},

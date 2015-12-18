@@ -500,7 +500,7 @@ Ext.define("Khusamov.svg.geometry.Path", {
 	getPointDistance: function(index) {
 		var me = this, result = 0;
 		if (index) for (var i = 0; i < index; i++) {
-			result += me.getEdge(index).getLength();
+			result += me.getEdge(i).getLength();
 		}
 		return result;
 	},

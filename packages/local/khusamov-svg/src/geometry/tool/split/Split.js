@@ -34,15 +34,25 @@ Ext.define("Khusamov.svg.geometry.tool.split.Split", {
 			// Получаем все точки пересечения линий с многоугольником.
 			var c = { segmented: true };
 			var intersection = (path.intersection(linear1, c) || []).concat(path.intersection(linear2, c) || []);
+			
 			// Проверяем, есть ли точки пересечения.
 			if (intersection.length) {
 				// Ситуация многоугольник пересекает линии.
-				// Сохраняем расстояния от начала многоугольника до точек пересечения в __distance.
+				// Сохраняем расстояния от начала многоугольника до точек пересечений в __distance.
 				// Здесь __distance это временная переменная внутри объекта точки.
-				intersection.forEach(function(point) {
+				intersection.forEach(function(point, i) {
 					point.__distance = point.segment.distanceByPath;
-					point.__index = null;
+					point.__index = null; // При помощи null помечаем, что это точки пересечений.
 				});
+				
+				// Сортируем и помечаем каких их этих точек первые.
+				intersection.sort(function(a, b) {
+					return a.__distance < b.__distance ? -1 : 1;
+				});
+				intersection.forEach(function(point, i) {
+					point.__first = i % 2 != 0;
+				});
+				
 				// Добавляем к точкам пересечений точки, которые находятся между линиями.
 				// Также сохраняем расстояния от начала многоугольника и его индекс.
 				path.eachPoint(function(point, index) {
@@ -52,10 +62,12 @@ Ext.define("Khusamov.svg.geometry.tool.split.Split", {
 						point.__index = index;
 					}
 				});
-				// Сортируем найденные точки.
+				
+				// Сортируем все точки будущего многоугольника.
 				intersection.sort(function(a, b) {
 					return a.__distance < b.__distance ? -1 : 1;
 				});
+				
 				// Строим искомый многоугольник.
 				result = Ext.create("Khusamov.svg.geometry.Path");
 				intersection.forEach(function(point, index) {
@@ -66,7 +78,13 @@ Ext.define("Khusamov.svg.geometry.tool.split.Split", {
 					var nextPointType = nextPointIndex === null ? "i" : "p";
 					var edge;
 					switch (pointType + nextPointType) {
-						case "ii": edge = { type: "line" }; break;
+						case "ii":
+							if (point.__first) {
+								edge = { type: "line" };
+							} else {
+								edge = path.getEdge(point.segment.index);
+							}
+							break;
 						case "ip": edge = path.getPrevEdge(nextPointIndex); break;
 						case "pp": case "pi": edge = path.getEdge(pointIndex); break;
 					}
@@ -74,7 +92,7 @@ Ext.define("Khusamov.svg.geometry.tool.split.Split", {
 					result.point(point.clone());
 					switch (edge.type) {
 						case "line": result.line(); break;
-						case "arc": result.arc(edge.getArc()); break;
+						case "arc": result.arc(edge.getArc().clone()); break;
 					}
 				});
 			} else {
