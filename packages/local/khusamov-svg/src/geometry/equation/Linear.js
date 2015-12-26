@@ -199,7 +199,7 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 	},
 	
 	/**
-	 * Получить угол между прямой и осью Ох (в диапазоне от -PI до PI).
+	 * Получить угол между прямой и осью Ох (в диапазоне от 0 до 2*PI).
 	 * @param {String} unit Единица измерения угла (radian, по умолчанию | degree).
 	 * @return {Number}
 	 */
@@ -374,6 +374,20 @@ Ext.define("Khusamov.svg.geometry.equation.Linear", {
 		var a2 = linear.a();
 		var b2 = linear.b();
 		return a1 * b2 + a2 * b1 == 0;
+	},
+	
+	isVertical: function() {
+		return this.a() == 1 && this.b() == 0 || (this.getAngle() == Math.PI / 2 || this.getAngle() == 3 * Math.PI / 2);
+	},
+	
+	isHorizontal: function() {
+		return this.a() == 0 && this.b() == 1 || (this.getAngle() == 0 || this.getAngle() == Math.PI);
+	},
+	
+	getLinearType: function() {
+		if (this.isVertical()) return "vertical";
+		if (this.isHorizontal()) return "horizontal";
+		return "regular";
 	},
 	
 	toString: function(fixed) {
