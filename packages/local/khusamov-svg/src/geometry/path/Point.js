@@ -1,6 +1,9 @@
 
 /* global Ext, Khusamov */
 
+// TODO При рефакторинге от синхронизации надо избавиться, что-то есть в этом нездоровое.
+// Это используется в делении многоугольников прямой линией
+
 Ext.define("Khusamov.svg.geometry.path.Point", {
 	
 	extend: "Khusamov.svg.geometry.Point",
@@ -12,6 +15,41 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		segment: null,
 		
 		path: null
+		
+	},
+	
+	statics: {
+		
+		/**
+		 * Проверка, являются ли точки на входе синхронизированными или нет.
+		 * Разные объекты точек могут быть синхронизированы от одной точки, такие точки 
+		 * тоже являются синхронизированые и это обстоятельство проверяется данной функцией.
+		 */
+		isSyncPoints: function() {
+			var me = this, syncPoints = [];
+			Ext.Array.each(arguments, function(point) {
+				syncPoints.push(me.getSyncPointOrSelf(point, true));
+			});
+			var first, result = true;
+			syncPoints.forEach(function(point) {
+				if (first) {
+					if (point != first) result = false;
+				} else {
+					first = point;
+				}
+			});
+			return result;
+		},
+		
+		/**
+		 * @private
+		 * @param {Khusamov.svg.geometry.Point} point
+		 * @param {Boolean} deep
+		 * @return {Khusamov.svg.geometry.Point | Khusamov.svg.geometry.path.Point}
+		 */
+		getSyncPointOrSelf: function(point, deep) {
+			return point instanceof Khusamov.svg.geometry.path.Point ? point.getSyncPointOrSelf(deep) : point;
+		}
 		
 	},
 	
@@ -47,6 +85,12 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		 */
 		me.syncListener = null;
 		
+		/**
+		 * @private
+		 * @property {Khusamov.svg.geometry.Point}
+		 */
+		me.syncPoint = null;
+		
 		me.callParent([config]);
 	},
 	
@@ -56,14 +100,47 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 	 */
 	syncWith: function(point) {
 		var me = this;
-		if (me.syncListener) me.syncListener.destroy();
-		point.on("update", function() {
-			me.moveTo(point);
+		me.syncDestroy();
+		me.syncPoint = point;
+		me.syncListener = point.on({
+			destroyable: true,
+			update: function() {
+				me.moveTo(point);
+			}
 		});
 	},
 	
+	hasSyncPoint: function() {
+		return !!this.syncPoint;
+	},
+	
+	/**
+	 * Получить точку, с которой синхронизирована данная точка.
+	 * @param {Boolean} deep Если этот параметр = true, то будет найдена корневая точка.
+	 * @return {null | Khusamov.svg.geometry.Point}
+	 */
+	getSyncPoint: function(deep) {
+		var me = this, result = null, PathPoint = Khusamov.svg.geometry.path.Point;
+		if (me.syncPoint) {
+			result = me.syncPoint;
+			if (deep && result instanceof PathPoint && result.hasSyncPoint()) {
+				result = result.getSyncPoint(deep);
+			}
+		}
+		return result;
+	},
+	
+	getSyncPointOrSelf: function(deep) {
+		var result = this.getSyncPoint(deep);
+		return result ? result : this;
+	},
+	
 	syncDestroy: function() {
-		if (this.syncListener) this.syncListener.destroy();
+		if (this.syncListener) {
+			this.syncListener.destroy();
+			this.syncListener = null;
+			this.syncPoint = null;
+		}
 	},
 	
 	unlinkSegment: function() {
@@ -90,6 +167,10 @@ Ext.define("Khusamov.svg.geometry.path.Point", {
 		var point = this.clone();
 		var segment = this.getSegment() ? this.getSegment().getPrevSegment() : this.getPath().getLastSegment();
 		return this.isRelative() ? point.move(segment.getLastPoint(true)) : point;
+	},
+	
+	getEdge: function() {
+		return this.getSegment();
 	}
 	
 });

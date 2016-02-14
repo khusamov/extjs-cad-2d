@@ -268,7 +268,19 @@ Ext.define("Khusamov.svg.geometry.tool.split.PathLinear", {
 				subpath.arc(path.getSegment(segmentIndex).getArc().clone());
 				
 				var nodeIndex1 = Number(cycle[1].substring(1));
-				subpath.point(intersection[nodeIndex1]);
+				
+				
+				
+				
+				var subpathPoint = Ext.create("Khusamov.svg.geometry.path.Point", intersection[nodeIndex1]);
+				subpathPoint.syncWith(intersection[nodeIndex1]);
+				
+				subpath.point(subpathPoint);
+				
+				
+				
+				
+				
 				
 				subpath.line();
 				

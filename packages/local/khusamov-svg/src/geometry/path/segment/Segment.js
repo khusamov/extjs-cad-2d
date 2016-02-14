@@ -52,12 +52,20 @@ Ext.define("Khusamov.svg.geometry.path.segment.Segment", {
 		return this.getIndex() == this.getPath().getCount() - 1;
 	},
 	
-	getNextSegment: function(index) {
+	getNextSegment: function() {
 		return this.getPath().getNextSegment(this.getIndex());
 	},
 	
-	getPrevSegment: function(index) {
+	getPrevSegment: function() {
 		return this.getPath().getPrevSegment(this.getIndex());
+	},
+	
+	getNextEdge: function() {
+		return this.getPath().getNextEdge(this.getIndex());
+	},
+	
+	getPrevEdge: function() {
+		return this.getPath().getPrevEdge(this.getIndex());
 	},
 	
 	getPoint: function(absolute) {
